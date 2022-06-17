@@ -1,51 +1,76 @@
-import TelegramBot, { InlineKeyboardButton, Message } from 'node-telegram-bot-api';
+import TelegramBot, { CallbackQuery, Message } from 'node-telegram-bot-api';
+import DB from './db';
+import { commandsList, getButton, getActionValue, BUTTONS, ACTIONS } from './helpers';
 
-enum buttons {
-  addword = 'Add Word',
-  showwords = 'show words',
-  cancel = 'Cancel',
-}
+const db = DB.getInstance();
 
-const keyboards: Record<string, InlineKeyboardButton[][]> = {
-  start: [
-    [
-      { text: buttons.addword, callback_data: 'addword' },
-      { text: buttons.showwords, callback_data: 'showwords' },
-    ],
-  ],
-  addword: [[{ text: buttons.cancel, callback_data: 'cancel' }]],
-};
+db.addWord('task');
 
-// type TelegramService = (msg: Message, bot: TelegramBot) => void;
-// type TelegramMiddleWare = (msg: Message) => void;
-
-// const addMiddleWare =
-//   (callback: TelegramService, msg: Message, bot: TelegramBot) =>
-//   (middleWare: TelegramMiddleWare[] = []) => {
-//     if (middleWare.length) {
-//       console.log('we are going to do smth there');
-//     }
-//     callback(msg, bot);
-//   };
+type TelegramService = (msg: Message, bot: TelegramBot) => void;
 
 const onStart = (msg: Message, bot: TelegramBot) => {
   const chatId = msg.chat.id;
-  bot.sendMessage(chatId, "Let's go", {
-    reply_markup: { inline_keyboard: keyboards.start },
+  bot.sendMessage(chatId, "Let's go");
+};
+
+const onMessage: TelegramService = (msg, bot) => {
+  const {
+    message_id,
+    text,
+    chat: { id, username, first_name },
+  } = msg;
+
+  if (!text) return;
+
+  const skip = commandsList.reduce((acc, item) => acc || item.command === text, false);
+
+  if (skip) return;
+
+  bot.deleteMessage(id, message_id.toString());
+
+  bot.sendMessage(id, `Add "${text}" to your list?`, {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          getButton(BUTTONS.ADD, ACTIONS.ADD_WORD_CONFIRM, text),
+          getButton(BUTTONS.CANCEL, ACTIONS.ADD_WORD_REFUSE, text),
+        ],
+      ],
+    },
   });
 };
 
-const onAddWord = (msg: Message, bot: TelegramBot) => {
-  bot.sendMessage(msg.chat.id, 'Input your word', {
-    reply_markup: { inline_keyboard: keyboards.addword },
-  });
+const onCallbackQuery = async (query: CallbackQuery, bot: TelegramBot) => {
+  if (!query.message?.chat.id) throw new Error('ALARM!!!!');
+
+  const {
+    message: {
+      message_id,
+      chat: { id, username, first_name },
+    },
+    data,
+  } = query;
+
+  if (!data) return;
+
+  const { type, value } = getActionValue(data);
+
+  if (type === ACTIONS.ADD_WORD_REFUSE) {
+    bot.answerCallbackQuery(query.id, { text: `I deleted word ${value}` });
+  }
+
+  if (type === ACTIONS.ADD_WORD_CONFIRM) {
+    db.addUser({ id, username, first_name });
+    const result = await db.addWord(value);
+    if (result?.error) {
+      bot.answerCallbackQuery(query.id, { text: result.error });
+    }
+    if (result?.data) {
+      bot.answerCallbackQuery(query.id, { text: `I added word ${value} to your list` });
+    }
+  }
+
+  bot.deleteMessage(id, message_id.toString());
 };
 
-// const onCancel = (msg: Message, bot: TelegramBot) => {
-//   const chatId = msg.chat.id;
-//   bot.sendMessage(chatId, "Let's go", {
-//     reply_markup: { inline_keyboard: keyboards.start },
-//   });
-// };
-
-export { onStart, onAddWord };
+export { onStart, onMessage, onCallbackQuery };
