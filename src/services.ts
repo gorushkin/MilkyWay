@@ -26,8 +26,6 @@ const onMessage: TelegramService = (msg, bot) => {
 
   if (skip) return;
 
-  bot.deleteMessage(id, message_id.toString());
-
   bot.sendMessage(id, `Add "${text}" to your list?`, {
     reply_markup: {
       inline_keyboard: [
@@ -36,6 +34,42 @@ const onMessage: TelegramService = (msg, bot) => {
           getButton(BUTTONS.CANCEL, ACTIONS.ADD_WORD_REFUSE, text),
         ],
       ],
+    },
+  });
+};
+
+const onInfo: TelegramService = async (msg, bot) => {
+  db.addWord('boom');
+
+  bot.sendMessage(msg.chat.id, 'I added word');
+};
+
+const onTest: TelegramService = async (msg, bot) => {
+  const words = db.getWords();
+  const [word] = words;
+
+  if (!word) return bot.sendMessage(msg.chat.id, 'qwerty');
+  if (word.audio) {
+    const response = await bot.sendAudio(msg.chat.id, word.audio, {
+      caption: 'sdfgdfg',
+      title: 'dd',
+    });
+    const file_id = response.audio?.file_id;
+    console.log('file_id: ', file_id);
+    return;
+  }
+
+  bot.sendMessage(msg.chat.id, ' word.audio', {
+    parse_mode: 'Markdown',
+    disable_web_page_preview: true,
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: BUTTONS.CambridgeRu, url: word.cambridgeRu },
+          { text: BUTTONS.CambridgeEn, url: word.cambridgeEn },
+        ],
+      ],
+      // keyboard: [[{ text: 'sdfasdfsad' }]],
     },
   });
 };
@@ -56,21 +90,19 @@ const onCallbackQuery = async (query: CallbackQuery, bot: TelegramBot) => {
   const { type, value } = getActionValue(data);
 
   if (type === ACTIONS.ADD_WORD_REFUSE) {
-    bot.answerCallbackQuery(query.id, { text: `I deleted word ${value}` });
+    bot.sendMessage(query.message.chat.id, `I deleted word ${value}`);
   }
 
   if (type === ACTIONS.ADD_WORD_CONFIRM) {
     db.addUser({ id, username, first_name });
     const result = await db.addWord(value);
     if (result?.error) {
-      bot.answerCallbackQuery(query.id, { text: result.error });
+      bot.sendMessage(query.message.chat.id, result.error);
     }
     if (result?.data) {
-      bot.answerCallbackQuery(query.id, { text: `I added word ${value} to your list` });
+      bot.sendMessage(query.message.chat.id, `I added word ${value} to your list`);
     }
   }
-
-  bot.deleteMessage(id, message_id.toString());
 };
 
-export { onStart, onMessage, onCallbackQuery };
+export { onStart, onMessage, onCallbackQuery, onTest, onInfo };

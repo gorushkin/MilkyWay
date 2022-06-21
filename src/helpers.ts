@@ -22,28 +22,32 @@ export enum BUTTONS {
   SHOW_WORDS = 'Show Words',
   CANCEL = 'Cancel',
   ADD = 'Add',
+  DICTIONARY = 'Dictionary',
+  CambridgeRu = 'CambridgeRu',
+  CambridgeEn = 'CambridgeEn',
 }
 
 export enum ACTIONS {
   ADD_WORD_CONFIRM = 'ADD_WORD_CONFIRM',
   DELETE = 'delete',
   ADD_WORD_REFUSE = 'ADD_WORD_REFUSE',
+  LINK = 'LINK',
 }
 
-const keyboards: Record<string, InlineKeyboardButton[][]> = {
-  start: [
-    [
-      { text: BUTTONS.ADD_WORD, callback_data: 'addword' },
-      { text: BUTTONS.SHOW_WORDS, callback_data: 'showwords' },
-    ],
-  ],
-  addWord: [
-    [
-      { text: BUTTONS.ADD, callback_data: 'add' },
-      { text: BUTTONS.CANCEL, callback_data: 'cancel' },
-    ],
-  ],
-};
+// const keyboards: Record<string, InlineKeyboardButton[][]> = {
+//   start: [
+//     [
+//       { text: BUTTONS.ADD_WORD, callback_data: 'addword' },
+//       { text: BUTTONS.SHOW_WORDS, callback_data: 'showwords' },
+//     ],
+//   ],
+//   addWord: [
+//     [
+//       { text: BUTTONS.ADD, callback_data: 'add' },
+//       { text: BUTTONS.CANCEL, callback_data: 'cancel' },
+//     ],
+//   ],
+// };
 
 export interface IPhonetic {
   text: string;

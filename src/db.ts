@@ -1,5 +1,5 @@
 import { getWordRequest } from './api';
-import { IDictionaryData, IMeaning } from './helpers';
+import { IDictionaryData, IMeaning, IPhonetic } from './helpers';
 
 const LINKS = (word: string) => ({
   CAMBRIDGE: {
@@ -41,25 +41,44 @@ class User {
 }
 
 class Word {
-  private cambridgeRu: string;
-  private cambridgeEn: string;
+  private _cambridgeRu: string;
+  private _cambridgeEn: string;
   private dictionary: string;
   private meanings: IMeaning[][];
+  private phonetics: IPhonetic[];
 
   constructor(private word: string, private data: IDictionaryData[]) {
+    console.log('word: ', word);
     this.word = word;
-    this.cambridgeRu = LINKS(word).CAMBRIDGE.RU;
-    this.cambridgeEn = LINKS(word).CAMBRIDGE.EN;
+    this._cambridgeRu = LINKS(word).CAMBRIDGE.RU;
+    this._cambridgeEn = LINKS(word).CAMBRIDGE.EN;
     this.dictionary = LINKS(word).DICTIONARY;
     this.meanings = data.map((item) => item.meanings);
-    console.log(data.length);
-    // console.log('this.meanings: ', this.meanings);
-
+    this.phonetics = data
+      .reduce<IPhonetic[]>((acc, item) => [...acc, ...item.phonetics], [])
+      .filter((item) => item.audio);
+    console.log('this.phonetics: ', this.phonetics);
   }
 
-  // get info () {
+  show() {
+    return `${this.word}\n[link](${this._cambridgeEn})`;
+  }
 
-  // }
+  getLinks() {
+    return [this._cambridgeEn, this._cambridgeRu];
+  }
+
+  get cambridgeRu(): string {
+    return this._cambridgeRu;
+  }
+
+  get cambridgeEn(): string {
+    return this._cambridgeEn;
+  }
+
+  get audio() {
+    return this.phonetics[0].audio;
+  }
 }
 
 export default class DB {
@@ -110,6 +129,7 @@ export default class DB {
     const dbWord = this.geWord(word);
     if (!dbWord) {
       const result = await this.checkWord(word);
+      console.log('result: ', result);
       if (result.data) {
         // const words = result.data.map((word) => {
         //   return { word: word.word };
