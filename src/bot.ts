@@ -1,9 +1,8 @@
 import { onMessage, onCallbackQuery, onStart, onTest, onInfo } from './services';
 import TelegramBot from 'node-telegram-bot-api';
 import { commandsList } from './helpers';
-import DB from './db';
 
-export const botService = async (TOKEN: string, db: DB) => {
+export const botService = async (TOKEN: string) => {
   const bot = new TelegramBot(TOKEN, { polling: true });
 
   bot.onText(/\/start/, (msg) => onStart(msg, bot));

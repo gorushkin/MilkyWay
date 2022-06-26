@@ -74,3 +74,17 @@ export interface IDictionaryData {
   origin: string;
   meanings: IMeaning[];
 }
+
+export const getFlatArray = <T>(target: Array<T>): Array<T> => {
+  const res: Array<T> = [];
+
+  const req = (n: T | Array<T>) => {
+    if (!Array.isArray(n)) res.push(n);
+    else {
+      n.forEach(req);
+    }
+  };
+
+  req(target);
+  return res;
+};
