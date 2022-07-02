@@ -1,4 +1,4 @@
-import { onMessage, onCallbackQuery, onStart, onTest, onInfo } from './services';
+import { onMessage, onCallbackQuery, onStart, onTest } from './services';
 import TelegramBot from 'node-telegram-bot-api';
 import { commandsList } from './helpers';
 
@@ -7,8 +7,7 @@ export const botService = async (TOKEN: string) => {
 
   bot.onText(/\/start/, (msg) => onStart(msg, bot));
 
-  bot.onText(/\/words/, async (msg) => onTest(msg, bot));
-  bot.onText(/\/info/, async (msg) => onInfo(msg, bot));
+  bot.onText(/\/test/, async (msg) => onTest(msg, bot));
 
   bot.setMyCommands(commandsList);
 

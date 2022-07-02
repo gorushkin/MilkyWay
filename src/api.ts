@@ -40,7 +40,6 @@ type Request = (
 export const getWordRequest: Request = async (word) => {
   try {
     const { data } = await axios(LINKS(word).DICTIONARY);
-    console.log('data: ', typeof data);
     return { data, error: null };
   } catch (error) {
     let message = MESSAGES.ERROR;

@@ -1,28 +1,14 @@
 import TelegramBot, { CallbackQuery, Message } from 'node-telegram-bot-api';
-import { User } from './db';
-// import DB from './db';
 import { commandsList, getButton, getActionValue, BUTTONS, ACTIONS } from './helpers';
-
-// const db = DB.getInstance();
-
-// db.addWord('task');
+import userDB from './Models/User';
+import wordDB from './Models/Word';
 
 type TelegramService = (msg: Message, bot: TelegramBot) => void;
 
 const onStart = async (msg: Message, bot: TelegramBot) => {
-  console.log('msg: ', msg);
-  const chatId = msg.chat.id;
-  const user = await User.findOrCreate({
-    where: {
-      telegramId: msg.chat.id,
-    },
-    defaults: {
-      telegramId: msg.chat.id,
-      username: msg.chat.username,
-    },
-  });
-  console.log('user: ', user);
-  bot.sendMessage(chatId, "Let's go");
+  const { id, first_name, username } = msg.chat;
+  userDB.addUser(id, first_name, username);
+  bot.sendMessage(id, `Let's go, ${username}`);
 };
 
 const onMessage: TelegramService = (msg, bot) => {
@@ -50,13 +36,12 @@ const onMessage: TelegramService = (msg, bot) => {
   });
 };
 
-const onInfo: TelegramService = async (msg, bot) => {
-  // db.addWord('boom');
-
-  bot.sendMessage(msg.chat.id, 'I added word');
-};
-
 const onTest: TelegramService = async (msg, bot) => {
+  // console.log('msg: ', msg);
+  const word = 'boom';
+  const res = await wordDB.addWord(word);
+  console.log('res: ', res);
+
   // const words = db.getWords();
   // const [word] = words;
   // if (!word) return bot.sendMessage(msg.chat.id, 'qwerty');
@@ -99,10 +84,12 @@ const onCallbackQuery = async (query: CallbackQuery, bot: TelegramBot) => {
   const { type, value } = getActionValue(data);
 
   if (type === ACTIONS.ADD_WORD_REFUSE) {
-    bot.sendMessage(query.message.chat.id, `I deleted word ${value}`);
+    bot.sendMessage(query.message.chat.id, `I will delete word ${value} in the future`);
   }
 
   if (type === ACTIONS.ADD_WORD_CONFIRM) {
+    bot.sendMessage(query.message.chat.id, `I will add word ${value} in the future`);
+
     // db.addUser({ id, username, first_name });
     // const result = await db.addWord(value);
     // if (result?.error) {
@@ -114,4 +101,4 @@ const onCallbackQuery = async (query: CallbackQuery, bot: TelegramBot) => {
   }
 };
 
-export { onStart, onMessage, onCallbackQuery, onTest, onInfo };
+export { onStart, onMessage, onCallbackQuery, onTest };

@@ -1,5 +1,5 @@
-import { getWordRequest } from './api';
-import { IDictionaryData, IMeaning, IPhonetic } from './helpers';
+import { getWordRequest } from '../api';
+import { IDictionaryData, IMeaning, IPhonetic } from '../helpers';
 
 const LINKS = (word: string) => ({
   CAMBRIDGE: {

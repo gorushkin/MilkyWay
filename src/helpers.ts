@@ -6,9 +6,8 @@ export const getButton = (text: BUTTONS, type: ACTIONS, value?: string) => {
 };
 
 export const commandsList = [
-  { command: '/info', description: 'Info about bot' },
+  { command: '/test', description: 'Command for test!!!' },
   { command: '/start', description: 'Start smth' },
-  { command: '/words', description: 'Show all words' },
 ];
 
 export const getActionValue = (queryData: string) => {
