@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import { config } from './config';
 import { IDictionaryData } from './helpers';
 
 const LINKS = (word: string) => ({
@@ -7,6 +8,7 @@ const LINKS = (word: string) => ({
     EN: `https://dictionary.cambridge.org/dictionary/english/${word}`,
   },
   DICTIONARY: `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`,
+  YANDEX: `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${config.YANDEX_API_KEY}&lang=en-ru&text=${word}`,
 });
 
 const MESSAGES = {
@@ -33,13 +35,57 @@ class BotRequestError extends BotError {
   }
 }
 
-type Request = (
-  word: string
-) => Promise<{ data: IDictionaryData[]; error: null } | { error: string; data: null }>;
+export interface Synonym {
+  text: string;
+  partOfSpeech: string;
+}
 
-export const getWordRequest: Request = async (word) => {
+export interface Meaning {
+  text: string;
+}
+
+export interface Example {
+  text: string;
+  tr: { text: string }[];
+}
+export interface Translation {
+  text: string;
+  pos: string;
+  syn: Synonym[];
+  mean: Meaning[];
+  ex: Example[];
+}
+
+export interface Entry {
+  text: string;
+  pos: string;
+  ts: string;
+  tr: Translation[];
+}
+
+// export interface Word {
+//   text: string;
+// }
+
+export interface IYandexWord {
+  text: string;
+  pos?: string;
+  ts?: string;
+  gen?: string;
+  fr?: number;
+  syn?: IYandexWord[];
+  tr?: IYandexWord[];
+  ex?: IYandexWord[];
+  mean?: IYandexWord[];
+}
+
+type YandexRequest = (
+  word: string
+) => Promise<{ data: { def: Entry[] }; error: null } | { error: string; data: null }>;
+
+export const getWordRequest: YandexRequest = async (word) => {
   try {
-    const { data } = await axios(LINKS(word).DICTIONARY);
+    const { data } = await axios(LINKS(word).YANDEX);
     return { data, error: null };
   } catch (error) {
     let message = MESSAGES.ERROR;

@@ -8,7 +8,9 @@
     "build": "tsc src/index.ts",
     "dev": "nodemon -x ts-node -e ts src/index.ts",
     "start": "node src/index.js",
-    "migrate:dev": "npx prisma migrate dev --name"
+    "migrate:dev:add": "npx prisma migrate dev --name",
+    "migrate:dev:run": "npx prisma migrate dev",
+    "prisma": "prisma studio"
   },
   "keywords": [],
   "author": "",

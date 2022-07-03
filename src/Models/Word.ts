@@ -1,5 +1,6 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 import { getWordRequest } from '../api';
+import Entry from './Entry';
 const prisma = new PrismaClient();
 
 class Word {
@@ -16,16 +17,29 @@ class Word {
   }
 
   private async isWordExist(text: string) {
-    const word = await this.word.findUnique({ where: { word: text } });
+    const word = await this.word.findUnique({ where: { text } });
     return !!word;
   }
 
   async addWord(word: string) {
-    if (await this.isWordExist(word)) return;
-    const result = await this.getWordFromDictionary(word);
-    console.log('result: ', result.data?.length);
-    // const result = await getWordRequest(word);
-    // await this.word.create()
+    // if (await this.isWordExist(word)) return;
+    const { data } = await this.getWordFromDictionary(word);
+    if (!data) return;
+
+    const { def } = data;
+
+    def.forEach((item) => {
+      const translations = item.tr;
+      translations.forEach((translation) => {
+        const examples = translation.ex;
+        if (examples) {
+          examples.forEach((example) => {
+            console.log(example.text);
+            console.log(example.tr[0].text);
+          });
+        }
+      });
+    });
   }
 }
 

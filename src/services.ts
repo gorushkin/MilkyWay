@@ -38,7 +38,7 @@ const onMessage: TelegramService = (msg, bot) => {
 
 const onTest: TelegramService = async (msg, bot) => {
   // console.log('msg: ', msg);
-  const word = 'boom';
+  const word = 'help';
   const res = await wordDB.addWord(word);
   console.log('res: ', res);
 

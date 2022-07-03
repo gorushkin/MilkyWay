@@ -11,7 +11,7 @@ datasource db {
 }
 
 model User {
-  id           Int       @id @default(autoincrement())
+  id           String    @id @default(cuid())
   telegramId   Int       @unique
   username     String?
   first_name   String?
@@ -20,22 +20,29 @@ model User {
   updatedAt    DateTime  @updatedAt
 }
 
-model Post {
-  id Int @id @default(autoincrement())
-}
-
-model Phonetic {
-  id        String  @id @default(cuid())
-  text      String
-  audio     String?
-  sourceUrl String?
-  Word      Word?   @relation(fields: [wordId], references: [id])
-  wordId    String?
-}
-
 model Word {
-  id       String     @id @default(cuid())
-  word     String     @unique
-  meanings String
-  phonetic Phonetic[]
+  id    String  @id @default(cuid())
+  text  String  @unique
+  Entry Entry[]
+}
+
+model Entry {
+  id             String        @id @default(cuid())
+  text           String
+  part_of_speech String
+  transcription  String
+  translation    Translation[]
+  Word           Word?         @relation(fields: [wordId], references: [id])
+  wordId         String?
+}
+
+model Translation {
+  id             String  @id @default(cuid())
+  text           String  @unique
+  part_of_speech String
+  synonym        String
+  meaning        String
+  example        String
+  Entry          Entry?  @relation(fields: [entryId], references: [id])
+  entryId        String?
 }

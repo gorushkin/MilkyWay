@@ -1,9 +1,7 @@
-import * as dotenv from 'dotenv';
 import { botService } from './bot';
-dotenv.config();
 console.clear();
+import { config } from './config';
 
-const { TOKEN } = process.env;
-if (!TOKEN) throw new Error('You should set bot token!');
+if (!config.TOKEN) throw new Error('You should set bot token!');
 
-botService(TOKEN);
+botService(config.TOKEN);
