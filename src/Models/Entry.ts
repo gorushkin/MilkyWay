@@ -1,5 +1,6 @@
 import { PrismaClient, Prisma } from '@prisma/client';
-import { getWordRequest, IYandexWord } from '../api';
+import { IEntry } from '../types';
+import Translation from './Translation';
 const prisma = new PrismaClient();
 
 class Entry {
@@ -11,18 +12,19 @@ class Entry {
     this.entry = client.entry;
   }
 
-  // private getWordFromDictionary(word: string) {
-  //   return getWordRequest(word);
-  // }
+  async addEntry({ pos, text, tr, ts }: IEntry) {
+    const translations = await Promise.all(
+      tr.map((translation) => Translation.addTranslation(translation))
+    );
 
-  // private async isEntryExist(text: string) {
-  //   const word = await this.entry.findUnique({ where: { text } });
-  //   return !!word;
-  // }
-
-  async addEntry(entry: IYandexWord) {
-    console.log('entry: ', entry);
-    // if (await this.isWordExist(word)) return;
+    return this.entry.create({
+      data: {
+        text,
+        part_of_speech: pos,
+        transcription: ts,
+        translation: { connect: translations.map(({ id }) => ({ id })) },
+      },
+    });
   }
 }
 

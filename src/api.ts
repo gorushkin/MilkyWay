@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { config } from './config';
-import { IDictionaryData } from './helpers';
+import { IEntry } from './types';
 
 const LINKS = (word: string) => ({
   CAMBRIDGE: {
@@ -35,53 +35,9 @@ class BotRequestError extends BotError {
   }
 }
 
-export interface Synonym {
-  text: string;
-  partOfSpeech: string;
-}
-
-export interface Meaning {
-  text: string;
-}
-
-export interface Example {
-  text: string;
-  tr: { text: string }[];
-}
-export interface Translation {
-  text: string;
-  pos: string;
-  syn: Synonym[];
-  mean: Meaning[];
-  ex: Example[];
-}
-
-export interface Entry {
-  text: string;
-  pos: string;
-  ts: string;
-  tr: Translation[];
-}
-
-// export interface Word {
-//   text: string;
-// }
-
-export interface IYandexWord {
-  text: string;
-  pos?: string;
-  ts?: string;
-  gen?: string;
-  fr?: number;
-  syn?: IYandexWord[];
-  tr?: IYandexWord[];
-  ex?: IYandexWord[];
-  mean?: IYandexWord[];
-}
-
 type YandexRequest = (
   word: string
-) => Promise<{ data: { def: Entry[] }; error: null } | { error: string; data: null }>;
+) => Promise<{ data: { def: IEntry[] }; error: null } | { error: string; data: null }>;
 
 export const getWordRequest: YandexRequest = async (word) => {
   try {

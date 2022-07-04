@@ -1,4 +1,5 @@
 import { InlineKeyboardButton } from 'node-telegram-bot-api';
+import { ACTIONS, BUTTONS } from './types';
 
 export const getButton = (text: BUTTONS, type: ACTIONS, value?: string) => {
   const callback_data = JSON.stringify({ type, ...(value && { value }) });
@@ -16,23 +17,6 @@ export const getActionValue = (queryData: string) => {
   return { type, value };
 };
 
-export enum BUTTONS {
-  ADD_WORD = 'Add Word',
-  SHOW_WORDS = 'Show Words',
-  CANCEL = 'Cancel',
-  ADD = 'Add',
-  DICTIONARY = 'Dictionary',
-  CambridgeRu = 'CambridgeRu',
-  CambridgeEn = 'CambridgeEn',
-}
-
-export enum ACTIONS {
-  ADD_WORD_CONFIRM = 'ADD_WORD_CONFIRM',
-  DELETE = 'delete',
-  ADD_WORD_REFUSE = 'ADD_WORD_REFUSE',
-  LINK = 'LINK',
-}
-
 // const keyboards: Record<string, InlineKeyboardButton[][]> = {
 //   start: [
 //     [
@@ -47,32 +31,6 @@ export enum ACTIONS {
 //     ],
 //   ],
 // };
-
-export interface IPhonetic {
-  text: string;
-  audio?: string;
-  sourceUrl?: string;
-}
-
-export interface IDefenition {
-  definition: string;
-  example: string;
-  synonyms: string[];
-  antonyms: string[];
-}
-
-export interface IMeaning {
-  partOfSpeech: string;
-  definitions: IDefenition[];
-}
-
-export interface IDictionaryData {
-  word: string;
-  phonetic: string;
-  phonetics: IPhonetic[];
-  origin: string;
-  meanings: IMeaning[];
-}
 
 export const getFlatArray = <T>(target: Array<T>): Array<T> => {
   const res: Array<T> = [];

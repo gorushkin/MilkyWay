@@ -1,7 +1,8 @@
 import TelegramBot, { CallbackQuery, Message } from 'node-telegram-bot-api';
-import { commandsList, getButton, getActionValue, BUTTONS, ACTIONS } from './helpers';
+import { commandsList, getButton, getActionValue } from './helpers';
 import userDB from './Models/User';
 import wordDB from './Models/Word';
+import { ACTIONS, BUTTONS } from './types';
 
 type TelegramService = (msg: Message, bot: TelegramBot) => void;
 
@@ -37,7 +38,6 @@ const onMessage: TelegramService = (msg, bot) => {
 };
 
 const onTest: TelegramService = async (msg, bot) => {
-  // console.log('msg: ', msg);
   const word = 'help';
   const res = await wordDB.addWord(word);
   console.log('res: ', res);

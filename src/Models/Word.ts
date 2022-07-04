@@ -21,25 +21,23 @@ class Word {
     return !!word;
   }
 
-  async addWord(word: string) {
-    // if (await this.isWordExist(word)) return;
-    const { data } = await this.getWordFromDictionary(word);
+  async addWord(text: string) {
+    const existingWord = await this.word.findUnique({ where: { text } });
+
+    if (existingWord) return existingWord;
+
+    const { data } = await this.getWordFromDictionary(text);
     if (!data) return;
 
     const { def } = data;
 
-    def.forEach((item) => {
-      const translations = item.tr;
-      translations.forEach((translation) => {
-        const examples = translation.ex;
-        if (examples) {
-          examples.forEach((example) => {
-            console.log(example.text);
-            console.log(example.tr[0].text);
-          });
-        }
-      });
+    const entries = await Promise.all(def.map((item) => Entry.addEntry(item)));
+
+    const newWord = await this.word.create({
+      data: { text, entry: { connect: entries.map(({ id }) => ({ id })) } },
     });
+
+    console.log('newWord: ', newWord);
   }
 }
 
