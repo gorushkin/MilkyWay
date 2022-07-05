@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id           String    @id @default(cuid())
+  telegramId   Int       @unique
+  username     String?
+  first_name   String?
+  lastSendTime DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Word {
+  id    String  @id @default(cuid())
+  text  String  @unique
+  entry Entry[]
+}
+
+model Entry {
+  id             String        @id @default(cuid())
+  text           String
+  part_of_speech String
+  transcription  String
+  translation    Translation[]
+  Word           Word?         @relation(fields: [wordId], references: [id])
+  wordId         String?
+}
+
+model Translation {
+  id             String  @id @default(cuid())
+  text           String  @unique
+  part_of_speech String
+  synonym        String?
+  meaning        String?
+  example        String?
+  Entry          Entry?  @relation(fields: [entryId], references: [id])
+  entryId        String?
+}

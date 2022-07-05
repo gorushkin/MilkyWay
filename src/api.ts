@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios';
-import { IDictionaryData } from './helpers';
+import { config } from './config';
+import { IEntry } from './types';
 
 const LINKS = (word: string) => ({
   CAMBRIDGE: {
@@ -7,6 +8,7 @@ const LINKS = (word: string) => ({
     EN: `https://dictionary.cambridge.org/dictionary/english/${word}`,
   },
   DICTIONARY: `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`,
+  YANDEX: `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${config.YANDEX_API_KEY}&lang=en-ru&text=${word}`,
 });
 
 const MESSAGES = {
@@ -33,14 +35,13 @@ class BotRequestError extends BotError {
   }
 }
 
-type Request = (
+type YandexRequest = (
   word: string
-) => Promise<{ data: IDictionaryData[]; error: null } | { error: string; data: null }>;
+) => Promise<{ data: { def: IEntry[] }; error: null } | { error: string; data: null }>;
 
-export const getWordRequest: Request = async (word) => {
+export const getWordRequest: YandexRequest = async (word) => {
   try {
-    const { data } = await axios(LINKS(word).DICTIONARY);
-    console.log('data: ', typeof data);
+    const { data } = await axios(LINKS(word).YANDEX);
     return { data, error: null };
   } catch (error) {
     let message = MESSAGES.ERROR;

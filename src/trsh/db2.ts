@@ -1,5 +1,5 @@
-import { getWordRequest } from './api';
-import { IDictionaryData, IMeaning, IPhonetic } from './helpers';
+import { getWordRequest } from '../api';
+import { IDictionaryData, IMeaning, IPhonetic } from '../helpers';
 
 const LINKS = (word: string) => ({
   CAMBRIDGE: {
@@ -46,9 +46,10 @@ class Word {
   private dictionary: string;
   private meanings: IMeaning[][];
   private phonetics: IPhonetic[];
+  // private phonetics2: Map<string, IPhonetic>;
 
   constructor(private word: string, private data: IDictionaryData[]) {
-    console.log('word: ', word);
+    // console.log('data: ', data);
     this.word = word;
     this._cambridgeRu = LINKS(word).CAMBRIDGE.RU;
     this._cambridgeEn = LINKS(word).CAMBRIDGE.EN;
@@ -57,7 +58,10 @@ class Word {
     this.phonetics = data
       .reduce<IPhonetic[]>((acc, item) => [...acc, ...item.phonetics], [])
       .filter((item) => item.audio);
-    console.log('this.phonetics: ', this.phonetics);
+    // this.phonetics2 = data.map(item => item.phonetics)
+    console.log(this.phonetics);
+    // console.log('this.phonetics2 : ', this.phonetics2 );
+    // console.log('this.phonetics: ', this.phonetics);
   }
 
   show() {
@@ -77,7 +81,8 @@ class Word {
   }
 
   get audio() {
-    return this.phonetics[0].audio;
+    // return this.phonetics[0].audio;
+    return '';
   }
 }
 
@@ -131,9 +136,6 @@ export default class DB {
       const result = await this.checkWord(word);
       console.log('result: ', result);
       if (result.data) {
-        // const words = result.data.map((word) => {
-        //   return { word: word.word };
-        // });
         this.words.set(word, new Word(word, result.data));
       }
       return result;

@@ -1,16 +1,14 @@
 import TelegramBot, { CallbackQuery, Message } from 'node-telegram-bot-api';
-import DB from './db';
-import { commandsList, getButton, getActionValue, BUTTONS, ACTIONS } from './helpers';
-
-const db = DB.getInstance();
-
-db.addWord('task');
+import { commandsList, getButton, getActionValue, ACTIONS, BUTTONS } from './helpers';
+import userDB from './Models/User';
+import wordDB from './Models/Word';
 
 type TelegramService = (msg: Message, bot: TelegramBot) => void;
 
-const onStart = (msg: Message, bot: TelegramBot) => {
-  const chatId = msg.chat.id;
-  bot.sendMessage(chatId, "Let's go");
+const onStart = async (msg: Message, bot: TelegramBot) => {
+  const { id, first_name, username } = msg.chat;
+  userDB.addUser(id, first_name, username);
+  bot.sendMessage(id, `Let's go, ${username}`);
 };
 
 const onMessage: TelegramService = (msg, bot) => {
@@ -38,40 +36,35 @@ const onMessage: TelegramService = (msg, bot) => {
   });
 };
 
-const onInfo: TelegramService = async (msg, bot) => {
-  db.addWord('boom');
-
-  bot.sendMessage(msg.chat.id, 'I added word');
-};
-
 const onTest: TelegramService = async (msg, bot) => {
-  const words = db.getWords();
-  const [word] = words;
+  const word = 'help';
+  const res = await wordDB.addWord(word);
+  console.log('res: ', res);
 
-  if (!word) return bot.sendMessage(msg.chat.id, 'qwerty');
-  if (word.audio) {
-    const response = await bot.sendAudio(msg.chat.id, word.audio, {
-      caption: 'sdfgdfg',
-      title: 'dd',
-    });
-    const file_id = response.audio?.file_id;
-    console.log('file_id: ', file_id);
-    return;
-  }
-
-  bot.sendMessage(msg.chat.id, ' word.audio', {
-    parse_mode: 'Markdown',
-    disable_web_page_preview: true,
-    reply_markup: {
-      inline_keyboard: [
-        [
-          { text: BUTTONS.CambridgeRu, url: word.cambridgeRu },
-          { text: BUTTONS.CambridgeEn, url: word.cambridgeEn },
-        ],
-      ],
-      // keyboard: [[{ text: 'sdfasdfsad' }]],
-    },
-  });
+  // const words = db.getWords();
+  // const [word] = words;
+  // if (!word) return bot.sendMessage(msg.chat.id, 'qwerty');
+  // if (word.audio) {
+  //   const response = await bot.sendAudio(msg.chat.id, word.audio, {
+  //     caption: 'sdfgdfg',
+  //     title: 'dd',
+  //   });
+  //   const file_id = response.audio?.file_id;
+  //   console.log('file_id: ', file_id);
+  //   return;
+  // }
+  // bot.sendMessage(msg.chat.id, ' word.audio', {
+  //   parse_mode: 'Markdown',
+  //   disable_web_page_preview: true,
+  //   reply_markup: {
+  //     inline_keyboard: [
+  //       [
+  //         { text: BUTTONS.CambridgeRu, url: word.cambridgeRu },
+  //         { text: BUTTONS.CambridgeEn, url: word.cambridgeEn },
+  //       ],
+  //     ],
+  //   },
+  // });
 };
 
 const onCallbackQuery = async (query: CallbackQuery, bot: TelegramBot) => {
@@ -90,19 +83,21 @@ const onCallbackQuery = async (query: CallbackQuery, bot: TelegramBot) => {
   const { type, value } = getActionValue(data);
 
   if (type === ACTIONS.ADD_WORD_REFUSE) {
-    bot.sendMessage(query.message.chat.id, `I deleted word ${value}`);
+    bot.sendMessage(query.message.chat.id, `I will delete word ${value} in the future`);
   }
 
   if (type === ACTIONS.ADD_WORD_CONFIRM) {
-    db.addUser({ id, username, first_name });
-    const result = await db.addWord(value);
-    if (result?.error) {
-      bot.sendMessage(query.message.chat.id, result.error);
-    }
-    if (result?.data) {
-      bot.sendMessage(query.message.chat.id, `I added word ${value} to your list`);
-    }
+    bot.sendMessage(query.message.chat.id, `I will add word ${value} in the future`);
+
+    // db.addUser({ id, username, first_name });
+    // const result = await db.addWord(value);
+    // if (result?.error) {
+    //   bot.sendMessage(query.message.chat.id, result.error);
+    // }
+    // if (result?.data) {
+    //   bot.sendMessage(query.message.chat.id, `I added word ${value} to your list`);
+    // }
   }
 };
 
-export { onStart, onMessage, onCallbackQuery, onTest, onInfo };
+export { onStart, onMessage, onCallbackQuery, onTest };

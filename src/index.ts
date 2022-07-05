@@ -1,13 +1,7 @@
-import * as dotenv from 'dotenv';
 import { botService } from './bot';
-import DB from './db';
+console.clear();
+import { config } from './config';
 
-dotenv.config();
+if (!config.TOKEN) throw new Error('You should set bot token!');
 
-const { TOKEN } = process.env;
-
-if (!TOKEN) throw new Error('You should set bot token!');
-
-const db = DB.getInstance();
-
-botService(TOKEN, db);
+botService(config.TOKEN);

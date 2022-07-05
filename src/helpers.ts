@@ -1,22 +1,5 @@
 import { InlineKeyboardButton } from 'node-telegram-bot-api';
 
-export const getButton = (text: BUTTONS, type: ACTIONS, value?: string) => {
-  const callback_data = JSON.stringify({ type, ...(value && { value }) });
-  return { text, callback_data };
-};
-
-export const commandsList = [
-  { command: '/info', description: 'Info about bot' },
-  { command: '/start', description: 'Start smth' },
-  { command: '/words', description: 'Show all words' },
-];
-
-export const getActionValue = (queryData: string) => {
-  const data = JSON.parse(queryData);
-  const { type, value } = data;
-  return { type, value };
-};
-
 export enum BUTTONS {
   ADD_WORD = 'Add Word',
   SHOW_WORDS = 'Show Words',
@@ -34,6 +17,22 @@ export enum ACTIONS {
   LINK = 'LINK',
 }
 
+export const getButton = (text: BUTTONS, type: ACTIONS, value?: string) => {
+  const callback_data = JSON.stringify({ type, ...(value && { value }) });
+  return { text, callback_data };
+};
+
+export const commandsList = [
+  { command: '/test', description: 'Command for test!!!' },
+  { command: '/start', description: 'Start smth' },
+];
+
+export const getActionValue = (queryData: string) => {
+  const data = JSON.parse(queryData);
+  const { type, value } = data;
+  return { type, value };
+};
+
 // const keyboards: Record<string, InlineKeyboardButton[][]> = {
 //   start: [
 //     [
@@ -49,28 +48,16 @@ export enum ACTIONS {
 //   ],
 // };
 
-export interface IPhonetic {
-  text: string;
-  audio?: string;
-  sourceUrl?: string;
-}
+export const getFlatArray = <T>(target: Array<T>): Array<T> => {
+  const res: Array<T> = [];
 
-export interface IDefenition {
-  definition: string;
-  example: string;
-  synonyms: string[];
-  antonyms: string[];
-}
+  const req = (n: T | Array<T>) => {
+    if (!Array.isArray(n)) res.push(n);
+    else {
+      n.forEach(req);
+    }
+  };
 
-export interface IMeaning {
-  partOfSpeech: string;
-  definitions: IDefenition[];
-}
-
-export interface IDictionaryData {
-  word: string;
-  phonetic: string;
-  phonetics: IPhonetic[];
-  origin: string;
-  meanings: IMeaning[];
-}
+  req(target);
+  return res;
+};
