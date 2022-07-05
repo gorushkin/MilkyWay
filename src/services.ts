@@ -1,8 +1,7 @@
 import TelegramBot, { CallbackQuery, Message } from 'node-telegram-bot-api';
-import { commandsList, getButton, getActionValue } from './helpers';
+import { commandsList, getButton, getActionValue, ACTIONS, BUTTONS } from './helpers';
 import userDB from './Models/User';
 import wordDB from './Models/Word';
-import { ACTIONS, BUTTONS } from './types';
 
 type TelegramService = (msg: Message, bot: TelegramBot) => void;
 

@@ -1,19 +1,3 @@
-export enum BUTTONS {
-  ADD_WORD = 'Add Word',
-  SHOW_WORDS = 'Show Words',
-  CANCEL = 'Cancel',
-  ADD = 'Add',
-  DICTIONARY = 'Dictionary',
-  CambridgeRu = 'CambridgeRu',
-  CambridgeEn = 'CambridgeEn',
-}
-
-export enum ACTIONS {
-  ADD_WORD_CONFIRM = 'ADD_WORD_CONFIRM',
-  DELETE = 'delete',
-  ADD_WORD_REFUSE = 'ADD_WORD_REFUSE',
-  LINK = 'LINK',
-}
 
 export interface IPhonetic {
   text: string;
