@@ -18,12 +18,15 @@ model User {
   lastSendTime DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+  words        Word[]
 }
 
 model Word {
-  id    String  @id @default(cuid())
-  text  String  @unique
-  entry Entry[]
+  id     String  @id @default(cuid())
+  text   String  @unique
+  entry  Entry[]
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String?
 }
 
 model Entry {

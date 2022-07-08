@@ -26,18 +26,21 @@ class Word {
 
     if (existingWord) return existingWord;
 
-    const { data } = await this.getWordFromDictionary(text);
-    if (!data) return;
+    const { data, error } = await this.getWordFromDictionary(text);
+
+    if (!data) {
+      console.log('we were not able to find this word');
+      console.log('error: ', error);
+      return;
+    }
 
     const { def } = data;
 
     const entries = await Promise.all(def.map((item) => Entry.addEntry(item)));
 
-    const newWord = await this.word.create({
+    return this.word.create({
       data: { text, entry: { connect: entries.map(({ id }) => ({ id })) } },
     });
-
-    console.log('newWord: ', newWord);
   }
 }
 

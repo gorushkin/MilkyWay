@@ -27,7 +27,7 @@ export const commandsList = [
   { command: '/start', description: 'Start smth' },
 ];
 
-export const getActionValue = (queryData: string) => {
+export const getActionValue = (queryData: string): { type: string; value: string } => {
   const data = JSON.parse(queryData);
   const { type, value } = data;
   return { type, value };

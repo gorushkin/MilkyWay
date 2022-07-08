@@ -1,3 +1,4 @@
+import TelegramBot, { CallbackQuery } from 'node-telegram-bot-api';
 
 export interface IPhonetic {
   text: string;
@@ -64,3 +65,9 @@ export interface IYandexWord {
   ex?: IYandexWord[];
   mean?: IYandexWord[];
 }
+
+export interface Action {
+  (bot: TelegramBot, id: number, value: string): void;
+}
+
+export type CallbackQueryMap = Record<string, Action>;
