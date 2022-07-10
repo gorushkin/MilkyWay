@@ -1,14 +1,29 @@
 import TelegramBot, { CallbackQuery, Message } from 'node-telegram-bot-api';
+import { BotRequestError } from './api';
 import { commandsList, getButton, getActionValue, ACTIONS, BUTTONS } from './helpers';
 import { repository } from './Models';
 import { Action, CallbackQueryMap } from './types';
+import {
+  PrismaClientKnownRequestError,
+  PrismaClientUnknownRequestError,
+  PrismaClientValidationError,
+  PrismaClientInitializationError,
+  PrismaClientRustPanicError,
+} from '@prisma/client/runtime';
+import { errorHandler } from './errorHanlder';
 
 type TelegramService = (msg: Message, bot: TelegramBot) => void;
 
 const onStart = async (msg: Message, bot: TelegramBot) => {
-  const { id, first_name, username } = msg.chat;
-  repository.User.addUser(id, first_name, username);
-  bot.sendMessage(id, `Let's go, ${username}`);
+  try {
+    const { id, first_name, username } = msg.chat;
+    repository.User.addUser(id, first_name, username);
+    bot.sendMessage(id, `Let's go, ${username}`);
+  } catch (error) {
+    if (error instanceof BotRequestError) {
+      console.log(error.message);
+    }
+  }
 };
 
 const onMessage: TelegramService = (msg, bot) => {
@@ -41,11 +56,26 @@ const onTest: TelegramService = async (msg, bot) => {
   const res = await repository.Word.addWord(word);
 };
 
+// const addWordAction2: Action = async (bot, id, value) => {
+//   const res = await repository.Word.addWord(value);
+//   const wordId = res?.id;
+//   if (wordId) {
+//     await repository.User.addWord(id, wordId);
+//   }
+//   bot.sendMessage(id, `I added word ${value} in the future`);
+// };
+
 const addWordAction: Action = async (bot, id, value) => {
   const res = await repository.Word.addWord(value);
-  console.log('res: ', res);
-  // bot.sendMessage(id, `I will add word ${value} in the future`);
+  const wordId = res?.id;
+  if (wordId) {
+    await repository.User.addWord(id, wordId);
+  }
+  bot.sendMessage(id, `I added word ${value} in the future`);
 };
+
+const withHandlerAddWordAction = (bot: TelegramBot, id: number, value: string) =>
+  errorHandler(addWordAction, bot, id, value);
 
 const refuseWordAction: Action = (bot, id, value) => {
   bot.sendMessage(id, `I will delete word ${value} in the future`);
@@ -53,7 +83,7 @@ const refuseWordAction: Action = (bot, id, value) => {
 
 const callbackQueryMap: CallbackQueryMap = {
   ADD_WORD_REFUSE: refuseWordAction,
-  ADD_WORD_CONFIRM: addWordAction,
+  ADD_WORD_CONFIRM: withHandlerAddWordAction,
 };
 
 const onCallbackQuery = async (query: CallbackQuery, bot: TelegramBot) => {

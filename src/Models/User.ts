@@ -16,9 +16,11 @@ class User {
     return !!user;
   }
 
-  async addWord(userId: string, wordId: string) {
-    const user = await this.user.findUnique({ where: { id: userId } });
-    // await this.user.
+  async addWord(telegramId: number, wordId: string) {
+    const user = await this.user.update({
+      where: { telegramId },
+      data: { words: { connect: { id: wordId } } },
+    });
   }
 
   // TODO: add error handler

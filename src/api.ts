@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { config } from './config';
-import { IEntry } from './types';
+import { IEntry, YandexRequest } from './types';
 
 const LINKS = (word: string) => ({
   CAMBRIDGE: {
@@ -27,7 +27,7 @@ class BotError extends Error {
   }
 }
 
-class BotRequestError extends BotError {
+export class BotRequestError extends BotError {
   constructor(message: string) {
     super(message);
     this.name = 'BotRequestError';
@@ -35,14 +35,10 @@ class BotRequestError extends BotError {
   }
 }
 
-type YandexRequest = (
-  word: string
-) => Promise<{ data: { def: IEntry[] }; error: null } | { error: string; data: null }>;
-
 export const getWordRequest: YandexRequest = async (word) => {
   try {
     const { data } = await axios(LINKS(word).YANDEX);
-    return { data, error: null };
+    return data;
   } catch (error) {
     let message = MESSAGES.ERROR;
     if (error instanceof AxiosError && error.response?.status) {
@@ -53,6 +49,6 @@ export const getWordRequest: YandexRequest = async (word) => {
         message = error.response?.data.title || MESSAGES.SERVER_ERROR;
       }
     }
-    return { error: message, data: null };
+    throw new BotRequestError(message);
   }
 };

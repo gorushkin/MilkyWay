@@ -26,13 +26,7 @@ class Word {
 
     if (existingWord) return existingWord;
 
-    const { data, error } = await this.getWordFromDictionary(text);
-
-    if (!data) {
-      console.log('we were not able to find this word');
-      console.log('error: ', error);
-      return;
-    }
+    const data = await this.getWordFromDictionary(text);
 
     const { def } = data;
 

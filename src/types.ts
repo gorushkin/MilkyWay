@@ -71,3 +71,5 @@ export interface Action {
 }
 
 export type CallbackQueryMap = Record<string, Action>;
+
+export type YandexRequest = (word: string) => Promise<{ def: IEntry[] } | never>;
