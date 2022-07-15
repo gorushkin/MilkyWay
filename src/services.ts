@@ -64,12 +64,24 @@ const addWordAction: Action = async (bot, id, value) => {
   bot.sendMessage(id, `I added word ${value} to your list`);
 };
 
+const deleteMessage = async (bot: TelegramBot, query: CallbackQuery) => {
+  const {
+    chat: { id },
+    message_id,
+  } = query.message!;
+
+  bot.deleteMessage(id, message_id.toString());
+};
+
+const refuseWordAction: Action = async (bot, id, value) => {
+  // deleteMessage(bot, query);
+};
+
 const withHandlerAddWordAction = (bot: TelegramBot, id: number, value: string) =>
   errorHandler(addWordAction, bot, id, value);
 
-const refuseWordAction: Action = async (bot, id, value) => {
-  bot.sendMessage(id, `I will delete word ${value} in the future`);
-};
+// const withHandlerRefuseWordAction = (bot: TelegramBot, id: number, value: string) =>
+//   errorHandler(refuseWordAction, bot, id, value);
 
 const callbackQueryMap: CallbackQueryMap = {
   ADD_WORD_REFUSE: refuseWordAction,
@@ -83,12 +95,16 @@ const onCallbackQuery = async (query: CallbackQuery, bot: TelegramBot) => {
     throw new Error('for somwe reasons there is no data');
   }
 
-  if (!query.message?.chat.id) {
+  if (!query.message) {
     throw new Error('for somwe reasons there is no message');
   }
+  const message_id = query.message.message_id;
+
+  if (await repository.User.isMessageBlocked(message_id)) return;
+
+  await repository.User.updateLastActiveMessageId(message_id);
 
   const { type, value } = getActionValue(data);
-
   const id = query.message?.chat.id;
 
   callbackQueryMap[type](bot, id, value);

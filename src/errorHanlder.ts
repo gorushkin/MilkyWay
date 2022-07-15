@@ -18,7 +18,7 @@ export const errorHandler = async (
   try {
     await func(bot, id, value);
   } catch (error) {
-    let message = ERRORS.ERROR
+    let message = ERRORS.ERROR;
     if (error instanceof BotError) {
       console.log(error.message);
       message = error.message;

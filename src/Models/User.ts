@@ -6,8 +6,11 @@ class User {
     Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined
   >;
 
+  private lastActiveMessage: number | null;
+
   constructor(client: PrismaClient) {
     this.user = client.user;
+    this.lastActiveMessage = null;
   }
 
   async isUserExist(telegramId: number) {
@@ -21,6 +24,14 @@ class User {
       where: { telegramId },
       data: { words: { connect: { id: wordId } } },
     });
+  }
+
+  async updateLastActiveMessageId(id: number) {
+    this.lastActiveMessage = id;
+  }
+
+  async isMessageBlocked(id: number) {
+    return this.lastActiveMessage ? this.lastActiveMessage >= id : false;
   }
 
   // TODO: add error handler
