@@ -67,9 +67,35 @@ export interface IYandexWord {
 }
 
 export interface Action {
-  (bot: TelegramBot, id: number, value: string): void;
+  (bot: TelegramBot, id: number, value: string): Promise<void>;
 }
 
 export type CallbackQueryMap = Record<string, Action>;
 
 export type YandexRequest = (word: string) => Promise<{ def: IEntry[] } | never>;
+
+export class BotError extends Error {
+  skippable: boolean;
+
+  constructor(message: string) {
+    super(message);
+    this.name = 'BotError';
+    this.skippable = false;
+  }
+}
+
+export class BotRequestError extends BotError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'BotRequestError';
+    this.skippable = true;
+  }
+}
+
+export class BotDictionaryError extends BotError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'Dictionary error';
+    this.skippable = true;
+  }
+}

@@ -1,5 +1,7 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 import { getWordRequest } from '../api';
+import { ERRORS } from '../constants';
+import { BotDictionaryError } from '../types';
 import Entry from './Entry';
 const prisma = new PrismaClient();
 
@@ -26,9 +28,9 @@ class Word {
 
     if (existingWord) return existingWord;
 
-    const data = await this.getWordFromDictionary(text);
+    const { def } = await this.getWordFromDictionary(text);
 
-    const { def } = data;
+    if (!def.length) throw new BotDictionaryError(ERRORS.NOT_FOUND_TEXT);
 
     const entries = await Promise.all(def.map((item) => Entry.addEntry(item)));
 

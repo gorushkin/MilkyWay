@@ -1,8 +1,7 @@
 import TelegramBot, { CallbackQuery, Message } from 'node-telegram-bot-api';
-import { BotRequestError } from './api';
 import { commandsList, getButton, getActionValue, ACTIONS, BUTTONS } from './helpers';
 import { repository } from './Models';
-import { Action, CallbackQueryMap } from './types';
+import { Action, BotRequestError, CallbackQueryMap } from './types';
 import {
   PrismaClientKnownRequestError,
   PrismaClientUnknownRequestError,
@@ -17,7 +16,7 @@ type TelegramService = (msg: Message, bot: TelegramBot) => void;
 const onStart = async (msg: Message, bot: TelegramBot) => {
   try {
     const { id, first_name, username } = msg.chat;
-    repository.User.addUser(id, first_name, username);
+    await repository.User.addUser(id, first_name, username);
     bot.sendMessage(id, `Let's go, ${username}`);
   } catch (error) {
     if (error instanceof BotRequestError) {
@@ -56,28 +55,19 @@ const onTest: TelegramService = async (msg, bot) => {
   const res = await repository.Word.addWord(word);
 };
 
-// const addWordAction2: Action = async (bot, id, value) => {
-//   const res = await repository.Word.addWord(value);
-//   const wordId = res?.id;
-//   if (wordId) {
-//     await repository.User.addWord(id, wordId);
-//   }
-//   bot.sendMessage(id, `I added word ${value} in the future`);
-// };
-
 const addWordAction: Action = async (bot, id, value) => {
   const res = await repository.Word.addWord(value);
   const wordId = res?.id;
   if (wordId) {
     await repository.User.addWord(id, wordId);
   }
-  bot.sendMessage(id, `I added word ${value} in the future`);
+  bot.sendMessage(id, `I added word ${value} to your list`);
 };
 
 const withHandlerAddWordAction = (bot: TelegramBot, id: number, value: string) =>
   errorHandler(addWordAction, bot, id, value);
 
-const refuseWordAction: Action = (bot, id, value) => {
+const refuseWordAction: Action = async (bot, id, value) => {
   bot.sendMessage(id, `I will delete word ${value} in the future`);
 };
 

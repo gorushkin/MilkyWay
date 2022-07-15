@@ -6,8 +6,8 @@ import {
   PrismaClientRustPanicError,
 } from '@prisma/client/runtime';
 import TelegramBot from 'node-telegram-bot-api';
-import { BotRequestError } from './api';
-import { Action } from './types';
+import { ERRORS } from './constants';
+import { Action, BotError } from './types';
 
 export const errorHandler = async (
   func: Action,
@@ -18,9 +18,10 @@ export const errorHandler = async (
   try {
     await func(bot, id, value);
   } catch (error) {
-    // const err = 'There was an error. Sorry!';
-    if (error instanceof BotRequestError) {
+    let message = ERRORS.ERROR
+    if (error instanceof BotError) {
       console.log(error.message);
+      message = error.message;
     }
     if (error instanceof PrismaClientKnownRequestError) {
       console.log('PrismaClientKnownRequestError');
@@ -31,7 +32,8 @@ export const errorHandler = async (
       console.log(error.name);
       console.log(error.message);
       console.log(error.stack);
+      message = error.message;
     }
-    // bot.sendMessage(id, `There was an error. Sorry!`);
+    bot.sendMessage(id, message);
   }
 };
