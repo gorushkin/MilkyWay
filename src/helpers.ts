@@ -1,5 +1,3 @@
-import { InlineKeyboardButton } from 'node-telegram-bot-api';
-
 export enum BUTTONS {
   ADD_WORD = 'Add Word',
   SHOW_WORDS = 'Show Words',
@@ -27,26 +25,13 @@ export const commandsList = [
   { command: '/start', description: 'Start smth' },
 ];
 
+export const words = ['add word', 'cancel'];
+
 export const getActionValue = (queryData: string): { type: string; value: string } => {
   const data = JSON.parse(queryData);
   const { type, value } = data;
   return { type, value };
 };
-
-// const keyboards: Record<string, InlineKeyboardButton[][]> = {
-//   start: [
-//     [
-//       { text: BUTTONS.ADD_WORD, callback_data: 'addword' },
-//       { text: BUTTONS.SHOW_WORDS, callback_data: 'showwords' },
-//     ],
-//   ],
-//   addWord: [
-//     [
-//       { text: BUTTONS.ADD, callback_data: 'add' },
-//       { text: BUTTONS.CANCEL, callback_data: 'cancel' },
-//     ],
-//   ],
-// };
 
 export const getFlatArray = <T>(target: Array<T>): Array<T> => {
   const res: Array<T> = [];

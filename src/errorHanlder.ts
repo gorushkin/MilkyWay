@@ -7,10 +7,11 @@ import {
 } from '@prisma/client/runtime';
 import TelegramBot from 'node-telegram-bot-api';
 import { ERRORS } from './constants';
-import { Action, BotError } from './types';
+import { Action, BotError, HandleError } from './types';
 
 export const errorHandler = async (
   func: Action,
+  onError: HandleError,
   bot: TelegramBot,
   id: number,
   value: string
@@ -34,6 +35,6 @@ export const errorHandler = async (
       console.log(error.stack);
       message = error.message;
     }
-    bot.sendMessage(id, message);
+    onError(bot, id, message);
   }
 };
