@@ -1,7 +1,12 @@
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import { config } from './config';
 import { ERRORS } from './constants';
-import { BotRequestError, YandexRequest } from './types';
+import {
+  BotDictionaryError,
+  BotRequestError,
+  WordResponse,
+  YandexRequest,
+} from './types';
 
 const getLinks = (word: string) => ({
   CAMBRIDGE: {
@@ -15,13 +20,20 @@ const getLinks = (word: string) => ({
 export const getWordRequest: YandexRequest = async (word) => {
   try {
     const url = encodeURI(getLinks(word).YANDEX);
-    const { data } = await axios(url);
-    return data;
+
+    const {
+      data: { def },
+    }: AxiosResponse<WordResponse> = await axios(url);
+
+    if (!def.length) throw new BotDictionaryError(ERRORS.NOT_FOUND_TEXT(word));
+
+    return def;
   } catch (error) {
+    if (error instanceof BotDictionaryError) throw error;
     let message = ERRORS.ERROR;
     if (error instanceof AxiosError && error.response?.status) {
       if (error.response?.status >= 400 && error.response?.status < 500) {
-        message = error.response?.data.title || ERRORS.NOT_FOUND_TEXT;
+        message = error.response?.data.title || ERRORS.NOT_FOUND_TEXT(word);
       }
       if (error.response?.status >= 500) {
         message = error.response?.data.title || ERRORS.SERVER_ERROR;

@@ -28,11 +28,9 @@ class Word {
 
     if (existingWord) return existingWord;
 
-    const { def } = await this.getWordFromDictionary(text);
+    const data = await this.getWordFromDictionary(text);
 
-    if (!def.length) throw new BotDictionaryError(ERRORS.NOT_FOUND_TEXT);
-
-    const entries = await Promise.all(def.map((item) => Entry.addEntry(item)));
+    const entries = await Promise.all(data.map((item) => Entry.addEntry(item)));
 
     return this.word.create({
       data: { text, entry: { connect: entries.map(({ id }) => ({ id })) } },

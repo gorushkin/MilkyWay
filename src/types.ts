@@ -82,7 +82,9 @@ export interface MessageHandler {
   (query: Message): Promise<void | never | undefined>;
 }
 
-export type YandexRequest = (word: string) => Promise<{ def: IEntry[] } | never>;
+export type YandexRequest = (word: string) => Promise<IEntry[]>;
+
+export type WordResponse = { def: IEntry[] };
 
 export class BotError extends Error {
   skippable: boolean;
