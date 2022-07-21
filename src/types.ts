@@ -1,3 +1,4 @@
+import TelegramBot, { CallbackQuery, Message } from 'node-telegram-bot-api';
 
 export interface IPhonetic {
   text: string;
@@ -63,4 +64,50 @@ export interface IYandexWord {
   tr?: IYandexWord[];
   ex?: IYandexWord[];
   mean?: IYandexWord[];
+}
+
+export interface HandleError {
+  (bot: TelegramBot, id: number, message: string): Promise<void>;
+}
+
+export interface CallBackHandler {
+  (query: CallbackQuery): Promise<void | never>;
+}
+
+export interface CommandHandler {
+  (query: Message): Promise<void | never>;
+}
+
+export interface MessageHandler {
+  (query: Message): Promise<void | never | undefined>;
+}
+
+export type YandexRequest = (word: string) => Promise<IEntry[]>;
+
+export type WordResponse = { def: IEntry[] };
+
+export class BotError extends Error {
+  skippable: boolean;
+
+  constructor(message: string) {
+    super(message);
+    this.name = 'BotError';
+    this.skippable = false;
+  }
+}
+
+export class BotRequestError extends BotError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'BotRequestError';
+    this.skippable = true;
+  }
+}
+
+export class BotDictionaryError extends BotError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'Dictionary error';
+    this.skippable = true;
+  }
 }

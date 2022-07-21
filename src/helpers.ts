@@ -1,52 +1,11 @@
-import { InlineKeyboardButton } from 'node-telegram-bot-api';
-
-export enum BUTTONS {
-  ADD_WORD = 'Add Word',
-  SHOW_WORDS = 'Show Words',
-  CANCEL = 'Cancel',
-  ADD = 'Add',
-  DICTIONARY = 'Dictionary',
-  CambridgeRu = 'CambridgeRu',
-  CambridgeEn = 'CambridgeEn',
-}
-
-export enum ACTIONS {
-  ADD_WORD_CONFIRM = 'ADD_WORD_CONFIRM',
-  DELETE = 'delete',
-  ADD_WORD_REFUSE = 'ADD_WORD_REFUSE',
-  LINK = 'LINK',
-}
-
-export const getButton = (text: BUTTONS, type: ACTIONS, value?: string) => {
-  const callback_data = JSON.stringify({ type, ...(value && { value }) });
-  return { text, callback_data };
+export const packData = (action: string, value?: string) => {
+  return JSON.stringify({ action, ...(value && { value }) });
 };
 
-export const commandsList = [
-  { command: '/test', description: 'Command for test!!!' },
-  { command: '/start', description: 'Start smth' },
-];
-
-export const getActionValue = (queryData: string) => {
-  const data = JSON.parse(queryData);
-  const { type, value } = data;
-  return { type, value };
+export const unpackData = (queryData: string): { action: string; value: string } => {
+  const { action, value } = JSON.parse(queryData);
+  return { action, value };
 };
-
-// const keyboards: Record<string, InlineKeyboardButton[][]> = {
-//   start: [
-//     [
-//       { text: BUTTONS.ADD_WORD, callback_data: 'addword' },
-//       { text: BUTTONS.SHOW_WORDS, callback_data: 'showwords' },
-//     ],
-//   ],
-//   addWord: [
-//     [
-//       { text: BUTTONS.ADD, callback_data: 'add' },
-//       { text: BUTTONS.CANCEL, callback_data: 'cancel' },
-//     ],
-//   ],
-// };
 
 export const getFlatArray = <T>(target: Array<T>): Array<T> => {
   const res: Array<T> = [];

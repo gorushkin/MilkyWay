@@ -16,6 +16,8 @@ class Entry {
   //   return !!word;
   // }
 
+  // TODO: move getExamples, getSynonyms, getMeanings to getData or to helpers.ts
+
   private getExamples(examples: IExample[]) {
     return examples
       ? examples.map((item) => ({ text: item.text, translation: item.tr[0].text }))

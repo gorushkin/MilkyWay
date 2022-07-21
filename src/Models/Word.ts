@@ -1,5 +1,7 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 import { getWordRequest } from '../api';
+import { ERRORS } from '../constants';
+import { BotDictionaryError } from '../types';
 import Entry from './Entry';
 const prisma = new PrismaClient();
 
@@ -26,18 +28,13 @@ class Word {
 
     if (existingWord) return existingWord;
 
-    const { data } = await this.getWordFromDictionary(text);
-    if (!data) return;
+    const data = await this.getWordFromDictionary(text);
 
-    const { def } = data;
+    const entries = await Promise.all(data.map((item) => Entry.addEntry(item)));
 
-    const entries = await Promise.all(def.map((item) => Entry.addEntry(item)));
-
-    const newWord = await this.word.create({
+    return this.word.create({
       data: { text, entry: { connect: entries.map(({ id }) => ({ id })) } },
     });
-
-    console.log('newWord: ', newWord);
   }
 }
 
