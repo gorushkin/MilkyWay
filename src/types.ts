@@ -1,4 +1,4 @@
-import TelegramBot, { Message } from 'node-telegram-bot-api';
+import TelegramBot from 'node-telegram-bot-api';
 
 export interface IPhonetic {
   text: string;
@@ -66,17 +66,9 @@ export interface IYandexWord {
   mean?: IYandexWord[];
 }
 
-export interface Action {
-  (bot: TelegramBot, id: number, value: string): Promise<void>;
-}
-
 export interface HandleError {
   (bot: TelegramBot, id: number, message: string): Promise<void>;
 }
-
-export type TelegramService = (msg: Message, bot: TelegramBot) => void;
-
-export type CallbackQueryMap = Record<string, Action>;
 
 export type YandexRequest = (word: string) => Promise<{ def: IEntry[] } | never>;
 
@@ -105,39 +97,3 @@ export class BotDictionaryError extends BotError {
     this.skippable = true;
   }
 }
-
-export enum Screens {
-  start = 'start',
-  error = 'error',
-}
-
-enum Buttons {
-  addWord = 'add word',
-  retry = 'retry',
-  cancel = 'cancel',
-  test = 'test',
-}
-
-interface IButton {
-  text: Buttons;
-}
-
-interface IScreen {
-  buttons: IButton[];
-  name: Screens;
-}
-
-export const screens: Record<string, IScreen> = {
-  start: {
-    buttons: [{ text: Buttons.addWord }, { text: Buttons.test }],
-    name: Screens.start,
-  },
-  addWordError: {
-    name: Screens.error,
-    buttons: [{ text: Buttons.retry }, { text: Buttons.cancel }],
-  },
-  addWordSuccess: {
-    name: Screens.start,
-    buttons: [{ text: Buttons.addWord }],
-  },
-};
