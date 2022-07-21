@@ -28,3 +28,13 @@ export const getErrorMessage = (error: unknown): string => {
 
   return message;
 };
+
+
+export const errorHandler = async (func: unknown): Promise<void | never> => {
+  try {
+    await func;
+  } catch (error) {
+    const message = getErrorMessage(error);
+    console.log('message: ', message);
+  }
+};

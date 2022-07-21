@@ -1,4 +1,4 @@
-import TelegramBot from 'node-telegram-bot-api';
+import TelegramBot, { CallbackQuery, Message } from 'node-telegram-bot-api';
 
 export interface IPhonetic {
   text: string;
@@ -68,6 +68,18 @@ export interface IYandexWord {
 
 export interface HandleError {
   (bot: TelegramBot, id: number, message: string): Promise<void>;
+}
+
+export interface CallBackHandler {
+  (query: CallbackQuery, bot: TelegramBot): Promise<void | never>;
+}
+
+export interface CommandHandler {
+  (query: Message, bot: TelegramBot): Promise<void | never>;
+}
+
+export interface MessageHandler {
+  (query: Message, bot: TelegramBot): Promise<void | never | undefined>;
 }
 
 export type YandexRequest = (word: string) => Promise<{ def: IEntry[] } | never>;

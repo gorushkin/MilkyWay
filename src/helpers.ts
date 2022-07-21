@@ -1,8 +1,8 @@
-export const getCallbackData = (action: string, value?: string) => {
+export const packData = (action: string, value?: string) => {
   return JSON.stringify({ action, ...(value && { value }) });
 };
 
-export const getActionValue = (queryData: string): { action: string; value: string } => {
+export const unpackData = (queryData: string): { action: string; value: string } => {
   const { action, value } = JSON.parse(queryData);
   return { action, value };
 };
