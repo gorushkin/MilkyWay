@@ -71,15 +71,15 @@ export interface HandleError {
 }
 
 export interface CallBackHandler {
-  (query: CallbackQuery, bot: TelegramBot): Promise<void | never>;
+  (query: CallbackQuery): Promise<void | never>;
 }
 
 export interface CommandHandler {
-  (query: Message, bot: TelegramBot): Promise<void | never>;
+  (query: Message): Promise<void | never>;
 }
 
 export interface MessageHandler {
-  (query: Message, bot: TelegramBot): Promise<void | never | undefined>;
+  (query: Message): Promise<void | never | undefined>;
 }
 
 export type YandexRequest = (word: string) => Promise<{ def: IEntry[] } | never>;

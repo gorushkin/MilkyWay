@@ -2,8 +2,9 @@ import { CallBackHandler, CommandHandler, MessageHandler } from './types';
 import { unpackData, packData } from './helpers';
 import { services } from './services';
 import { Action, commandsList } from './constants';
+import bot from './index';
 
-export const callBackAction: CallBackHandler = async (query, bot) => {
+export const onCallbackQuery: CallBackHandler = async (query) => {
   const messageId = query.message?.message_id;
   const chatId = query.message?.chat.id;
   const data = query.data;
@@ -27,20 +28,17 @@ export const callBackAction: CallBackHandler = async (query, bot) => {
   }
 };
 
-export const onStart: CommandHandler = async (msg, bot) => {
+export const onStart: CommandHandler = async (msg) => {
   const { id, first_name, username } = msg.chat;
 
   await services.addUser(id, first_name, username);
-  bot.sendMessage(msg.chat.id, `Hello "${msg.chat.username}" `);
+  bot.sendMessage(id, `Hello "${msg.chat.username}" `);
 };
 
-export const onMessage: MessageHandler = async (msg, bot) => {
-  const text = '';
-  console.log('case1');
+export const onMessage: MessageHandler = async (msg) => {
+  const text = msg.text;
 
   if (!text) throw new Error("I'm a little confused");
-
-  console.log('case2');
 
   const isWordSkippable = commandsList.reduce((acc, item) => acc || item.command === text, false);
 
