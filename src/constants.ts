@@ -8,6 +8,7 @@ export enum Command {
   start = '/start',
   info = '/info',
   settings = '/settings',
+  test = '/test',
 }
 
 export enum Action {
@@ -19,4 +20,5 @@ export const commandsList = [
   { command: Command.start, description: "Let's go" },
   { command: Command.info, description: 'Some info about bot' },
   { command: Command.settings, description: 'There are some settings' },
+  { command: Command.test, description: 'Send test word' },
 ];

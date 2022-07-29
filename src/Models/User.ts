@@ -6,32 +6,24 @@ class User {
     Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined
   >;
 
-  private lastActiveMessage: number | null;
-
   constructor(client: PrismaClient) {
     this.user = client.user;
-    this.lastActiveMessage = null;
   }
 
   async isUserExist(telegramId: number) {
     const user = await prisma.user.findUnique({ where: { telegramId } });
-    console.log('user exist!!!');
     return !!user;
   }
 
   async addWord(telegramId: number, wordId: string) {
-    const user = await this.user.update({
+    await this.user.update({
       where: { telegramId },
       data: { words: { connect: { id: wordId } } },
     });
   }
 
-  async updateLastActiveMessageId(id: number) {
-    this.lastActiveMessage = id;
-  }
-
-  async isMessageBlocked(id: number) {
-    return this.lastActiveMessage ? this.lastActiveMessage >= id : false;
+  getUsers() {
+    return this.user.findMany();
   }
 
   // TODO: add error handler

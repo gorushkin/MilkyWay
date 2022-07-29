@@ -1,4 +1,6 @@
 import { repository } from './Models';
+import _ from 'lodash';
+import { WordWithTr } from './types';
 
 const addUser = (id: number, first_name: string | undefined, username: string | undefined) => {
   return repository.User.addUser(id, first_name, username);
@@ -10,4 +12,22 @@ const addWord = async (value: string, userId: number) => {
   if (wordId) await repository.User.addWord(userId, wordId);
 };
 
-export const services = { addUser, addWord };
+const getUserWords = async (telegramId: number): Promise<null | WordWithTr> => {
+  const words = await repository.Word.getUserWords(telegramId);
+  const word = _.sample(words);
+
+  if (!word) return null;
+
+  const wordID = word.id;
+
+  const entries = await repository.Entry.getEntry(wordID);
+
+  return { text: word.text, entries };
+};
+
+const getUsers = async () => {
+  const users = await repository.User.getUsers();
+  console.log('users: ', users);
+};
+
+export const services = { addUser, addWord, getUsers, getUserWords };

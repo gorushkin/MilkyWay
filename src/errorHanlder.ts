@@ -37,6 +37,7 @@ export const errorHandler = async (
   try {
     await func;
   } catch (error) {
+    console.log('error: ', error);
     const message = getErrorMessage(error);
     if (id) bot.sendMessage(id, message);
   }

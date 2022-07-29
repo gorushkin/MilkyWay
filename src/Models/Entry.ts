@@ -12,6 +12,10 @@ class Entry {
     this.entry = client.entry;
   }
 
+  getEntry(wordId: string) {
+    return this.entry.findMany({ where: { wordId }, include: { translation: true } });
+  }
+
   async addEntry({ pos, text, tr, ts }: IEntry) {
     const translations = await Promise.all(
       tr.map((translation) => Translation.addTranslation(translation))

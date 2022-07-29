@@ -1,8 +1,9 @@
 import { CallBackHandler, CommandHandler, MessageHandler } from './types';
-import { unpackData, packData } from './helpers';
+import { unpackData, packData, formateMessage } from './helpers';
 import { services } from './services';
 import { Action, commandsList } from './constants';
 import bot from './index';
+import { Message } from 'telegraf/typings/core/types/typegram';
 
 export const onCallbackQuery: CallBackHandler = async (query) => {
   const messageId = query.message?.message_id;
@@ -33,6 +34,18 @@ export const onStart: CommandHandler = async (msg) => {
 
   await services.addUser(id, first_name, username);
   bot.sendMessage(id, `Hello "${msg.chat.username}" `);
+};
+
+export const onTest: CommandHandler = async (msg) => {
+  const { id, first_name, username } = msg.chat;
+
+  const word = await services.getUserWords(id);
+
+  if (!word) return bot.sendMessage(id, 'You have no words!!!');
+
+  const formattedMessage = formateMessage(word);
+
+  bot.sendMessage(id, formattedMessage, { parse_mode: 'HTML' });
 };
 
 export const onMessage: MessageHandler = async (msg) => {
