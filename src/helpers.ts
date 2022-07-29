@@ -59,7 +59,7 @@ export const formateMessage = (word: WordWithTr) => {
   const messageBody = result.entries
     .map(
       (entry) =>
-        `${entry.part_of_speech}: ${entry.translations.map((item) => item.text).join(', ')}`
+        `<b>${entry.part_of_speech}:</b> ${entry.translations.map((item) => item.text).join(', ')}`
     )
     .join('\n');
 
