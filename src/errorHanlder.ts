@@ -18,12 +18,13 @@ export const getErrorMessage = (error: unknown): string => {
   if (error instanceof PrismaClientKnownRequestError) {
     console.log('PrismaClientKnownRequestError');
     console.log(error.meta);
+    console.log(error.code);
   }
   if (error instanceof PrismaClientInitializationError) {
     console.log('PrismaClientInitializationError');
     console.log(error.name);
     console.log(error.message);
-    console.log(error.stack);
+    console.log(error);
     message = error.message;
   }
 
@@ -37,7 +38,6 @@ export const errorHandler = async (
   try {
     await func;
   } catch (error) {
-    console.log('error: ', error);
     const message = getErrorMessage(error);
     if (id) bot.sendMessage(id, message);
   }

@@ -5,10 +5,11 @@ const TIME_OUT = 5000;
 
 const sender = async () => {
   console.log('send');
-  const word = await services.getUsers();
+  const users = await services.getUsers();
+  console.log('users: ', users);
 };
 
-const startReminder = () => {
+const sheduler = () => {
   const timer = () => {
     setTimeout(() => {
       sender();
@@ -19,4 +20,4 @@ const startReminder = () => {
   timer();
 };
 
-export { startReminder };
+export { sheduler };

@@ -28,12 +28,8 @@ class User {
 
   // TODO: add error handler
   async addUser(telegramId: number, first_name: string | undefined, username: string | undefined) {
-    try {
-      if (await this.isUserExist(telegramId)) return;
-      await this.user.create({ data: { telegramId, username, first_name } });
-    } catch (error) {
-      console.log(error);
-    }
+    if (await this.isUserExist(telegramId)) return;
+    await this.user.create({ data: { telegramId, username, first_name } });
   }
 }
 

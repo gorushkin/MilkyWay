@@ -26,8 +26,7 @@ const getUserWords = async (telegramId: number): Promise<null | WordWithTr> => {
 };
 
 const getUsers = async () => {
-  const users = await repository.User.getUsers();
-  console.log('users: ', users);
+  return await repository.User.getUsers();
 };
 
 export const services = { addUser, addWord, getUsers, getUserWords };
