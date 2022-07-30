@@ -1,7 +1,7 @@
 import { CallBackHandler, CommandHandler, MessageHandler } from './types';
 import { unpackData, packData, formateMessage } from './helpers';
 import { services } from './services';
-import { Action, commandsList } from './constants';
+import { ACTION, commandsList, MODE, PERIOD } from './constants';
 import bot from './index';
 import { getLinks } from './api';
 
@@ -19,18 +19,31 @@ export const onCallbackQuery: CallBackHandler = async (query) => {
   const { action, value } = unpackData(data);
 
   const isMessageDestroyable =
-    action === Action.ADD_WORD_CONFIRM || action === Action.ADD_WORD_REFUSE;
+    action === ACTION.ADD_WORD_CONFIRM ||
+    action === ACTION.ADD_WORD_REFUSE ||
+    action === ACTION.SET_MODE ||
+    action === ACTION.SET_PERIOD;
 
   if (isMessageDestroyable) bot.deleteMessage(id, messageId.toString());
 
-  if (action === Action.ADD_WORD_CONFIRM) {
+  if (action === ACTION.ADD_WORD_CONFIRM) {
     // TODO: validating - only letters
     await services.addWord(value, id);
     bot.sendMessage(id, `I added word "${value}" to your list`);
   }
 
-  if (action === Action.ADD_WORD_REFUSE) {
+  if (action === ACTION.ADD_WORD_REFUSE) {
     bot.sendMessage(id, `Ok!`);
+  }
+
+  if (action === ACTION.SET_MODE) {
+    await services.updateUser(id, value);
+    bot.sendMessage(id, `I will change your mode to ${value}`);
+  }
+
+  if (action === ACTION.SET_PERIOD) {
+    await services.updateUser(id, undefined, Number(value));
+    bot.sendMessage(id, `I will change your period to ${value}`);
   }
 };
 
@@ -73,8 +86,27 @@ export const onMessage: MessageHandler = async (msg) => {
     reply_markup: {
       inline_keyboard: [
         [
-          { text: 'Add', callback_data: packData(Action.ADD_WORD_CONFIRM, text) },
-          { text: 'Cancel', callback_data: packData(Action.ADD_WORD_REFUSE, text) },
+          { text: 'Add', callback_data: packData(ACTION.ADD_WORD_CONFIRM, text) },
+          { text: 'Cancel', callback_data: packData(ACTION.ADD_WORD_REFUSE, text) },
+        ],
+      ],
+    },
+  });
+};
+
+export const onSettings: CommandHandler = async (msg) => {
+  const { id } = msg.chat;
+
+  bot.sendMessage(id, 'You can change...', {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: 'Start', callback_data: packData(ACTION.SET_MODE, MODE.START) },
+          { text: 'Stop', callback_data: packData(ACTION.SET_MODE, MODE.STOP) },
+        ],
+        [
+          { text: 'Period 15min', callback_data: packData(ACTION.SET_PERIOD, PERIOD['15_MIN']) },
+          { text: 'Period 30min', callback_data: packData(ACTION.SET_PERIOD, PERIOD['30_MIN']) },
         ],
       ],
     },

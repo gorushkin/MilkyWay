@@ -25,8 +25,20 @@ const getUserWords = async (telegramId: number): Promise<null | WordWithTr> => {
   return { text: word.text, entries };
 };
 
-const getUsers = async () => {
-  return await repository.User.getUsers();
+const getJobs = async () => {
+  const users = await repository.User.getUsers();
+  const currentTime = new Date();
+  const jobList = users.filter(async (user) => {
+    if (!user.lastSendTime) {
+      await repository.User.updateUserSendTime(user.telegramId);
+      return true;
+    }
+    return user.lastSendTime <= currentTime;
+  });
+  console.log(jobList);
 };
 
-export const services = { addUser, addWord, getUsers, getUserWords };
+const updateUser = (telegramId: number, mode?: string, period?: number): Promise<void> =>
+  repository.User.updateUser(telegramId, mode, period);
+
+export const services = { addUser, addWord, getJobs, getUserWords, updateUser };

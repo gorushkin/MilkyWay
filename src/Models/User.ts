@@ -31,6 +31,15 @@ class User {
     if (await this.isUserExist(telegramId)) return;
     await this.user.create({ data: { telegramId, username, first_name } });
   }
+
+  async updateUserSendTime(telegramId: number) {
+    await this.user.update({ where: { telegramId }, data: { lastSendTime: new Date() } });
+  }
+
+  async updateUser(telegramId: number, mode?: string, period?: number) {
+    if (mode) await this.user.update({ where: { telegramId }, data: { mode } });
+    if (period) await this.user.update({ where: { telegramId }, data: { period } });
+  }
 }
 
 export default new User(prisma);
