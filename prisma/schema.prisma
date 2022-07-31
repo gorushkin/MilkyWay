@@ -39,7 +39,7 @@ model Entry {
   id             String        @id @default(cuid())
   text           String
   part_of_speech String
-  transcription  String
+  transcription  String?
   translation    Translation[]
   Word           Word?         @relation(fields: [wordId], references: [id])
   wordId         String?

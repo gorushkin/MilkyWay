@@ -28,6 +28,11 @@ export const getErrorMessage = (error: unknown): string => {
     message = error.message;
   }
 
+  if (error instanceof PrismaClientValidationError) {
+    console.log('PrismaClientValidationError');
+    console.log(error.message);
+  }
+
   return message;
 };
 

@@ -25,7 +25,7 @@ class Entry {
       data: {
         text,
         part_of_speech: pos,
-        transcription: ts,
+        transcription: ts || null,
         translation: { connect: translations.map(({ id }) => ({ id })) },
       },
     });
