@@ -6,42 +6,39 @@ class User {
     Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined
   >;
 
-  private lastActiveMessage: number | null;
-
   constructor(client: PrismaClient) {
     this.user = client.user;
-    this.lastActiveMessage = null;
   }
 
   async isUserExist(telegramId: number) {
     const user = await prisma.user.findUnique({ where: { telegramId } });
-    console.log('user exist!!!');
     return !!user;
   }
 
   async addWord(telegramId: number, wordId: string) {
-    const user = await this.user.update({
+    await this.user.update({
       where: { telegramId },
       data: { words: { connect: { id: wordId } } },
     });
   }
 
-  async updateLastActiveMessageId(id: number) {
-    this.lastActiveMessage = id;
-  }
-
-  async isMessageBlocked(id: number) {
-    return this.lastActiveMessage ? this.lastActiveMessage >= id : false;
+  getUsers() {
+    return this.user.findMany();
   }
 
   // TODO: add error handler
   async addUser(telegramId: number, first_name: string | undefined, username: string | undefined) {
-    try {
-      if (await this.isUserExist(telegramId)) return;
-      await this.user.create({ data: { telegramId, username, first_name } });
-    } catch (error) {
-      console.log(error);
-    }
+    if (await this.isUserExist(telegramId)) return;
+    await this.user.create({ data: { telegramId, username, first_name } });
+  }
+
+  async updateUserSendTime(telegramId: number) {
+    await this.user.update({ where: { telegramId }, data: { lastSendTime: new Date() } });
+  }
+
+  async updateUser(telegramId: number, mode?: string, period?: number) {
+    if (mode) await this.user.update({ where: { telegramId }, data: { mode } });
+    if (period) await this.user.update({ where: { telegramId }, data: { period } });
   }
 }
 

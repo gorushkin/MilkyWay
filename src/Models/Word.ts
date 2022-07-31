@@ -23,6 +23,14 @@ class Word {
     return !!word;
   }
 
+  getUserWords(telegramId: number) {
+    return this.word.findMany({ where: { User: { telegramId: telegramId } } });
+  }
+
+  getWord(id: string) {
+    return this.word.findUnique({ where: { id } });
+  }
+
   async addWord(text: string) {
     const existingWord = await this.word.findUnique({ where: { text } });
 

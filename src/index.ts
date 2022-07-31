@@ -1,7 +1,13 @@
 import { botService } from './bot';
 console.clear();
 import { config } from './config';
+import { sheduler } from './reminder';
+import { addRoutes } from './routes';
 
 if (!config.TOKEN) throw new Error('You should set bot token!');
 
-export default botService(config.TOKEN);
+const bot = botService(config.TOKEN);
+addRoutes(bot);
+// sheduler()
+
+export default bot;

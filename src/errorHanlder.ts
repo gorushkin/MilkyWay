@@ -18,12 +18,13 @@ export const getErrorMessage = (error: unknown): string => {
   if (error instanceof PrismaClientKnownRequestError) {
     console.log('PrismaClientKnownRequestError');
     console.log(error.meta);
+    console.log(error.code);
   }
   if (error instanceof PrismaClientInitializationError) {
     console.log('PrismaClientInitializationError');
     console.log(error.name);
     console.log(error.message);
-    console.log(error.stack);
+    console.log(error);
     message = error.message;
   }
 

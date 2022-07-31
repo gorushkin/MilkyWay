@@ -1,4 +1,5 @@
 import TelegramBot, { CallbackQuery, Message } from 'node-telegram-bot-api';
+import { Entry, Translation } from '@prisma/client';
 
 export interface IPhonetic {
   text: string;
@@ -66,6 +67,17 @@ export interface IYandexWord {
   mean?: IYandexWord[];
 }
 
+export interface WordWithTr {
+  text: string;
+  entries: (Entry & {
+    translation: Translation[];
+  })[];
+}
+
+export type EntryWithTr = Entry & {
+  translation: Translation[];
+};
+
 export interface HandleError {
   (bot: TelegramBot, id: number, message: string): Promise<void>;
 }
@@ -75,7 +87,7 @@ export interface CallBackHandler {
 }
 
 export interface CommandHandler {
-  (query: Message): Promise<void | never>;
+  (query: Message): Promise<void | never | Message>;
 }
 
 export interface MessageHandler {

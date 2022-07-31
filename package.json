@@ -37,7 +37,6 @@
     "on-change": "^4.0.1",
     "sequelize": "^6.21.0",
     "sqlite3": "^5.0.8",
-    "telegraf": "^4.8.5",
     "typeorm": "^0.3.6"
   }
 }
