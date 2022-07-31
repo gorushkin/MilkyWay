@@ -10,8 +10,12 @@ class User {
     this.user = client.user;
   }
 
+  async getUser(telegramId: number) {
+    return await this.user.findUnique({ where: { telegramId } });
+  }
+
   async isUserExist(telegramId: number) {
-    const user = await prisma.user.findUnique({ where: { telegramId } });
+    const user = await this.user.findUnique({ where: { telegramId } });
     return !!user;
   }
 

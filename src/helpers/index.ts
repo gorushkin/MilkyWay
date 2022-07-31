@@ -1,4 +1,4 @@
-import { EntryWithTr, WordWithTr } from './types';
+import { EntryWithTr, WordWithTr } from '../types';
 
 export const packData = (action: string, value?: string) => {
   return JSON.stringify({ action, ...(value && { value }) });

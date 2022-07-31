@@ -1,9 +1,74 @@
-import { CallBackHandler, CommandHandler, MessageHandler } from './types';
-import { unpackData, packData, formateMessage } from './helpers';
+import { ActionMap, CallBackHandler, CommandHandler, MessageHandler } from './types';
+import { unpackData, formateMessage } from './helpers';
 import { services } from './services';
-import { ACTION, commandsList, MODE, PERIOD } from './constants';
+import { ACTION, commandsList } from './constants';
 import bot from './index';
 import { getLinks } from './api';
+import {
+  sendWordKeyBoard,
+  settingsKeyboard,
+  simpleKeyboard,
+  addWordDialogKeyboard,
+  periodSettingsKeyboard,
+  modeSettingsKeyboard,
+} from './helpers/keyboards';
+
+export const sendWord = async (telegramId: number) => {
+  const word = await services.getUserWords(telegramId);
+
+  if (!word) return;
+
+  const formattedMessage = formateMessage(word);
+
+  const url = getLinks(word.text).CAMBRIDGE.RU;
+
+  bot.sendMessage(telegramId, formattedMessage, {
+    parse_mode: 'HTML',
+    ...sendWordKeyBoard(url, telegramId),
+  });
+};
+
+export const showSettings = (telegramId: number) => {
+  bot.sendMessage(telegramId, 'Settings', settingsKeyboard());
+};
+
+const actonsMapping: ActionMap = {
+  [ACTION.ADD_WORD_CONFIRM]: async ({ id, value }) => {
+    // TODO: validating - only letters
+    await services.addWord(value, id);
+    bot.sendMessage(id, `I added word "${value}" to your list`, simpleKeyboard());
+  },
+  [ACTION.ADD_WORD_REFUSE]: async ({ id }) => {
+    bot.sendMessage(id, `Ok!`, simpleKeyboard());
+  },
+  [ACTION.SETTINGS_MODE]: async ({ id }) => {
+    bot.sendMessage(id, 'You can Start or Stop word sending', modeSettingsKeyboard());
+  },
+  [ACTION.SETTING_PERIOD]: async ({ id }) => {
+    bot.sendMessage(id, 'Select sending period', periodSettingsKeyboard());
+  },
+  [ACTION.NEXT_WORD]: async ({ value }) => {
+    sendWord(Number(value));
+  },
+  [ACTION.SETTINGS_OPEN]: async ({ id }) => {
+    showSettings(id);
+  },
+  [ACTION.SET_MODE]: async ({ id, value }) => {
+    await services.updateUser(id, value);
+    bot.sendMessage(id, `I changed your mode to ${value}`, simpleKeyboard());
+  },
+  [ACTION.PERIOD_SET]: async ({ id, value }) => {
+    await services.updateUser(id, '', Number(value));
+    bot.sendMessage(id, `I changed your period to ${value} min`, simpleKeyboard());
+  },
+  [ACTION.SETTINGS_CLOSE]: async ({ id, value }) => {
+    await services.updateUser(id, '', Number(value));
+    const user = await services.getUser(id);
+    if (!user) throw new Error('ALARMA!!! There is no user with this id!!!');
+    bot.sendMessage(id, `Mode = ${user.mode}, period = ${user.period}`, simpleKeyboard());
+  },
+  [ACTION.CLOSE]: async () => {},
+};
 
 export const onCallbackQuery: CallBackHandler = async (query) => {
   const messageId = query.message?.message_id;
@@ -18,59 +83,21 @@ export const onCallbackQuery: CallBackHandler = async (query) => {
 
   const { action, value } = unpackData(data);
 
-  const isMessageDestroyable =
-    action === ACTION.ADD_WORD_CONFIRM ||
-    action === ACTION.ADD_WORD_REFUSE ||
-    action === ACTION.SET_MODE ||
-    action === ACTION.SET_PERIOD;
+  bot.deleteMessage(id, messageId.toString());
 
-  if (isMessageDestroyable) bot.deleteMessage(id, messageId.toString());
-
-  if (action === ACTION.ADD_WORD_CONFIRM) {
-    // TODO: validating - only letters
-    await services.addWord(value, id);
-    bot.sendMessage(id, `I added word "${value}" to your list`);
-  }
-
-  if (action === ACTION.ADD_WORD_REFUSE) {
-    bot.sendMessage(id, `Ok!`);
-  }
-
-  if (action === ACTION.SET_MODE) {
-    await services.updateUser(id, value);
-    bot.sendMessage(id, `I will change your mode to ${value}`);
-  }
-
-  if (action === ACTION.SET_PERIOD) {
-    await services.updateUser(id, undefined, Number(value));
-    bot.sendMessage(id, `I will change your period to ${value}`);
-  }
+  await actonsMapping[action as ACTION]({ id, value });
 };
 
 export const onStart: CommandHandler = async (msg) => {
   const { id, first_name, username } = msg.chat;
 
   await services.addUser(id, first_name, username);
-  bot.sendMessage(id, `Hello "${msg.chat.username}" `);
+  bot.sendMessage(id, `Hello "${msg.chat.username}"`, simpleKeyboard());
 };
 
 export const onTest: CommandHandler = async (msg) => {
   const { id } = msg.chat;
-
-  const word = await services.getUserWords(id);
-
-  if (!word) return bot.sendMessage(id, 'You have no words!!!');
-
-  const formattedMessage = formateMessage(word);
-
-  const url = getLinks(word.text).CAMBRIDGE.RU;
-
-  bot.sendMessage(id, formattedMessage, {
-    parse_mode: 'HTML',
-    reply_markup: {
-      inline_keyboard: [[{ text: 'open cambridge dictionary', url }]],
-    },
-  });
+  await sendWord(id);
 };
 
 export const onMessage: MessageHandler = async (msg) => {
@@ -82,33 +109,10 @@ export const onMessage: MessageHandler = async (msg) => {
 
   if (isWordSkippable) return;
 
-  bot.sendMessage(msg.chat.id, `Add word "${text}" to your list`, {
-    reply_markup: {
-      inline_keyboard: [
-        [
-          { text: 'Add', callback_data: packData(ACTION.ADD_WORD_CONFIRM, text) },
-          { text: 'Cancel', callback_data: packData(ACTION.ADD_WORD_REFUSE, text) },
-        ],
-      ],
-    },
-  });
+  bot.sendMessage(msg.chat.id, `Add word "${text}" to your list`, addWordDialogKeyboard(text));
 };
 
 export const onSettings: CommandHandler = async (msg) => {
   const { id } = msg.chat;
-
-  bot.sendMessage(id, 'You can change...', {
-    reply_markup: {
-      inline_keyboard: [
-        [
-          { text: 'Start', callback_data: packData(ACTION.SET_MODE, MODE.START) },
-          { text: 'Stop', callback_data: packData(ACTION.SET_MODE, MODE.STOP) },
-        ],
-        [
-          { text: 'Period 15min', callback_data: packData(ACTION.SET_PERIOD, PERIOD['15_MIN']) },
-          { text: 'Period 30min', callback_data: packData(ACTION.SET_PERIOD, PERIOD['30_MIN']) },
-        ],
-      ],
-    },
-  });
+  showSettings(id);
 };

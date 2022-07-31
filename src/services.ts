@@ -12,6 +12,8 @@ const addUser = (id: number, first_name: string | undefined, username: string | 
   return repository.User.addUser(id, first_name, username);
 };
 
+const getUser = async (telegramId: number) => await repository.User.getUser(telegramId);
+
 const addWord = async (value: string, userId: number) => {
   const res = await repository.Word.addWord(value);
   const wordId = res?.id;
@@ -45,4 +47,4 @@ const getJobs = async (): Promise<User[]> => {
 const updateUser = (telegramId: number, mode?: string, period?: number): Promise<void> =>
   repository.User.updateUser(telegramId, mode, period);
 
-export const services = { addUser, addWord, getJobs, getUserWords, updateUser };
+export const services = { addUser, addWord, getJobs, getUserWords, updateUser, getUser };

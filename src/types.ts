@@ -1,5 +1,6 @@
 import TelegramBot, { CallbackQuery, Message } from 'node-telegram-bot-api';
 import { Entry, Translation } from '@prisma/client';
+import { ACTION } from './constants';
 
 export interface IPhonetic {
   text: string;
@@ -97,6 +98,12 @@ export interface MessageHandler {
 export type YandexRequest = (word: string) => Promise<IEntry[]>;
 
 export type WordResponse = { def: IEntry[] };
+
+interface ActionMapFunction {
+  ({ id, value }: { id: number; value: string }): Promise<void>;
+}
+
+export type ActionMap = Record<ACTION, ActionMapFunction>;
 
 export class BotError extends Error {
   skippable: boolean;

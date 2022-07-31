@@ -1,8 +1,6 @@
 import { services } from './services';
-import bot from './index';
-import { formateMessage } from './helpers';
-import { getLinks } from './api';
 import { repository } from './Models';
+import { sendWord } from './controllers';
 
 const TIME_OUT = 5000;
 
@@ -11,35 +9,21 @@ const sender = async () => {
 
   await Promise.all(
     users.map(async (user) => {
-      const word = await services.getUserWords(user.telegramId);
-      console.log('word: ', word);
-
-      if (!word) return;
-
-      const formattedMessage = formateMessage(word);
-
-      const url = getLinks(word.text).CAMBRIDGE.RU;
-
-      bot.sendMessage(user.telegramId, formattedMessage, {
-        parse_mode: 'HTML',
-        reply_markup: {
-          inline_keyboard: [[{ text: 'open cambridge dictionary', url }]],
-        },
-      });
+      await sendWord(user.telegramId);
       await repository.User.updateUserSendTime(user.telegramId);
     })
   );
 };
 
-const sheduler = () => {
-  const timer = () => {
-    setTimeout(() => {
-      sender();
-      timer();
+const sheduler = async () => {
+  const timer = async () => {
+    setTimeout(async () => {
+      await sender();
+      await timer();
     }, TIME_OUT);
   };
 
-  timer();
+  await timer();
 };
 
 export { sheduler };

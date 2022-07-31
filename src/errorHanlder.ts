@@ -8,6 +8,7 @@ import {
 import { ERRORS } from './constants';
 import { BotError } from './types';
 import bot from './index';
+import { simpleKeyboard } from './helpers/keyboards';
 
 export const getErrorMessage = (error: unknown): string => {
   let message = ERRORS.ERROR;
@@ -44,6 +45,6 @@ export const errorHandler = async (
     await func;
   } catch (error) {
     const message = getErrorMessage(error);
-    if (id) bot.sendMessage(id, message);
+    if (id) bot.sendMessage(id, message, simpleKeyboard());
   }
 };
