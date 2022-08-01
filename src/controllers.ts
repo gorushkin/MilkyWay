@@ -55,7 +55,7 @@ const actonsMapping: ActionMap = {
     showSettings(id);
   },
   [ACTION.SET_MODE]: async ({ id, value }) => {
-    await services.updateUser({ telegramId: id, mode: value });
+    await services.updateUser({ telegramId: id, mode: value, lastSendTime: true });
     await bot.sendMessage(id, `I changed your mode to ${value}`, closeKeyboard());
   },
   [ACTION.PERIOD_SET]: async ({ id, value }) => {
