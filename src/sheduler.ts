@@ -10,7 +10,7 @@ const sender = async () => {
   await Promise.all(
     users.map(async (user) => {
       await sendWord(user.telegramId);
-      await repository.User.updateUserSendTime(user.telegramId);
+      await repository.User.updateUser({ telegramId: user.telegramId, lastSendTime: true });
     })
   );
 };

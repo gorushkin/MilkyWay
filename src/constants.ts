@@ -27,9 +27,8 @@ export enum ACTION {
 export enum MODE {
   START = 'START',
   STOP = 'STOP',
+  WAITING = 'WAITING',
 }
-
-
 
 export const commandsList = [
   { command: COMMAND.start, description: "Let's go" },

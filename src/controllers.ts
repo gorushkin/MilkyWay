@@ -54,15 +54,15 @@ const actonsMapping: ActionMap = {
     showSettings(id);
   },
   [ACTION.SET_MODE]: async ({ id, value }) => {
-    await services.updateUser(id, value);
+    await services.updateUser({ telegramId: id, mode: value });
     bot.sendMessage(id, `I changed your mode to ${value}`, simpleKeyboard());
   },
   [ACTION.PERIOD_SET]: async ({ id, value }) => {
-    await services.updateUser(id, '', Number(value));
+    await services.updateUser({ telegramId: id, period: Number(value) });
     bot.sendMessage(id, `I changed your period to ${value} min`, simpleKeyboard());
   },
   [ACTION.SETTINGS_CLOSE]: async ({ id, value }) => {
-    await services.updateUser(id, '', Number(value));
+    await services.updateUser({ telegramId: id, period: Number(value) });
     const user = await services.getUser(id);
     if (!user) throw new Error('ALARMA!!! There is no user with this id!!!');
     bot.sendMessage(id, `Mode = ${user.mode}, period = ${user.period}`, simpleKeyboard());

@@ -38,13 +38,22 @@ const getJobs = async (): Promise<User[]> => {
   const currentTime = dayjs();
 
   return users.filter((user) => {
-    if (user.mode === MODE.STOP || !user.period) return false;
+    if (user.mode === MODE.STOP || user.mode === MODE.WAITING || !user.period) return false;
     if (!user.lastSendTime) return true;
     return dayjs(user.lastSendTime).add(Number(user.period), 'minute') <= currentTime;
   });
 };
 
-const updateUser = (telegramId: number, mode?: string, period?: number): Promise<void> =>
-  repository.User.updateUser(telegramId, mode, period);
+const updateUser = ({
+  telegramId,
+  mode,
+  period,
+  lastSendTime,
+}: {
+  telegramId: number;
+  mode?: string;
+  period?: number;
+  lastSendTime?: boolean;
+}): Promise<void> => repository.User.updateUser({ telegramId, mode, period, lastSendTime });
 
 export const services = { addUser, addWord, getJobs, getUserWords, updateUser, getUser };
