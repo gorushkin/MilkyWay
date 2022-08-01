@@ -26,10 +26,7 @@ export const nextWordButton = (telegramId: number) =>
 export const cambrigeUrlButton = (url: string) => getUrlButton('Cambridge dictionary', url);
 
 export const sendWordKeyBoard = (url: string, telegramId: number) =>
-  getInlineKeyboard([
-    [cambrigeUrlButton(url), nextWordButton(telegramId), confirmReadButton],
-    [settingsButton],
-  ]);
+  getInlineKeyboard([[cambrigeUrlButton(url), nextWordButton(telegramId), confirmReadButton]]);
 
 export const settingsKeyboard = () =>
   getInlineKeyboard([
@@ -60,6 +57,8 @@ export const periodSettingsKeyboard = () =>
     [settingsBackButton, closeButton],
   ]);
 
+export const closeKeyboard = () => getInlineKeyboard([[closeButton]]);
+
 export const simpleKeyboard = () => getInlineKeyboard([[settingsButton, closeButton]]);
 
 export const addWordDialogKeyboard = (text: string) =>
@@ -68,5 +67,4 @@ export const addWordDialogKeyboard = (text: string) =>
       { text: 'Add', callback_data: packData(ACTION.ADD_WORD_CONFIRM, text) },
       { text: 'Cancel', callback_data: packData(ACTION.ADD_WORD_REFUSE, text) },
     ],
-    [settingsButton, closeButton],
   ]);
