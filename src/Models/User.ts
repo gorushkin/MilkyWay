@@ -10,8 +10,12 @@ class User {
     this.user = client.user;
   }
 
+  async getUser(telegramId: number) {
+    return await this.user.findUnique({ where: { telegramId } });
+  }
+
   async isUserExist(telegramId: number) {
-    const user = await prisma.user.findUnique({ where: { telegramId } });
+    const user = await this.user.findUnique({ where: { telegramId } });
     return !!user;
   }
 
@@ -32,13 +36,23 @@ class User {
     await this.user.create({ data: { telegramId, username, first_name } });
   }
 
-  async updateUserSendTime(telegramId: number) {
-    await this.user.update({ where: { telegramId }, data: { lastSendTime: new Date() } });
-  }
-
-  async updateUser(telegramId: number, mode?: string, period?: number) {
-    if (mode) await this.user.update({ where: { telegramId }, data: { mode } });
-    if (period) await this.user.update({ where: { telegramId }, data: { period } });
+  async updateUser({
+    telegramId,
+    mode,
+    period,
+    lastSendTime,
+  }: {
+    telegramId: number;
+    mode?: string;
+    period?: number;
+    lastSendTime?: boolean;
+  }) {
+    const data = {
+      ...(mode && { mode }),
+      ...(period && { period }),
+      ...(lastSendTime && { lastSendTime: new Date() }),
+    };
+    await this.user.update({ where: { telegramId }, data });
   }
 }
 

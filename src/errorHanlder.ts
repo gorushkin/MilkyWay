@@ -8,11 +8,12 @@ import {
 import { ERRORS } from './constants';
 import { BotError } from './types';
 import bot from './index';
+import { closeKeyboard } from './helpers/keyboards';
+import {} from 'node-telegram-bot-api';
 
 export const getErrorMessage = (error: unknown): string => {
   let message = ERRORS.ERROR;
   if (error instanceof BotError) {
-    console.log(error.message);
     message = error.message;
   }
   if (error instanceof PrismaClientKnownRequestError) {
@@ -28,6 +29,26 @@ export const getErrorMessage = (error: unknown): string => {
     message = error.message;
   }
 
+  if (error instanceof PrismaClientValidationError) {
+    console.log('PrismaClientValidationError');
+    console.log(error.message);
+  }
+
+  if (error instanceof Error) {
+    if (error.constructor.name === 'TelegramError') {
+      console.log('error: ', error.message);
+      console.log('TelegramError');
+    }
+
+    if (error.constructor.name === 'ParseError') {
+      console.log('ParseError');
+    }
+
+    if (error.constructor.name === 'FatalError') {
+      console.log('FatalError');
+    }
+  }
+
   return message;
 };
 
@@ -39,6 +60,6 @@ export const errorHandler = async (
     await func;
   } catch (error) {
     const message = getErrorMessage(error);
-    if (id) bot.sendMessage(id, message);
+    if (id) await bot.sendMessage(id, message, closeKeyboard());
   }
 };
