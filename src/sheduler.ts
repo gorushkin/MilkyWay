@@ -1,6 +1,7 @@
 import { services } from './services';
 import { repository } from './Models';
 import { sendWord } from './controllers';
+import { MODE } from './constants';
 
 const TIME_OUT = 5000;
 
@@ -10,7 +11,11 @@ const sender = async () => {
   await Promise.all(
     users.map(async (user) => {
       await sendWord(user.telegramId);
-      await repository.User.updateUser({ telegramId: user.telegramId, lastSendTime: true });
+      await repository.User.updateUser({
+        telegramId: user.telegramId,
+        lastSendTime: true,
+        mode: MODE.WAITING,
+      });
     })
   );
 };

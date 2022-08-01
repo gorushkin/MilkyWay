@@ -16,6 +16,7 @@ const getUrlButton = (text: string, url: string): InlineKeyboardButton => ({ tex
 export const settingsButton = getTextButton('Settings', packData(ACTION.SETTINGS_OPEN, ''));
 
 export const closeButton = getTextButton('Close', packData(ACTION.CLOSE, ''));
+export const confirmReadButton = getTextButton('Ok', packData(ACTION.READ_CONFIRM, ''));
 
 export const settingsBackButton = getTextButton('Back', packData(ACTION.SETTINGS_OPEN, ''));
 
@@ -26,8 +27,8 @@ export const cambrigeUrlButton = (url: string) => getUrlButton('Cambridge dictio
 
 export const sendWordKeyBoard = (url: string, telegramId: number) =>
   getInlineKeyboard([
-    [cambrigeUrlButton(url), nextWordButton(telegramId)],
-    [settingsButton, closeButton],
+    [cambrigeUrlButton(url), nextWordButton(telegramId), confirmReadButton],
+    [settingsButton],
   ]);
 
 export const settingsKeyboard = () =>

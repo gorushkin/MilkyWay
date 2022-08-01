@@ -1,7 +1,7 @@
 import { ActionMap, CallBackHandler, CommandHandler, MessageHandler } from './types';
 import { unpackData, formateMessage } from './helpers';
 import { services } from './services';
-import { ACTION, commandsList } from './constants';
+import { ACTION, commandsList, MODE } from './constants';
 import bot from './index';
 import { getLinks } from './api';
 import {
@@ -68,6 +68,9 @@ const actonsMapping: ActionMap = {
     bot.sendMessage(id, `Mode = ${user.mode}, period = ${user.period}`, simpleKeyboard());
   },
   [ACTION.CLOSE]: async () => {},
+  [ACTION.READ_CONFIRM]: async ({ id }) => {
+    await services.updateUser({ telegramId: id, mode: MODE.START, lastSendTime: true });
+  },
 };
 
 export const onCallbackQuery: CallBackHandler = async (query) => {

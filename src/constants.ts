@@ -22,6 +22,7 @@ export enum ACTION {
   SET_MODE = 'SET_MODE',
   PERIOD_SET = 'PERIOD_SET',
   CLOSE = 'CLOSE',
+  READ_CONFIRM = 'READ_CONFIRM',
 }
 
 export enum MODE {
