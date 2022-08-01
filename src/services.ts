@@ -49,11 +49,14 @@ const updateUser = ({
   mode,
   period,
   lastSendTime,
+  language,
 }: {
   telegramId: number;
   mode?: string;
   period?: number;
   lastSendTime?: boolean;
-}): Promise<void> => repository.User.updateUser({ telegramId, mode, period, lastSendTime });
+  language?: string;
+}): Promise<void> =>
+  repository.User.updateUser({ telegramId, mode, period, lastSendTime, language });
 
 export const services = { addUser, addWord, getJobs, getUserWords, updateUser, getUser };

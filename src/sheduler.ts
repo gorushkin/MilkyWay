@@ -1,5 +1,4 @@
 import { services } from './services';
-import { repository } from './Models';
 import { sendWord } from './controllers';
 import { MODE } from './constants';
 
@@ -11,7 +10,7 @@ const sender = async () => {
   await Promise.all(
     users.map(async (user) => {
       await sendWord(user.telegramId);
-      await repository.User.updateUser({
+      await services.updateUser({
         telegramId: user.telegramId,
         lastSendTime: true,
         mode: MODE.WAITING,

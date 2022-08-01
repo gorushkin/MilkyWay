@@ -17,18 +17,32 @@ export enum ACTION {
   NEXT_WORD = 'NEXT_WORD',
   SETTINGS_MODE = 'SETTINGS_MODE',
   SETTING_PERIOD = 'SETTING_PERIOD',
+  SETTING_LANGUAGE = 'SETTING_LANGUAGE',
   SETTINGS_OPEN = 'SETTINGS_OPEN',
   SETTINGS_CLOSE = 'SETTINGS_CLOSE',
   SET_MODE = 'SET_MODE',
   PERIOD_SET = 'PERIOD_SET',
   CLOSE = 'CLOSE',
   READ_CONFIRM = 'READ_CONFIRM',
+  LANGUAGE_SET = 'LANGUAGE_SET',
 }
 
 export enum MODE {
   START = 'START',
   STOP = 'STOP',
   WAITING = 'WAITING',
+}
+
+export enum PERIOD {
+  '1_MIN' = '1',
+  '5_MIN' = '5',
+  '15_MIN' = '15',
+  '30_MIN' = '30',
+}
+
+export enum LANGUAGE {
+  DE = 'DE',
+  EN = 'EN',
 }
 
 export const commandsList = [

@@ -1,5 +1,5 @@
 import { InlineKeyboardButton, SendBasicOptions } from 'node-telegram-bot-api';
-import { ACTION } from '../constants';
+import { ACTION, LANGUAGE, PERIOD } from '../constants';
 import { packData } from '.';
 
 export const getInlineKeyboard = (buttons: InlineKeyboardButton[][]): SendBasicOptions => {
@@ -14,9 +14,17 @@ const getTextButton = (text: string, callback_data: string): InlineKeyboardButto
 const getUrlButton = (text: string, url: string): InlineKeyboardButton => ({ text, url });
 
 export const settingsButton = getTextButton('Settings', packData(ACTION.SETTINGS_OPEN, ''));
+export const languageButtonEN = getTextButton(
+  LANGUAGE.EN,
+  packData(ACTION.LANGUAGE_SET, LANGUAGE.EN)
+);
+export const languageButtonDE = getTextButton(
+  LANGUAGE.DE,
+  packData(ACTION.LANGUAGE_SET, LANGUAGE.DE)
+);
 
 export const closeButton = getTextButton('Close', packData(ACTION.CLOSE, ''));
-export const confirmReadButton = getTextButton('Ok', packData(ACTION.READ_CONFIRM, ''));
+export const confirmReadButton = getTextButton('Close', packData(ACTION.READ_CONFIRM, ''));
 
 export const settingsBackButton = getTextButton('Back', packData(ACTION.SETTINGS_OPEN, ''));
 
@@ -33,6 +41,7 @@ export const settingsKeyboard = () =>
     [
       { text: 'Mode', callback_data: packData(ACTION.SETTINGS_MODE, '') },
       { text: 'Period', callback_data: packData(ACTION.SETTING_PERIOD, '') },
+      { text: 'Language', callback_data: packData(ACTION.SETTING_LANGUAGE, '') },
     ],
     [closeButton],
   ]);
@@ -49,17 +58,24 @@ export const modeSettingsKeyboard = () =>
 export const periodSettingsKeyboard = () =>
   getInlineKeyboard([
     [
-      { text: '1 min', callback_data: packData(ACTION.PERIOD_SET, '1') },
-      { text: '5 min', callback_data: packData(ACTION.PERIOD_SET, '5') },
-      { text: '15 min', callback_data: packData(ACTION.PERIOD_SET, '15') },
-      { text: '30 min', callback_data: packData(ACTION.PERIOD_SET, '30') },
+      { text: '1 min', callback_data: packData(ACTION.PERIOD_SET, PERIOD['1_MIN']) },
+      { text: '5 min', callback_data: packData(ACTION.PERIOD_SET, PERIOD['5_MIN']) },
+      { text: '15 min', callback_data: packData(ACTION.PERIOD_SET, PERIOD['15_MIN']) },
+      { text: '30 min', callback_data: packData(ACTION.PERIOD_SET, PERIOD['30_MIN']) },
     ],
+    [settingsBackButton, closeButton],
+  ]);
+
+export const languageSettingsKeyboard = () =>
+  getInlineKeyboard([
+    [languageButtonEN, languageButtonDE],
     [settingsBackButton, closeButton],
   ]);
 
 export const closeKeyboard = () => getInlineKeyboard([[closeButton]]);
 
 export const simpleKeyboard = () => getInlineKeyboard([[settingsButton, closeButton]]);
+export const startKeyboard = () => getInlineKeyboard([[languageButtonEN, languageButtonDE]]);
 
 export const addWordDialogKeyboard = (text: string) =>
   getInlineKeyboard([
