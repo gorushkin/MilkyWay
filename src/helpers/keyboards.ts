@@ -1,5 +1,5 @@
 import { InlineKeyboardButton, SendBasicOptions } from 'node-telegram-bot-api';
-import { ACTION, LANGUAGE, PERIOD } from '../constants';
+import { ACTION, LANGUAGE, MODE, PERIOD } from '../constants';
 import { packData } from '.';
 
 export const getInlineKeyboard = (buttons: InlineKeyboardButton[][]): SendBasicOptions => {
@@ -13,28 +13,24 @@ const getTextButton = (text: string, callback_data: string): InlineKeyboardButto
 
 const getUrlButton = (text: string, url: string): InlineKeyboardButton => ({ text, url });
 
-export const settingsButton = getTextButton('Settings', packData(ACTION.SETTINGS_OPEN, ''));
-export const languageButtonEN = getTextButton(
-  LANGUAGE.EN,
-  packData(ACTION.LANGUAGE_SET, LANGUAGE.EN)
-);
-export const languageButtonDE = getTextButton(
-  LANGUAGE.DE,
-  packData(ACTION.LANGUAGE_SET, LANGUAGE.DE)
-);
+const settingsButton = getTextButton('Settings', packData(ACTION.SETTINGS_OPEN, ''));
+const languageButtonEN = getTextButton(LANGUAGE.EN, packData(ACTION.LANGUAGE_SET, LANGUAGE.EN));
+const languageButtonDE = getTextButton(LANGUAGE.DE, packData(ACTION.LANGUAGE_SET, LANGUAGE.DE));
 
-export const closeButton = getTextButton('Close', packData(ACTION.CLOSE, ''));
-export const confirmReadButton = getTextButton('Close', packData(ACTION.READ_CONFIRM, ''));
+const closeButton = getTextButton('Close', packData(ACTION.CLOSE, ''));
+const confirmReadButton = getTextButton('Close', packData(ACTION.READ_CONFIRM, ''));
 
-export const settingsBackButton = getTextButton('Back', packData(ACTION.SETTINGS_OPEN, ''));
+const settingsBackButton = getTextButton('Back', packData(ACTION.SETTINGS_OPEN, ''));
 
-export const nextWordButton = (telegramId: number) =>
+const getNextWordButton = (telegramId: number) =>
   getTextButton('Next Word', packData(ACTION.NEXT_WORD, telegramId.toString()));
 
-export const cambrigeUrlButton = (url: string) => getUrlButton('Cambridge dictionary', url);
+const getCambrigeUrlButton = (url: string) => getUrlButton('Cambridge dictionary', url);
 
 export const sendWordKeyBoard = (url: string, telegramId: number) =>
-  getInlineKeyboard([[cambrigeUrlButton(url), nextWordButton(telegramId), confirmReadButton]]);
+  getInlineKeyboard([
+    [getCambrigeUrlButton(url), getNextWordButton(telegramId), confirmReadButton],
+  ]);
 
 export const settingsKeyboard = () =>
   getInlineKeyboard([
@@ -49,8 +45,8 @@ export const settingsKeyboard = () =>
 export const modeSettingsKeyboard = () =>
   getInlineKeyboard([
     [
-      { text: 'Start', callback_data: packData(ACTION.SET_MODE, 'START') },
-      { text: 'Stop', callback_data: packData(ACTION.SET_MODE, 'STOP') },
+      { text: 'Start', callback_data: packData(ACTION.SET_MODE, MODE.START) },
+      { text: 'Stop', callback_data: packData(ACTION.SET_MODE, MODE.STOP) },
     ],
     [settingsBackButton, closeButton],
   ]);

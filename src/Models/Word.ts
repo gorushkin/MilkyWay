@@ -1,7 +1,5 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 import { getWordRequest } from '../api';
-import { ERRORS } from '../constants';
-import { BotDictionaryError } from '../types';
 import Entry from './Entry';
 const prisma = new PrismaClient();
 
@@ -18,11 +16,6 @@ class Word {
     return getWordRequest(word);
   }
 
-  private async isWordExist(text: string) {
-    const word = await this.word.findUnique({ where: { text } });
-    return !!word;
-  }
-
   getUserWords(telegramId: number) {
     return this.word.findMany({ where: { User: { telegramId: telegramId } } });
   }
@@ -32,9 +25,9 @@ class Word {
   }
 
   async addWord(text: string) {
-    const existingWord = await this.word.findUnique({ where: { text } });
+    const word = await this.word.findUnique({ where: { text } });
 
-    if (existingWord) return existingWord;
+    if (word) return word;
 
     const data = await this.getWordFromDictionary(text);
 

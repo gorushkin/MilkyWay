@@ -68,16 +68,22 @@ export interface IYandexWord {
   mean?: IYandexWord[];
 }
 
-export interface WordWithTr {
-  text: string;
-  entries: (Entry & {
-    translation: Translation[];
-  })[];
-}
-
 export type EntryWithTr = Entry & {
   translation: Translation[];
 };
+export interface EntireWord {
+  text: string;
+  entries: EntryWithTr[];
+}
+
+export interface ParsedEntries {
+  part_of_speech: string;
+  translations: {
+    text: string;
+    example?: string;
+    meaning?: string;
+  }[];
+}
 
 export interface HandleError {
   (bot: TelegramBot, id: number, message: string): Promise<void>;

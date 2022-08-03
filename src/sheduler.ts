@@ -1,5 +1,5 @@
-import { services } from './services';
-import { sendWord } from './controllers';
+import * as services from './services';
+import { sentEntireWord } from './controllers';
 import { MODE } from './constants';
 
 const TIME_OUT = 5000;
@@ -9,7 +9,7 @@ const sender = async () => {
 
   await Promise.all(
     users.map(async (user) => {
-      await sendWord(user.telegramId);
+      await sentEntireWord(user.telegramId);
       await services.updateUser({
         telegramId: user.telegramId,
         lastSendTime: true,

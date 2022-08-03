@@ -21,6 +21,7 @@ model User {
   words        Word[]
   mode         String?
   period       Int?
+  language     String?
 }
 
 model Word {

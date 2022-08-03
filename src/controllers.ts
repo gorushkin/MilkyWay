@@ -1,6 +1,6 @@
 import { ActionMap, BotError, CallBackHandler, CommandHandler, MessageHandler } from './types';
-import { unpackData, formateMessage } from './helpers';
-import { services } from './services';
+import { unpackData, getFormattedMessage, getformattedMessageBody } from './helpers';
+import * as services from './services';
 import { ACTION, commandsList, MODE } from './constants';
 import bot from './index';
 import { getLinks } from './api';
@@ -16,12 +16,12 @@ import {
   languageSettingsKeyboard,
 } from './helpers/keyboards';
 
-export const sendWord = async (telegramId: number) => {
+export const sentEntireWord = async (telegramId: number) => {
   const word = await services.getUserWords(telegramId);
 
   if (!word) return;
 
-  const formattedMessage = formateMessage(word);
+  const formattedMessage = getFormattedMessage(word);
 
   const url = getLinks(word.text).CAMBRIDGE.RU;
 
@@ -31,15 +31,18 @@ export const sendWord = async (telegramId: number) => {
   });
 };
 
-export const showSettings = async (telegramId: number) => {
-  await bot.sendMessage(telegramId, 'Settings', settingsKeyboard());
-};
+export const showSettings = (telegramId: number) =>
+  bot.sendMessage(telegramId, 'Settings', settingsKeyboard());
 
 const actonsMapping: ActionMap = {
   [ACTION.ADD_WORD_CONFIRM]: async ({ id, value }) => {
     // TODO: validating - only letters
-    await services.addWord(value, id);
-    await bot.sendMessage(id, `I added word "${value}" to your list`, closeKeyboard());
+    const word = await services.addWord(value, id);
+    const formattedMessageBody = getformattedMessageBody(word);
+    await bot.sendMessage(id, `I added word "${value}" to your list\n${formattedMessageBody}`, {
+      parse_mode: 'HTML',
+      ...closeKeyboard(),
+    });
   },
   [ACTION.ADD_WORD_REFUSE]: async ({ id }) => {
     await bot.sendMessage(id, `Ok!`, closeKeyboard());
@@ -54,7 +57,7 @@ const actonsMapping: ActionMap = {
     await bot.sendMessage(id, 'Select your language', languageSettingsKeyboard());
   },
   [ACTION.NEXT_WORD]: async ({ value }) => {
-    sendWord(Number(value));
+    sentEntireWord(Number(value));
   },
   [ACTION.SETTINGS_OPEN]: async ({ id }) => {
     showSettings(id);
@@ -113,11 +116,6 @@ export const onStart: CommandHandler = async (msg) => {
   );
 };
 
-export const onTest: CommandHandler = async (msg) => {
-  const { id } = msg.chat;
-  await sendWord(id);
-};
-
 export const onMessage: MessageHandler = async (msg) => {
   const text = msg.text;
 
@@ -138,7 +136,6 @@ export const onMessage: MessageHandler = async (msg) => {
   );
 };
 
-export const onSettings: CommandHandler = async (msg) => {
-  const { id } = msg.chat;
-  showSettings(id);
-};
+export const onTest: CommandHandler = (msg) => sentEntireWord(msg.chat.id);
+
+export const onSettings: CommandHandler = (msg) => showSettings(msg.chat.id);

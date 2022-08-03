@@ -1,6 +1,6 @@
 import { repository } from './Models';
 import _ from 'lodash';
-import { WordWithTr } from './types';
+import { EntryWithTr, EntireWord } from './types';
 import { MODE } from './constants';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -8,19 +8,24 @@ import { User } from '@prisma/client';
 
 dayjs.extend(utc);
 
-const addUser = (id: number, first_name: string | undefined, username: string | undefined) => {
-  return repository.User.addUser(id, first_name, username);
-};
+export const getWordWithEntries = (wordID: string): Promise<EntryWithTr[]> =>
+  repository.Entry.getEntry(wordID);
 
-const getUser = async (telegramId: number) => await repository.User.getUser(telegramId);
+export const addUser = (id: number, first_name: string | undefined, username: string | undefined) =>
+  repository.User.addUser(id, first_name, username);
 
-const addWord = async (value: string, userId: number) => {
-  const res = await repository.Word.addWord(value);
-  const wordId = res?.id;
+export const getUser = (telegramId: number) => repository.User.getUser(telegramId);
+
+export const addWord = async (value: string, userId: number): Promise<EntireWord> => {
+  const word = await repository.Word.addWord(value);
+  const wordId = word?.id;
   if (wordId) await repository.User.addWord(userId, wordId);
+
+  const entries = await getWordWithEntries(word.id);
+  return { text: word.text, entries };
 };
 
-const getUserWords = async (telegramId: number): Promise<null | WordWithTr> => {
+export const getUserWords = async (telegramId: number): Promise<null | EntireWord> => {
   const words = await repository.Word.getUserWords(telegramId);
   const word = _.sample(words);
 
@@ -28,12 +33,12 @@ const getUserWords = async (telegramId: number): Promise<null | WordWithTr> => {
 
   const wordID = word.id;
 
-  const entries = await repository.Entry.getEntry(wordID);
+  const entries = await getWordWithEntries(wordID);
 
   return { text: word.text, entries };
 };
 
-const getJobs = async (): Promise<User[]> => {
+export const getJobs = async (): Promise<User[]> => {
   const users = await repository.User.getUsers();
   const currentTime = dayjs();
 
@@ -44,7 +49,7 @@ const getJobs = async (): Promise<User[]> => {
   });
 };
 
-const updateUser = ({
+export const updateUser = ({
   telegramId,
   mode,
   period,
@@ -58,5 +63,3 @@ const updateUser = ({
   language?: string;
 }): Promise<void> =>
   repository.User.updateUser({ telegramId, mode, period, lastSendTime, language });
-
-export const services = { addUser, addWord, getJobs, getUserWords, updateUser, getUser };
