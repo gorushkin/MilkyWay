@@ -1,59 +1,70 @@
 import { repository } from './Models';
 import _ from 'lodash';
-import { WordWithTr } from './types';
-import { MODE } from './constants';
+import { EntryWithTr, EntireWord } from './types';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { User } from '@prisma/client';
 
 dayjs.extend(utc);
 
-const addUser = (id: number, first_name: string | undefined, username: string | undefined) => {
-  return repository.User.addUser(id, first_name, username);
-};
+export const getWordWithEntries = (wordID: string): Promise<EntryWithTr[]> =>
+  repository.Entry.getEntry(wordID);
 
-const getUser = async (telegramId: number) => await repository.User.getUser(telegramId);
+export const addUser = (id: number, first_name: string | undefined, username: string | undefined) =>
+  repository.User.addUser(id, first_name, username);
 
-const addWord = async (value: string, userId: number) => {
-  const res = await repository.Word.addWord(value);
-  const wordId = res?.id;
+export const getUser = (telegramId: number) => repository.User.getUser(telegramId);
+
+export const addWord = async (value: string, userId: number): Promise<EntireWord> => {
+  const user = await repository.User.getUser(userId);
+
+  if (!user?.language) throw new Error('You should set language!!!!');
+
+  const word = await repository.Word.addWord(value, user.language);
+
+  const wordId = word?.id;
   if (wordId) await repository.User.addWord(userId, wordId);
+
+  const entries = await getWordWithEntries(word.id);
+  return { text: word.text, entries };
 };
 
-const getUserWords = async (telegramId: number): Promise<null | WordWithTr> => {
-  const words = await repository.Word.getUserWords(telegramId);
+export const getUserWords = async (telegramId: number): Promise<null | EntireWord> => {
+  const user = await repository.User.getUser(telegramId);
+
+  if (!user?.language) return null;
+
+  const words = await repository.Word.getUserWords(telegramId, user.language);
   const word = _.sample(words);
 
   if (!word) return null;
 
   const wordID = word.id;
 
-  const entries = await repository.Entry.getEntry(wordID);
+  const entries = await getWordWithEntries(wordID);
 
   return { text: word.text, entries };
 };
 
-const getJobs = async (): Promise<User[]> => {
+export const getJobs = async (): Promise<User[]> => {
   const users = await repository.User.getUsers();
-  const currentTime = dayjs();
 
-  return users.filter((user) => {
-    if (user.mode === MODE.STOP || user.mode === MODE.WAITING || !user.period) return false;
-    if (!user.lastSendTime) return true;
-    return dayjs(user.lastSendTime).add(Number(user.period), 'minute') <= currentTime;
-  });
+  return users.filter(
+    (user) => dayjs(user.lastSendTime).add(Number(user.period), 'minute') <= dayjs()
+  );
 };
 
-const updateUser = ({
+export const updateUser = ({
   telegramId,
   mode,
   period,
   lastSendTime,
+  language,
 }: {
   telegramId: number;
   mode?: string;
   period?: number;
   lastSendTime?: boolean;
-}): Promise<void> => repository.User.updateUser({ telegramId, mode, period, lastSendTime });
-
-export const services = { addUser, addWord, getJobs, getUserWords, updateUser, getUser };
+  language?: string;
+}): Promise<void> =>
+  repository.User.updateUser({ telegramId, mode, period, lastSendTime, language });

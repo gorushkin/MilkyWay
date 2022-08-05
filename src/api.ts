@@ -9,12 +9,15 @@ export const getLinks = (word: string) => ({
     EN: `https://dictionary.cambridge.org/dictionary/english/${word}`,
   },
   DICTIONARY: `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`,
-  YANDEX: `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${config.YANDEX_API_KEY}&lang=en-ru&text=${word}`,
+  YANDEX: {
+    EN: `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${config.YANDEX_API_KEY}&lang=en-ru&text=${word}`,
+    DE: `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${config.YANDEX_API_KEY}&lang=en-ru&text=${word}`,
+  },
 });
 
 export const getWordRequest: YandexRequest = async (word) => {
   try {
-    const url = encodeURI(getLinks(word).YANDEX);
+    const url = encodeURI(getLinks(word).YANDEX.EN);
 
     const {
       data: { def },
