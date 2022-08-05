@@ -16,7 +16,7 @@ import {
   languageSettingsKeyboard,
 } from './helpers/keyboards';
 
-export const sentEntireWord = async (telegramId: number) => {
+export const sendEntireWord = async (telegramId: number) => {
   const word = await services.getUserWords(telegramId);
 
   if (!word) return;
@@ -57,7 +57,7 @@ const actonsMapping: ActionMap = {
     await bot.sendMessage(id, 'Select your language', languageSettingsKeyboard());
   },
   [ACTION.NEXT_WORD]: async ({ value }) => {
-    sentEntireWord(Number(value));
+    sendEntireWord(Number(value));
   },
   [ACTION.SETTINGS_OPEN]: async ({ id }) => {
     showSettings(id);
@@ -136,6 +136,6 @@ export const onMessage: MessageHandler = async (msg) => {
   );
 };
 
-export const onTest: CommandHandler = (msg) => sentEntireWord(msg.chat.id);
+export const onTest: CommandHandler = (msg) => sendEntireWord(msg.chat.id);
 
 export const onSettings: CommandHandler = (msg) => showSettings(msg.chat.id);

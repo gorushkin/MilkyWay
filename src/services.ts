@@ -1,7 +1,6 @@
 import { repository } from './Models';
 import _ from 'lodash';
 import { EntryWithTr, EntireWord } from './types';
-import { MODE } from './constants';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { User } from '@prisma/client';
@@ -17,7 +16,12 @@ export const addUser = (id: number, first_name: string | undefined, username: st
 export const getUser = (telegramId: number) => repository.User.getUser(telegramId);
 
 export const addWord = async (value: string, userId: number): Promise<EntireWord> => {
-  const word = await repository.Word.addWord(value);
+  const user = await repository.User.getUser(userId);
+
+  if (!user?.language) throw new Error('You should set language!!!!');
+
+  const word = await repository.Word.addWord(value, user.language);
+
   const wordId = word?.id;
   if (wordId) await repository.User.addWord(userId, wordId);
 
@@ -26,7 +30,11 @@ export const addWord = async (value: string, userId: number): Promise<EntireWord
 };
 
 export const getUserWords = async (telegramId: number): Promise<null | EntireWord> => {
-  const words = await repository.Word.getUserWords(telegramId);
+  const user = await repository.User.getUser(telegramId);
+
+  if (!user?.language) return null;
+
+  const words = await repository.Word.getUserWords(telegramId, user.language);
   const word = _.sample(words);
 
   if (!word) return null;
@@ -40,13 +48,10 @@ export const getUserWords = async (telegramId: number): Promise<null | EntireWor
 
 export const getJobs = async (): Promise<User[]> => {
   const users = await repository.User.getUsers();
-  const currentTime = dayjs();
 
-  return users.filter((user) => {
-    if (user.mode === MODE.STOP || user.mode === MODE.WAITING || !user.period) return false;
-    if (!user.lastSendTime) return true;
-    return dayjs(user.lastSendTime).add(Number(user.period), 'minute') <= currentTime;
-  });
+  return users.filter(
+    (user) => dayjs(user.lastSendTime).add(Number(user.period), 'minute') <= dayjs()
+  );
 };
 
 export const updateUser = ({

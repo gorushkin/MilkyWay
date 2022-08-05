@@ -16,15 +16,17 @@ class Word {
     return getWordRequest(word);
   }
 
-  getUserWords(telegramId: number) {
-    return this.word.findMany({ where: { User: { telegramId: telegramId } } });
+  getUserWords(telegramId: number, language: string) {
+    return this.word.findMany({
+      where: { User: { telegramId }, language },
+    });
   }
 
   getWord(id: string) {
     return this.word.findUnique({ where: { id } });
   }
 
-  async addWord(text: string) {
+  async addWord(text: string, language: string) {
     const word = await this.word.findUnique({ where: { text } });
 
     if (word) return word;
@@ -34,7 +36,7 @@ class Word {
     const entries = await Promise.all(data.map((item) => Entry.addEntry(item)));
 
     return this.word.create({
-      data: { text, entry: { connect: entries.map(({ id }) => ({ id })) } },
+      data: { text, language, entry: { connect: entries.map(({ id }) => ({ id })) } },
     });
   }
 }

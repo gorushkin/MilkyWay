@@ -35,6 +35,10 @@ class User {
             id: { not: '' },
           },
         },
+        language: { not: '' },
+        mode: {
+          equals: MODE.START,
+        },
       },
     });
   }

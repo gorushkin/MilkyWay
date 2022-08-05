@@ -18,3 +18,6 @@
 12. [ ] let words stay after reading. (do not remove it)
 13. [ ] Pack app in docker
 14. [ ] Add dev and prod environments
+15. [ ] SHow status message after all settings
+16. [ ] add buttons "PAUSE", "GO" under word message
+17. [ ] in settings mode show all setting in message
