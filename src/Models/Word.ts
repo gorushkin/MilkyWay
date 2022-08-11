@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient, Prisma, } from '@prisma/client';
 import { getWordRequest } from '../api';
 import Entry from './Entry';
 const prisma = new PrismaClient();

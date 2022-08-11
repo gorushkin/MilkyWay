@@ -1,5 +1,10 @@
 import { ActionMap, BotError, CallBackHandler, CommandHandler, MessageHandler } from './types';
-import { unpackData, getFormattedMessage, getformattedMessageBody } from './helpers';
+import {
+  unpackData,
+  getFormattedMessage,
+  getFormattedMessageBody,
+  getFormattedSettingsMessage,
+} from './helpers';
 import * as services from './services';
 import { ACTION, commandsList, MODE } from './constants';
 import bot from './index';
@@ -14,10 +19,16 @@ import {
   closeKeyboard,
   startKeyboard,
   languageSettingsKeyboard,
+  closeKeyboardWithMode,
 } from './helpers/keyboards';
 
 export const sendEntireWord = async (telegramId: number) => {
   const word = await services.getUserWords(telegramId);
+  const user = await services.getUser(telegramId);
+
+  if (!user) return;
+
+  const { mode } = user;
 
   if (!word) return;
 
@@ -27,18 +38,29 @@ export const sendEntireWord = async (telegramId: number) => {
 
   await bot.sendMessage(telegramId, formattedMessage, {
     parse_mode: 'HTML',
-    ...sendWordKeyBoard(url, telegramId),
+    ...sendWordKeyBoard(url, telegramId, mode),
   });
 };
 
-export const showSettings = (telegramId: number) =>
-  bot.sendMessage(telegramId, 'Settings', settingsKeyboard());
+export const showSettings = async (telegramId: number) => {
+  const user = await services.getUser(telegramId);
+  if (!user) return;
 
-const actonsMapping: ActionMap = {
+  const { mode, period, language } = user;
+
+  const formattedSettings = getFormattedSettingsMessage({ mode, period, language });
+
+  bot.sendMessage(telegramId, formattedSettings, {
+    parse_mode: 'HTML',
+    ...settingsKeyboard(),
+  });
+};
+
+const actionsMapping: ActionMap = {
   [ACTION.ADD_WORD_CONFIRM]: async ({ id, value }) => {
     // TODO: validating - only letters
     const word = await services.addWord(value, id);
-    const formattedMessageBody = getformattedMessageBody(word);
+    const formattedMessageBody = getFormattedMessageBody(word);
     await bot.sendMessage(id, `I added word "${value}" to your list\n${formattedMessageBody}`, {
       parse_mode: 'HTML',
       ...closeKeyboard(),
@@ -63,8 +85,17 @@ const actonsMapping: ActionMap = {
     showSettings(id);
   },
   [ACTION.SET_MODE]: async ({ id, value }) => {
-    await services.updateUser({ telegramId: id, mode: value, lastSendTime: true });
-    await bot.sendMessage(id, `I changed your mode to ${value}`, closeKeyboard());
+    const updatedUser = await services.updateUser({
+      telegramId: id,
+      mode: value,
+      lastSendTime: true,
+    });
+
+    await bot.sendMessage(
+      id,
+      `I changed your mode to ${value}`,
+      closeKeyboardWithMode(updatedUser.mode)
+    );
   },
   [ACTION.PERIOD_SET]: async ({ id, value }) => {
     await services.updateUser({ telegramId: id, period: Number(value) });
@@ -73,7 +104,7 @@ const actonsMapping: ActionMap = {
   [ACTION.SETTINGS_CLOSE]: async ({ id, value }) => {
     await services.updateUser({ telegramId: id, period: Number(value) });
     const user = await services.getUser(id);
-    if (!user) throw new Error('ALARMA!!! There is no user with this id!!!');
+    if (!user) throw new Error('ALARM!!! There is no user with this id!!!');
     await bot.sendMessage(id, `Mode = ${user.mode}, period = ${user.period}`, simpleKeyboard());
   },
   [ACTION.CLOSE]: async () => {},
@@ -101,7 +132,7 @@ export const onCallbackQuery: CallBackHandler = async (query) => {
 
   await bot.deleteMessage(id, messageId.toString());
 
-  await actonsMapping[action as ACTION]({ id, value });
+  await actionsMapping[action as ACTION]({ id, value });
 };
 
 export const onStart: CommandHandler = async (msg) => {

@@ -76,7 +76,7 @@ class User {
       ...(language && { language }),
       ...(lastSendTime && { lastSendTime: new Date() }),
     };
-    await this.user.update({ where: { telegramId }, data });
+    return this.user.update({ where: { telegramId }, data });
   }
 }
 

@@ -1,4 +1,4 @@
-import { EntryWithTr, EntireWord, ParsedEntries } from '../types';
+import { EntryWithTr, EntireWord } from '../types';
 
 export const packData = (action: string, value?: string) => {
   return JSON.stringify({ action, ...(value && { value }) });
@@ -49,7 +49,7 @@ const getParsedEntries = (entries: EntryWithTr[]) => {
   });
 };
 
-export const getformattedMessageBody = (word: EntireWord) => {
+export const getFormattedMessageBody = (word: EntireWord) => {
   const entries = getParsedEntries(word.entries);
 
   return entries
@@ -63,7 +63,24 @@ export const getformattedMessageBody = (word: EntireWord) => {
 export const getFormattedMessage = (word: EntireWord) => {
   const messageTitle = `<b>${word.text.toUpperCase()}</b>`;
 
-  const messageBody = getformattedMessageBody(word);
+  const messageBody = getFormattedMessageBody(word);
 
   return `${messageTitle}\n${messageBody}`;
+};
+
+export const getFormattedSettingsMessage = (props: Record<string, string | number | null>) => {
+  const filteredUserProperties = Object.entries(props).reduce(
+    (acc: { key: string | number | null; value: string | number }[], [key, value]) =>
+      value ? [...acc, { key, value }] : acc,
+    []
+  );
+
+  const formattedSettingsBody = filteredUserProperties
+    .filter((item) => !!item.value)
+    .map(({ key, value }) => `<b>${key}:</b> ${value}`)
+    .join('\n');
+
+  const formattedSettingsTitle = `<b>Current Settings</b>`;
+
+  return `${formattedSettingsTitle}\n${formattedSettingsBody}`;
 };
