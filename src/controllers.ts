@@ -22,6 +22,8 @@ import {
   closeKeyboardWithMode,
 } from './helpers/keyboards';
 
+const messages: string[] = [];
+
 export const sendEntireWord = async (telegramId: number) => {
   const word = await services.getUserWords(telegramId);
   const user = await services.getUser(telegramId);
@@ -126,11 +128,22 @@ export const onCallbackQuery: CallBackHandler = async (query) => {
   await services.addUser(id, first_name, username);
 
   if (!messageId) throw new Error('There is no messageId!!!');
+
+
+
   if (!data) throw new Error('There is no data!!!');
 
   const { action, value } = unpackData(data);
+  console.log('messageId.toString(): ', messageId.toString());
+  messages.push(messageId.toString());
 
-  await bot.deleteMessage(id, messageId.toString());
+  messages.forEach(async (messageId) => {
+    try {
+      await bot.deleteMessage(id, messageId);
+    } catch (error) {}
+  });
+
+  // await bot.deleteMessage(id, messageId.toString());
 
   await actionsMapping[action as ACTION]({ id, value });
 };
