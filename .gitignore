@@ -3,3 +3,4 @@ node_modules
 dev.sqlite*
 # **/*dev.db
 dev.db*
+package-lock.json

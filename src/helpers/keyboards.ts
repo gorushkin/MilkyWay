@@ -87,10 +87,7 @@ export const languageSettingsKeyboard = () =>
     [settingsBackButton, closeButton],
   ]);
 
-export const closeKeyboard = () => getInlineKeyboard([[closeButton]]);
-
-export const closeKeyboardWithMode = (mode: string) =>
-  getInlineKeyboard([[closeButton, getModeButton(mode)]]);
+export const changeModeKeyboard = (mode: string) => getInlineKeyboard([[getModeButton(mode)]]);
 
 export const simpleKeyboard = () => getInlineKeyboard([[settingsButton, closeButton]]);
 

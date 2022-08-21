@@ -16,10 +16,9 @@ import {
   addWordDialogKeyboard,
   periodSettingsKeyboard,
   modeSettingsKeyboard,
-  closeKeyboard,
   startKeyboard,
   languageSettingsKeyboard,
-  closeKeyboardWithMode,
+  changeModeKeyboard,
 } from './helpers/keyboards';
 
 export const sendEntireWord = async (telegramId: number) => {
@@ -63,11 +62,10 @@ const actionsMapping: ActionMap = {
     const formattedMessageBody = getFormattedMessageBody(word);
     await bot.sendMessage(id, `I added word "${value}" to your list\n${formattedMessageBody}`, {
       parse_mode: 'HTML',
-      ...closeKeyboard(),
     });
   },
   [ACTION.ADD_WORD_REFUSE]: async ({ id }) => {
-    await bot.sendMessage(id, `Ok!`, closeKeyboard());
+    await bot.sendMessage(id, `Ok!`);
   },
   [ACTION.SETTINGS_MODE]: async ({ id }) => {
     await bot.sendMessage(id, 'You can Start or Stop word sending', modeSettingsKeyboard());
@@ -94,12 +92,12 @@ const actionsMapping: ActionMap = {
     await bot.sendMessage(
       id,
       `I changed your mode to ${value}`,
-      closeKeyboardWithMode(updatedUser.mode)
+      changeModeKeyboard(updatedUser.mode)
     );
   },
   [ACTION.PERIOD_SET]: async ({ id, value }) => {
     await services.updateUser({ telegramId: id, period: Number(value) });
-    await bot.sendMessage(id, `I changed your period to ${value} min`, closeKeyboard());
+    await bot.sendMessage(id, `I changed your period to ${value} min`);
   },
   [ACTION.SETTINGS_CLOSE]: async ({ id, value }) => {
     await services.updateUser({ telegramId: id, period: Number(value) });
@@ -113,7 +111,7 @@ const actionsMapping: ActionMap = {
   },
   [ACTION.LANGUAGE_SET]: async ({ id, value }) => {
     await services.updateUser({ telegramId: id, language: value });
-    await bot.sendMessage(id, `I changed your language to ${value} min`, closeKeyboard());
+    await bot.sendMessage(id, `I changed your language to ${value}`);
   },
 };
 
