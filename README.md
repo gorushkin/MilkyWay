@@ -22,3 +22,4 @@
 16. [ ] add buttons "PAUSE", "GO" under word message
 17. [ ] in settings mode show all setting in message
 18. [ ] add ability to add several words at once
+19. [ ] add export/import

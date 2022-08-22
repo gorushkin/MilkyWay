@@ -17,7 +17,7 @@ const settingsButton = getTextButton('Settings', packData(ACTION.SETTINGS_OPEN, 
 const languageButtonEN = getTextButton(LANGUAGE.EN, packData(ACTION.LANGUAGE_SET, LANGUAGE.EN));
 const languageButtonDE = getTextButton(LANGUAGE.DE, packData(ACTION.LANGUAGE_SET, LANGUAGE.DE));
 
-const closeButton = getTextButton('Close', packData(ACTION.CLOSE, ''));
+// const closeButton = getTextButton('Close', packData(ACTION.CLOSE, ''));
 
 const settingsBackButton = getTextButton('Back', packData(ACTION.SETTINGS_OPEN, ''));
 
@@ -57,7 +57,6 @@ export const settingsKeyboard = () => {
       { text: 'Period', callback_data: packData(ACTION.SETTING_PERIOD, '') },
       { text: 'Language', callback_data: packData(ACTION.SETTING_LANGUAGE, '') },
     ],
-    [closeButton],
   ]);
 };
 
@@ -67,7 +66,7 @@ export const modeSettingsKeyboard = () =>
       { text: 'Start', callback_data: packData(ACTION.SET_MODE, MODE.START) },
       { text: 'Stop', callback_data: packData(ACTION.SET_MODE, MODE.STOP) },
     ],
-    [settingsBackButton, closeButton],
+    [settingsBackButton],
   ]);
 
 export const periodSettingsKeyboard = () =>
@@ -78,18 +77,15 @@ export const periodSettingsKeyboard = () =>
       { text: '15 min', callback_data: packData(ACTION.PERIOD_SET, PERIOD['15_MIN']) },
       { text: '30 min', callback_data: packData(ACTION.PERIOD_SET, PERIOD['30_MIN']) },
     ],
-    [settingsBackButton, closeButton],
+    [settingsBackButton],
   ]);
 
 export const languageSettingsKeyboard = () =>
-  getInlineKeyboard([
-    [languageButtonEN, languageButtonDE],
-    [settingsBackButton, closeButton],
-  ]);
+  getInlineKeyboard([[languageButtonEN, languageButtonDE], [settingsBackButton]]);
 
 export const changeModeKeyboard = (mode: string) => getInlineKeyboard([[getModeButton(mode)]]);
 
-export const simpleKeyboard = () => getInlineKeyboard([[settingsButton, closeButton]]);
+export const simpleKeyboard = () => getInlineKeyboard([[settingsButton]]);
 
 export const startKeyboard = () => getInlineKeyboard([[languageButtonEN, languageButtonDE]]);
 
