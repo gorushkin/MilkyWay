@@ -126,6 +126,7 @@ const actionsMapping: ActionMap = {
     await bot.sendMessage(id, `Mode = ${user.mode}, period = ${user.period}`, simpleKeyboard());
   },
   [ACTION.CLOSE]: async () => {},
+  [ACTION.CANCEL]: async () => {},
   [ACTION.READ_CONFIRM]: async ({ id }) => {
     await services.updateUser({ telegramId: id, mode: MODE.START, lastSendTime: true });
   },
