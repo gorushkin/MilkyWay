@@ -17,7 +17,14 @@ const settingsButton = getTextButton('Settings', packData(ACTION.SETTINGS_OPEN, 
 const languageButtonEN = getTextButton(LANGUAGE.EN, packData(ACTION.LANGUAGE_SET, LANGUAGE.EN));
 const languageButtonDE = getTextButton(LANGUAGE.DE, packData(ACTION.LANGUAGE_SET, LANGUAGE.DE));
 
-// const closeButton = getTextButton('Close', packData(ACTION.CLOSE, ''));
+const wordActionButton = getTextButton('Actions', packData(ACTION.WORD_ACTIONS, ''));
+
+const wordRemoveButton = getTextButton(
+  'Remove word from your list',
+  packData(ACTION.REMOVE_WORD, '')
+);
+
+const cancelButton = getTextButton('Cancel', packData(ACTION.CANCEL, ''));
 
 const settingsBackButton = getTextButton('Back', packData(ACTION.SETTINGS_OPEN, ''));
 
@@ -42,11 +49,18 @@ const getModeButton = (mode: string) => {
   };
 };
 
+export const wordSettingsKeyboard = () => getInlineKeyboard([[wordRemoveButton]]);
+
 const getCambridgeUrlButton = (url: string) => getUrlButton('Cambridge dictionary', url);
 
 export const sendWordKeyBoard = (url: string, telegramId: number, mode: string) => {
   return getInlineKeyboard([
-    [getCambridgeUrlButton(url), getNextWordButton(telegramId), getModeButton(mode)],
+    [
+      getCambridgeUrlButton(url),
+      getNextWordButton(telegramId),
+      getModeButton(mode),
+      wordActionButton,
+    ],
   ]);
 };
 

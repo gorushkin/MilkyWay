@@ -4,6 +4,7 @@ import {
   getFormattedMessage,
   getFormattedMessageBody,
   getFormattedSettingsMessage,
+  getValueFromMessageBody,
 } from './helpers';
 import * as services from './services';
 import { ACTION, commandsList, MODE } from './constants';
@@ -19,7 +20,22 @@ import {
   startKeyboard,
   languageSettingsKeyboard,
   changeModeKeyboard,
+  wordSettingsKeyboard,
 } from './helpers/keyboards';
+
+// const removePreviousMessages = async (id: number, messageId: number) => {
+//   await Promise.all(
+//     Array.from(Array(10).keys())
+//       .map((item) => messageId - item)
+//       .map(async (number) => {
+//         try {
+//           return await bot.deleteMessage(id, number.toString());
+//         } catch (error) {
+//           return null;
+//         }
+//       })
+//   );
+// };
 
 export const sendEntireWord = async (telegramId: number) => {
   const word = await services.getUserWords(telegramId);
@@ -31,12 +47,16 @@ export const sendEntireWord = async (telegramId: number) => {
 
   if (!word) return;
 
-  const formattedMessage = getFormattedMessage(word);
-
   const url = getLinks(word.text).CAMBRIDGE.RU;
+  const formattedMessage = getFormattedMessage(word, url);
 
-  await bot.sendMessage(telegramId, formattedMessage, {
+  const hiddenMessage = `<a href="tg://btn/${word.text}">\u200b</a>`;
+
+  const message = hiddenMessage + formattedMessage;
+
+  await bot.sendMessage(telegramId, message, {
     parse_mode: 'HTML',
+    disable_web_page_preview: true,
     ...sendWordKeyBoard(url, telegramId, mode),
   });
 };
@@ -49,7 +69,7 @@ export const showSettings = async (telegramId: number) => {
 
   const formattedSettings = getFormattedSettingsMessage({ mode, period, language });
 
-  bot.sendMessage(telegramId, formattedSettings, {
+  await bot.sendMessage(telegramId, formattedSettings, {
     parse_mode: 'HTML',
     ...settingsKeyboard(),
   });
@@ -77,10 +97,10 @@ const actionsMapping: ActionMap = {
     await bot.sendMessage(id, 'Select your language', languageSettingsKeyboard());
   },
   [ACTION.NEXT_WORD]: async ({ value }) => {
-    sendEntireWord(Number(value));
+    await sendEntireWord(Number(value));
   },
   [ACTION.SETTINGS_OPEN]: async ({ id }) => {
-    showSettings(id);
+    await showSettings(id);
   },
   [ACTION.SET_MODE]: async ({ id, value }) => {
     const updatedUser = await services.updateUser({
@@ -113,24 +133,36 @@ const actionsMapping: ActionMap = {
     await services.updateUser({ telegramId: id, language: value });
     await bot.sendMessage(id, `I changed your language to ${value}`);
   },
+  [ACTION.WORD_ACTIONS]: async ({ id, value }) => {
+    await bot.sendMessage(
+      id,
+      `You can do something with this word "${value}"`,
+      wordSettingsKeyboard()
+    );
+  },
+  [ACTION.REMOVE_WORD]: async ({ id, word }) => {
+    await bot.sendMessage(id, `We are going to remove word ${word}`);
+  },
 };
 
 export const onCallbackQuery: CallBackHandler = async (query) => {
+  const entity = query.message?.entities?.length ? query.message?.entities[0] : null;
   const messageId = query.message?.message_id;
-  const data = query.data;
-  const user = query.from;
-  const { id, first_name, username } = user;
+  const {
+    data,
+    from: { id, first_name, username },
+  } = query;
 
   await services.addUser(id, first_name, username);
 
   if (!messageId) throw new Error('There is no messageId!!!');
   if (!data) throw new Error('There is no data!!!');
 
+  const word = getValueFromMessageBody(entity);
+
   const { action, value } = unpackData(data);
 
-  await bot.deleteMessage(id, messageId.toString());
-
-  await actionsMapping[action as ACTION]({ id, value });
+  await actionsMapping[action as ACTION]({ id, value, word });
 };
 
 export const onStart: CommandHandler = async (msg) => {
@@ -147,6 +179,13 @@ export const onStart: CommandHandler = async (msg) => {
 
 export const onMessage: MessageHandler = async (msg) => {
   const text = msg.text;
+
+  // const {
+  //   chat: { id },
+  //   message_id,
+  // } = msg;
+
+  // await removePreviousMessages(id, message_id);
 
   if (!text) throw new Error("I'm a little confused");
 

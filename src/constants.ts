@@ -11,6 +11,7 @@ export enum COMMAND {
   test = '/test',
 }
 
+
 export enum ACTION {
   ADD_WORD_CONFIRM = 'ADD_WORD_CONFIRM',
   ADD_WORD_REFUSE = 'ADD_WORD_REFUSE',
@@ -25,6 +26,9 @@ export enum ACTION {
   CLOSE = 'CLOSE',
   READ_CONFIRM = 'READ_CONFIRM',
   LANGUAGE_SET = 'LANGUAGE_SET',
+  WORD_ACTIONS = 'WORD_ACTIONS',
+  REMOVE_WORD = "REMOVE_WORD",
+  CANCEL = "CANCEL"
 }
 
 export enum MODE {

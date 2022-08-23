@@ -35,7 +35,6 @@ export const getErrorMessage = (error: unknown): string => {
 
   if (error instanceof Error) {
     if (error.constructor.name === 'TelegramError') {
-      console.log('error: ', error.message);
       console.log('TelegramError');
     }
 
