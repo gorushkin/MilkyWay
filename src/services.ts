@@ -66,5 +66,6 @@ export const updateUser = ({
   period?: number;
   lastSendTime?: boolean;
   language?: string;
-}): Promise<void> =>
-  repository.User.updateUser({ telegramId, mode, period, lastSendTime, language });
+}): Promise<User> => {
+  return repository.User.updateUser({ telegramId, mode, period, lastSendTime, language });
+};

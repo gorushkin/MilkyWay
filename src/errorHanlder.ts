@@ -8,7 +8,6 @@ import {
 import { ERRORS } from './constants';
 import { BotError } from './types';
 import bot from './index';
-import { closeKeyboard } from './helpers/keyboards';
 import {} from 'node-telegram-bot-api';
 
 export const getErrorMessage = (error: unknown): string => {
@@ -36,7 +35,6 @@ export const getErrorMessage = (error: unknown): string => {
 
   if (error instanceof Error) {
     if (error.constructor.name === 'TelegramError') {
-      console.log('error: ', error.message);
       console.log('TelegramError');
     }
 
@@ -60,6 +58,6 @@ export const errorHandler = async (
     await func;
   } catch (error) {
     const message = getErrorMessage(error);
-    if (id) await bot.sendMessage(id, message, closeKeyboard());
+    if (id) await bot.sendMessage(id, message);
   }
 };

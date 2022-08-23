@@ -17,30 +17,62 @@ const settingsButton = getTextButton('Settings', packData(ACTION.SETTINGS_OPEN, 
 const languageButtonEN = getTextButton(LANGUAGE.EN, packData(ACTION.LANGUAGE_SET, LANGUAGE.EN));
 const languageButtonDE = getTextButton(LANGUAGE.DE, packData(ACTION.LANGUAGE_SET, LANGUAGE.DE));
 
-const closeButton = getTextButton('Close', packData(ACTION.CLOSE, ''));
-const confirmReadButton = getTextButton('Close', packData(ACTION.READ_CONFIRM, ''));
+const wordActionButton = getTextButton('Actions', packData(ACTION.WORD_ACTIONS, ''));
+
+const wordRemoveButton = getTextButton(
+  'Remove word from your list',
+  packData(ACTION.REMOVE_WORD, '')
+);
+
+const cancelButton = getTextButton('Cancel', packData(ACTION.CANCEL, ''));
 
 const settingsBackButton = getTextButton('Back', packData(ACTION.SETTINGS_OPEN, ''));
 
 const getNextWordButton = (telegramId: number) =>
   getTextButton('Next Word', packData(ACTION.NEXT_WORD, telegramId.toString()));
 
-const getCambrigeUrlButton = (url: string) => getUrlButton('Cambridge dictionary', url);
+const getModeButton = (mode: string) => {
+  const modeMap = {
+    [MODE.START as string]: {
+      value: MODE.STOP,
+      text: 'Pause',
+    },
+    [MODE.STOP as string]: {
+      value: MODE.START,
+      text: 'Continue',
+    },
+  };
 
-export const sendWordKeyBoard = (url: string, telegramId: number) =>
-  getInlineKeyboard([
-    [getCambrigeUrlButton(url), getNextWordButton(telegramId), confirmReadButton],
+  return {
+    text: modeMap[mode].text,
+    callback_data: packData(ACTION.SET_MODE, modeMap[mode].value),
+  };
+};
+
+export const wordSettingsKeyboard = () => getInlineKeyboard([[wordRemoveButton]]);
+
+const getCambridgeUrlButton = (url: string) => getUrlButton('Cambridge dictionary', url);
+
+export const sendWordKeyBoard = (url: string, telegramId: number, mode: string) => {
+  return getInlineKeyboard([
+    [
+      getCambridgeUrlButton(url),
+      getNextWordButton(telegramId),
+      getModeButton(mode),
+      wordActionButton,
+    ],
   ]);
+};
 
-export const settingsKeyboard = () =>
-  getInlineKeyboard([
+export const settingsKeyboard = () => {
+  return getInlineKeyboard([
     [
       { text: 'Mode', callback_data: packData(ACTION.SETTINGS_MODE, '') },
       { text: 'Period', callback_data: packData(ACTION.SETTING_PERIOD, '') },
       { text: 'Language', callback_data: packData(ACTION.SETTING_LANGUAGE, '') },
     ],
-    [closeButton],
   ]);
+};
 
 export const modeSettingsKeyboard = () =>
   getInlineKeyboard([
@@ -48,7 +80,7 @@ export const modeSettingsKeyboard = () =>
       { text: 'Start', callback_data: packData(ACTION.SET_MODE, MODE.START) },
       { text: 'Stop', callback_data: packData(ACTION.SET_MODE, MODE.STOP) },
     ],
-    [settingsBackButton, closeButton],
+    [settingsBackButton],
   ]);
 
 export const periodSettingsKeyboard = () =>
@@ -59,18 +91,16 @@ export const periodSettingsKeyboard = () =>
       { text: '15 min', callback_data: packData(ACTION.PERIOD_SET, PERIOD['15_MIN']) },
       { text: '30 min', callback_data: packData(ACTION.PERIOD_SET, PERIOD['30_MIN']) },
     ],
-    [settingsBackButton, closeButton],
+    [settingsBackButton],
   ]);
 
 export const languageSettingsKeyboard = () =>
-  getInlineKeyboard([
-    [languageButtonEN, languageButtonDE],
-    [settingsBackButton, closeButton],
-  ]);
+  getInlineKeyboard([[languageButtonEN, languageButtonDE], [settingsBackButton]]);
 
-export const closeKeyboard = () => getInlineKeyboard([[closeButton]]);
+export const changeModeKeyboard = (mode: string) => getInlineKeyboard([[getModeButton(mode)]]);
 
-export const simpleKeyboard = () => getInlineKeyboard([[settingsButton, closeButton]]);
+export const simpleKeyboard = () => getInlineKeyboard([[settingsButton]]);
+
 export const startKeyboard = () => getInlineKeyboard([[languageButtonEN, languageButtonDE]]);
 
 export const addWordDialogKeyboard = (text: string) =>

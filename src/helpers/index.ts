@@ -1,12 +1,15 @@
-import { EntryWithTr, EntireWord, ParsedEntries } from '../types';
+import TelegramBot from 'node-telegram-bot-api';
+import { EntryWithTr, EntireWord } from '../types';
 
-export const packData = (action: string, value?: string) => {
-  return JSON.stringify({ action, ...(value && { value }) });
+export const packData = (a: string, v: string, i = 'false') => {
+  return JSON.stringify({ a, ...(v && { v }), i });
 };
 
-export const unpackData = (queryData: string): { action: string; value: string } => {
-  const { action, value } = JSON.parse(queryData);
-  return { action, value };
+export const unpackData = (
+  queryData: string
+): { action: string; value: string; isRemovable: boolean } => {
+  const { a: action, v: value, i: isRemovable } = JSON.parse(queryData);
+  return { action, value, isRemovable };
 };
 
 export const getFlatArray = <T>(target: Array<T>): Array<T> => {
@@ -49,7 +52,7 @@ const getParsedEntries = (entries: EntryWithTr[]) => {
   });
 };
 
-export const getformattedMessageBody = (word: EntireWord) => {
+export const getFormattedMessageBody = (word: EntireWord) => {
   const entries = getParsedEntries(word.entries);
 
   return entries
@@ -60,10 +63,32 @@ export const getformattedMessageBody = (word: EntireWord) => {
     .join('\n');
 };
 
-export const getFormattedMessage = (word: EntireWord) => {
-  const messageTitle = `<b>${word.text.toUpperCase()}</b>`;
+export const getFormattedMessage = (word: EntireWord, url: string) => {
+  const messageTitle = `<a href="${url}"><b><u>${word.text.toUpperCase()}</u></b></a>`;
 
-  const messageBody = getformattedMessageBody(word);
+  const messageBody = getFormattedMessageBody(word);
 
   return `${messageTitle}\n${messageBody}`;
+};
+
+export const getFormattedSettingsMessage = (props: Record<string, string | number | null>) => {
+  const filteredUserProperties = Object.entries(props).reduce(
+    (acc: { key: string | number | null; value: string | number }[], [key, value]) =>
+      value ? [...acc, { key, value }] : acc,
+    []
+  );
+
+  const formattedSettingsBody = filteredUserProperties
+    .filter((item) => !!item.value)
+    .map(({ key, value }) => `<b>${key}:</b> ${value}`)
+    .join('\n');
+
+  const formattedSettingsTitle = `<b>Current Settings</b>`;
+
+  return `${formattedSettingsTitle}\n${formattedSettingsBody}`;
+};
+
+export const getValueFromMessageBody = (entity: TelegramBot.MessageEntity | null) => {
+  if (!entity || entity.type !== 'text_link' || !entity.url) return '';
+  return entity.url.slice(9);
 };

@@ -1,5 +1,6 @@
 import * as services from './services';
 import { sendEntireWord } from './controllers';
+import { errorHandler } from './errorHanlder';
 
 const TIME_OUT = 5000;
 
@@ -8,7 +9,7 @@ const sender = async () => {
 
   await Promise.all(
     users.map(async (user) => {
-      await sendEntireWord(user.telegramId);
+      errorHandler(sendEntireWord(user.telegramId), user.telegramId.toString());
       await services.updateUser({
         telegramId: user.telegramId,
         lastSendTime: true,
@@ -17,7 +18,7 @@ const sender = async () => {
   );
 };
 
-const sheduler = async () => {
+const scheduler = async () => {
   const timer = async () => {
     setTimeout(async () => {
       await sender();
@@ -28,4 +29,4 @@ const sheduler = async () => {
   await timer();
 };
 
-export { sheduler };
+export { scheduler };
