@@ -69,6 +69,7 @@ export const updateUser = ({
 }): Promise<User> => {
   return repository.User.updateUser({ telegramId, mode, period, lastSendTime, language });
 };
-export const  updateWordFrequency = (id: number, id: string, value: string) {
+
+export const updateWordFrequency = (id: number, wordId: string, value: string) => {
   // throw new Error('Function not implemented.');
-}
+};
