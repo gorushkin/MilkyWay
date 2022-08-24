@@ -26,7 +26,7 @@ export const addWord = async (value: string, userId: number): Promise<EntireWord
   if (wordId) await repository.User.addWord(userId, wordId);
 
   const entries = await getWordWithEntries(word.id);
-  return { text: word.text, entries };
+  return { text: word.text, id: word.id, entries };
 };
 
 export const getUserWords = async (telegramId: number): Promise<null | EntireWord> => {
@@ -43,7 +43,7 @@ export const getUserWords = async (telegramId: number): Promise<null | EntireWor
 
   const entries = await getWordWithEntries(wordID);
 
-  return { text: word.text, entries };
+  return { text: word.text, id: word.id, entries };
 };
 
 export const getJobs = async (): Promise<User[]> => {
@@ -69,3 +69,6 @@ export const updateUser = ({
 }): Promise<User> => {
   return repository.User.updateUser({ telegramId, mode, period, lastSendTime, language });
 };
+export const  updateWordFrequency = (id: number, id: string, value: string) {
+  // throw new Error('Function not implemented.');
+}

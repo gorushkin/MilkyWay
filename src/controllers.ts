@@ -5,6 +5,7 @@ import {
   getFormattedMessageBody,
   getFormattedSettingsMessage,
   getValueFromMessageBody,
+  getHiddenMessage,
 } from './helpers';
 import * as services from './services';
 import { ACTION, commandsList, MODE } from './constants';
@@ -50,7 +51,8 @@ export const sendEntireWord = async (telegramId: number) => {
   const url = getLinks(word.text).CAMBRIDGE.RU;
   const formattedMessage = getFormattedMessage(word, url);
 
-  const hiddenMessage = `<a href="tg://btn/${word.text}">\u200b</a>`;
+  const hiddenMessage = getHiddenMessage(word.text, word.id);
+  console.log('hiddenMessage: ', hiddenMessage);
 
   const message = hiddenMessage + formattedMessage;
 
@@ -128,9 +130,7 @@ const actionsMapping: ActionMap = {
   [ACTION.CLOSE]: async () => {},
   [ACTION.CANCEL]: async () => {},
   [ACTION.SET_WORD_FREQ]: async ({ id, value, word }) => {
-    console.log('word: ', word);
-    console.log('value: ', value);
-
+    await services.updateWordFrequency(id, word.id, value);
   },
   [ACTION.READ_CONFIRM]: async ({ id }) => {
     await services.updateUser({ telegramId: id, mode: MODE.START, lastSendTime: true });
@@ -139,15 +139,15 @@ const actionsMapping: ActionMap = {
     await services.updateUser({ telegramId: id, language: value });
     await bot.sendMessage(id, `I changed your language to ${value}`);
   },
-  [ACTION.WORD_ACTIONS]: async ({ id, value }) => {
+  [ACTION.WORD_ACTIONS]: async ({ id, word }) => {
     await bot.sendMessage(
       id,
-      `You can do something with this word "${value}"`,
+      `You can do something with this word "${word.text}"`,
       wordSettingsKeyboard()
     );
   },
   [ACTION.REMOVE_WORD]: async ({ id, word }) => {
-    await bot.sendMessage(id, `We are going to remove word ${word}`);
+    await bot.sendMessage(id, `We are going to remove word ${word.text}`);
   },
 };
 

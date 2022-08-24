@@ -11,28 +11,30 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  telegramId   Int       @unique
-  username     String?
-  first_name   String?
-  lastSendTime DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  words        Word[]
-  mode         String
-  period       Int
-  language     String?
+  id            String          @id @default(cuid())
+  telegramId    Int             @unique
+  username      String?
+  first_name    String?
+  lastSendTime  DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  words         Word[]
+  mode          String
+  period        Int
+  language      String?
+  WordFrequency WordFrequency[]
 }
 
 model Word {
-  id        String   @id @default(cuid())
-  text      String   @unique
-  entry     Entry[]
-  User      User?    @relation(fields: [userId], references: [id])
-  userId    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  language  String
+  id            String          @id @default(cuid())
+  text          String          @unique
+  entry         Entry[]
+  User          User?           @relation(fields: [userId], references: [id])
+  userId        String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  language      String
+  WordFrequency WordFrequency[]
 }
 
 // TODO: add word
@@ -62,4 +64,13 @@ model Translation {
   entryId        String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+model WordFrequency {
+  id        String @id @default(cuid())
+  word      Word   @relation(fields: [wordId], references: [id])
+  user      User   @relation(fields: [userId], references: [id])
+  wordId    String
+  userId    String
+  frequency Int
 }

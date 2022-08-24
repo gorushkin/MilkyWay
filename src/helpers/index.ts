@@ -88,7 +88,17 @@ export const getFormattedSettingsMessage = (props: Record<string, string | numbe
   return `${formattedSettingsTitle}\n${formattedSettingsBody}`;
 };
 
-export const getValueFromMessageBody = (entity: TelegramBot.MessageEntity | null) => {
-  if (!entity || entity.type !== 'text_link' || !entity.url) return '';
-  return entity.url.slice(9);
+export const getValueFromMessageBody = (
+  entity: TelegramBot.MessageEntity | null
+): { text: string; id: string } => {
+  if (!entity || entity.type !== 'text_link' || !entity.url) return { text: '', id: '' };
+  const string = entity.url.slice(9);
+  const decodedMessage = Buffer.from(string, 'base64').toString();
+  const [text, id] = decodedMessage.split('/');
+  return { text, id };
+};
+
+export const getHiddenMessage = (word: string, id: string) => {
+  const encodeMessage = Buffer.from(`${word}/${id}`).toString('base64');
+  return `<a href="tg://btn/${encodeMessage}">\u200b</a>`;
 };
