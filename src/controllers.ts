@@ -57,7 +57,7 @@ export const sendEntireWord = async (telegramId: number) => {
   await bot.sendMessage(telegramId, message, {
     parse_mode: 'HTML',
     disable_web_page_preview: true,
-    ...sendWordKeyBoard(url, telegramId, mode),
+    ...sendWordKeyBoard(telegramId, mode),
   });
 };
 
@@ -127,6 +127,11 @@ const actionsMapping: ActionMap = {
   },
   [ACTION.CLOSE]: async () => {},
   [ACTION.CANCEL]: async () => {},
+  [ACTION.SET_WORD_FREQ]: async ({ id, value, word }) => {
+    console.log('word: ', word);
+    console.log('value: ', value);
+
+  },
   [ACTION.READ_CONFIRM]: async ({ id }) => {
     await services.updateUser({ telegramId: id, mode: MODE.START, lastSendTime: true });
   },
