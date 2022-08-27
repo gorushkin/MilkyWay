@@ -39,20 +39,14 @@ import {
 // };
 
 export const sendEntireWord = async (telegramId: number) => {
-  const word = await services.getUserWords(telegramId);
-  const user = await services.getUser(telegramId);
+  const { word, mode } = await services.getUserWords(telegramId);
 
-  if (!user) return;
+  if (!word || !mode) throw new Error('Sorry, you have no words at all');
 
-  const { mode } = user;
-
-  if (!word) return;
-
-  const url = getLinks(word.text).CAMBRIDGE.RU;
+  const url = getLinks(word.word.text).CAMBRIDGE.RU;
   const formattedMessage = getFormattedMessage(word, url);
 
-  const hiddenMessage = getHiddenMessage(word.text, word.id);
-  console.log('hiddenMessage: ', hiddenMessage);
+  const hiddenMessage = getHiddenMessage(word.word.text);
 
   const message = hiddenMessage + formattedMessage;
 
@@ -130,7 +124,11 @@ const actionsMapping: ActionMap = {
   [ACTION.CLOSE]: async () => {},
   [ACTION.CANCEL]: async () => {},
   [ACTION.SET_WORD_FREQ]: async ({ id, value, word }) => {
-    await services.updateWordFrequency(id, word.id, value);
+    console.log('word: ', word);
+    console.log('value: ', value);
+    console.log('updateWordFrequency');
+    // await services.updateWordFrequency(id, word, value);
+    await bot.sendMessage(id, 'We are going to change word frequency')
   },
   [ACTION.READ_CONFIRM]: async ({ id }) => {
     await services.updateUser({ telegramId: id, mode: MODE.START, lastSendTime: true });
@@ -142,12 +140,12 @@ const actionsMapping: ActionMap = {
   [ACTION.WORD_ACTIONS]: async ({ id, word }) => {
     await bot.sendMessage(
       id,
-      `You can do something with this word "${word.text}"`,
+      `You can do something with this word "${word}"`,
       wordSettingsKeyboard()
     );
   },
   [ACTION.REMOVE_WORD]: async ({ id, word }) => {
-    await bot.sendMessage(id, `We are going to remove word ${word.text}`);
+    await bot.sendMessage(id, `We are going to remove word ${word}`);
   },
 };
 
@@ -167,6 +165,8 @@ export const onCallbackQuery: CallBackHandler = async (query) => {
   const word = getValueFromMessageBody(entity);
 
   const { action, value } = unpackData(data);
+  console.log('value: ', value);
+  console.log('action: ', action);
 
   await actionsMapping[action as ACTION]({ id, value, word });
 };
@@ -185,13 +185,6 @@ export const onStart: CommandHandler = async (msg) => {
 
 export const onMessage: MessageHandler = async (msg) => {
   const text = msg.text;
-
-  // const {
-  //   chat: { id },
-  //   message_id,
-  // } = msg;
-
-  // await removePreviousMessages(id, message_id);
 
   if (!text) throw new Error("I'm a little confused");
 

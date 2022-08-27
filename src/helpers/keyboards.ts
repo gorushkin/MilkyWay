@@ -26,7 +26,6 @@ const wordRemoveButton = getTextButton(
   packData(ACTION.REMOVE_WORD, '')
 );
 
-
 const settingsBackButton = getTextButton('Back', packData(ACTION.SETTINGS_OPEN, ''));
 
 const getNextWordButton = (telegramId: number) =>
@@ -51,7 +50,6 @@ const getModeButton = (mode: string) => {
 };
 
 export const wordSettingsKeyboard = () => getInlineKeyboard([[wordRemoveButton]]);
-
 
 const getFrequencyButton = (index: string) =>
   getTextButton(index, packData(ACTION.SET_WORD_FREQ, index));

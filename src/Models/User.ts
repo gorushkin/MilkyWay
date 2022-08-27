@@ -1,5 +1,6 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 import { MODE, PERIOD } from '../constants';
+import { UserWithWholeWord } from '../types';
 const prisma = new PrismaClient();
 
 class User {
@@ -12,7 +13,7 @@ class User {
   }
 
   async getUser(telegramId: number) {
-    return await this.user.findUnique({ where: { telegramId } });
+    return this.user.findUnique({ where: { telegramId } });
   }
 
   async isUserExist(telegramId: number) {
@@ -20,19 +21,49 @@ class User {
     return !!user;
   }
 
-  async addWord(telegramId: number, wordId: string) {
-    await this.user.update({
+  async getUserWords(telegramId: number): Promise<UserWithWholeWord | null> {
+    const user = await this.user.findUnique({
       where: { telegramId },
-      data: { words: { connect: { id: wordId } } },
+      select: { language: true },
     });
+
+    if (!user) throw new Error('There is no user at all!!!');
+
+    return this.user.findUnique({
+      where: { telegramId },
+      include: {
+        wordsOnUsers: {
+          where: {
+            word: {
+              language: user.language,
+            },
+          },
+          include: {
+            word: {
+              include: {
+                entry: {
+                  include: {
+                    translation: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async updateFrequency(telegramId: number, frequencyId: string, frequency: number) {
+    throw new Error('Is not ready yet');
   }
 
   getUsers() {
     return this.user.findMany({
       where: {
-        words: {
+        wordsOnUsers: {
           some: {
-            id: { not: '' },
+            wordId: { not: '' },
           },
         },
         language: { not: '' },
@@ -44,6 +75,7 @@ class User {
   }
 
   // TODO: add error handler
+  // TODO: UPSERT
   async addUser(telegramId: number, first_name: string | undefined, username: string | undefined) {
     if (await this.isUserExist(telegramId)) return;
     await this.user.create({

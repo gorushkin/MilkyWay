@@ -11,66 +11,61 @@ datasource db {
 }
 
 model User {
-  id            String          @id @default(cuid())
-  telegramId    Int             @unique
-  username      String?
-  first_name    String?
-  lastSendTime  DateTime?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  words         Word[]
-  mode          String
-  period        Int
-  language      String?
-  WordFrequency WordFrequency[]
+  id           String         @default(cuid())
+  telegramId   Int            @id @unique
+  username     String?
+  first_name   String?
+  lastSendTime DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  mode         String
+  period       Int
+  language     String         @default("EN")
+  wordsOnUsers WordsOnUsers[]
 }
 
 model Word {
-  id            String          @id @default(cuid())
-  text          String          @unique
-  entry         Entry[]
-  User          User?           @relation(fields: [userId], references: [id])
-  userId        String?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  language      String
-  WordFrequency WordFrequency[]
+  text         String         @id @unique
+  entry        Entry[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  language     String
+  wordsOnUsers WordsOnUsers[]
 }
 
-// TODO: add word
+model WordsOnUsers {
+  user      User   @relation(fields: [userId], references: [telegramId])
+  userId    Int
+  word      Word   @relation(fields: [wordId], references: [text])
+  wordId    String
+  frequency Int    @default(3)
+
+  @@id([userId, wordId])
+}
 
 model Entry {
-  id             String        @id @default(cuid())
   text           String
   part_of_speech String
   transcription  String?
-  translation    Translation[]
-  Word           Word?         @relation(fields: [wordId], references: [id])
-  wordId         String?
+  wordId         String
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
-}
+  word           Word          @relation(fields: [wordId], references: [text])
+  translation    Translation[]
 
-// TODO: add word
+  @@id([text, part_of_speech])
+}
 
 model Translation {
-  id             String   @id @default(cuid())
-  text           String   @unique
-  part_of_speech String
-  synonym        String?
-  meaning        String?
-  example        String?
-  Entry          Entry?   @relation(fields: [entryId], references: [id])
-  entryId        String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-}
-
-model WordFrequency {
-  id        String @id @default(cuid())
-  word      Word   @relation(fields: [wordId], references: [id])
-  user      User   @relation(fields: [userId], references: [id])
-  wordId    String
-  userId    String
-  frequency Int
+  id                  String   @id @default(cuid())
+  text                String
+  part_of_speech      String
+  synonym             String?
+  meaning             String?
+  example             String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  entry               Entry    @relation(fields: [entryText, entryPart_of_speech], references: [text, part_of_speech])
+  entryText           String
+  entryPart_of_speech String
 }
