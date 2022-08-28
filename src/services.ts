@@ -1,6 +1,6 @@
 import { repository } from './Models';
 import _ from 'lodash';
-import {  WholeWord } from './types';
+import { WholeWord } from './types';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { User, WordsOnUsers } from '@prisma/client';
@@ -59,11 +59,10 @@ export const updateUser = ({
   return repository.User.updateUser({ telegramId, mode, period, lastSendTime, language });
 };
 
-export const updateWordFrequency = async (telegramId: number, wordId: string, value: string) => {
-  // const user = await repository.User.getUser(telegramId);
-  // if (!user) throw new Error('There is no user!!!');
-  // const frequency = await repository.Frequency.getFrequency(user.id, wordId);
-  // if (!frequency) throw new Error('There is no frequency!!!');
-  // const res = await repository.User.updateFrequency(telegramId, frequency.id, Number(value));
-  // console.log('res: ', res);
+export const updateWordFrequency = async (
+  userId: number,
+  word: string,
+  value: string
+): Promise<User & { wordsOnUsers: WordsOnUsers[] }> => {
+  return repository.User.updateFrequency(userId, word, Number(value));
 };

@@ -124,11 +124,8 @@ const actionsMapping: ActionMap = {
   [ACTION.CLOSE]: async () => {},
   [ACTION.CANCEL]: async () => {},
   [ACTION.SET_WORD_FREQ]: async ({ id, value, word }) => {
-    console.log('word: ', word);
-    console.log('value: ', value);
-    console.log('updateWordFrequency');
-    // await services.updateWordFrequency(id, word, value);
-    await bot.sendMessage(id, 'We are going to change word frequency')
+    await services.updateWordFrequency(id, word, value);
+    await bot.sendMessage(id, 'We are going to change word frequency');
   },
   [ACTION.READ_CONFIRM]: async ({ id }) => {
     await services.updateUser({ telegramId: id, mode: MODE.START, lastSendTime: true });
@@ -165,8 +162,6 @@ export const onCallbackQuery: CallBackHandler = async (query) => {
   const word = getValueFromMessageBody(entity);
 
   const { action, value } = unpackData(data);
-  console.log('value: ', value);
-  console.log('action: ', action);
 
   await actionsMapping[action as ACTION]({ id, value, word });
 };

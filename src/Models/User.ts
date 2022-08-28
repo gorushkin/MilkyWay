@@ -54,8 +54,32 @@ class User {
     });
   }
 
-  async updateFrequency(telegramId: number, frequencyId: string, frequency: number) {
-    throw new Error('Is not ready yet');
+  async updateFrequency(telegramId: number, word: string, frequency: number) {
+    return this.user.update({
+      where: { telegramId },
+      data: {
+        wordsOnUsers: {
+          update: {
+            where: {
+              userId_wordId: {
+                userId: telegramId,
+                wordId: word,
+              },
+            },
+            data: {
+              frequency,
+            },
+          },
+        },
+      },
+      include: {
+        wordsOnUsers: {
+          where: {
+            wordId: word,
+          },
+        },
+      },
+    });
   }
 
   getUsers() {
