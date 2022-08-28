@@ -1,5 +1,5 @@
-import { PrismaClient, Prisma } from '@prisma/client';
-import { MODE, PERIOD } from '../constants';
+import { PrismaClient, Prisma, User as UserType } from '@prisma/client';
+import { MODE } from '../constants';
 import { UserWithWholeWord } from '../types';
 const prisma = new PrismaClient();
 
@@ -82,7 +82,7 @@ class User {
     });
   }
 
-  getUsers() {
+  async getUsersForScheduler() {
     return this.user.findMany({
       where: {
         wordsOnUsers: {
@@ -100,15 +100,20 @@ class User {
 
   // TODO: add error handler
   // TODO: UPSERT
-  async addUser(telegramId: number, first_name: string | undefined, username: string | undefined) {
-    if (await this.isUserExist(telegramId)) return;
-    await this.user.create({
-      data: {
+  async addUser(
+    telegramId: number,
+    first_name: string | undefined,
+    username: string | undefined
+  ): Promise<UserType> {
+    return this.user.upsert({
+      where: {
+        telegramId,
+      },
+      update: {},
+      create: {
         telegramId,
         username,
         first_name,
-        mode: MODE.START,
-        period: Number(PERIOD['15_MIN']),
       },
     });
   }

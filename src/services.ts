@@ -36,7 +36,7 @@ export const getUserWords = async (
 };
 
 export const getJobs = async (): Promise<User[]> => {
-  const users = await repository.User.getUsers();
+  const users = await repository.User.getUsersForScheduler();
 
   return users.filter(
     (user) => dayjs(user.lastSendTime).add(Number(user.period), 'minute') <= dayjs()
