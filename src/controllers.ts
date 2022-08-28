@@ -41,7 +41,7 @@ import {
 export const sendEntireWord = async (telegramId: number) => {
   const { word, mode } = await services.getUserWords(telegramId);
 
-  if (!word || !mode) throw new Error('Sorry, you have no words at all');
+  if (!word || !mode) throw new BotError('Sorry, you have no words at all');
 
   const url = getLinks(word.word.text).CAMBRIDGE.RU;
   const formattedMessage = getFormattedMessage(word, url);
@@ -92,20 +92,14 @@ const actionsMapping: ActionMap = {
   [ACTION.SETTING_LANGUAGE]: async ({ id }) => {
     await bot.sendMessage(id, 'Select your language', languageSettingsKeyboard());
   },
-  [ACTION.NEXT_WORD]: async ({ value, id, word }) => {
-    console.log('word: ', word);
-    console.log('id: ', id);
-    // const hiddenMessage = getHiddenMessage(word.word.text);
-
-    // const message = hiddenMessage + formattedMessage;
-
-    // const hiddenMessage = getHiddenMessage(word.word.text);
-    // await sendEntireWord(Number(value));
+  [ACTION.NEXT_WORD]: async ({ id }) => {
+    await sendEntireWord(Number(id));
   },
   [ACTION.SETTINGS_OPEN]: async ({ id }) => {
     await showSettings(id);
   },
-  [ACTION.SET_MODE]: async ({ id, value }) => {
+  [ACTION.SET_MODE]: async ({ id, value, messageData }) => {
+    console.log('messageData: ', messageData);
     const updatedUser = await services.updateUser({
       telegramId: id,
       mode: value,
@@ -130,8 +124,8 @@ const actionsMapping: ActionMap = {
   },
   [ACTION.CLOSE]: async () => {},
   [ACTION.CANCEL]: async () => {},
-  [ACTION.SET_WORD_FREQ]: async ({ id, value, word }) => {
-    await services.updateWordFrequency(id, word, value);
+  [ACTION.SET_WORD_FREQ]: async ({ id, value, messageData }) => {
+    await services.updateWordFrequency(id, messageData.word, value);
     await bot.sendMessage(id, 'We are going to change word frequency');
   },
   [ACTION.READ_CONFIRM]: async ({ id }) => {
@@ -141,23 +135,24 @@ const actionsMapping: ActionMap = {
     await services.updateUser({ telegramId: id, language: value });
     await bot.sendMessage(id, `I changed your language to ${value}`);
   },
-  [ACTION.WORD_ACTIONS]: async ({ id, word }) => {
+  [ACTION.WORD_ACTIONS]: async ({ id, messageData }) => {
     await bot.sendMessage(
       id,
-      `You can do something with this word "${word}"`,
+      `You can do something with this word "${messageData.word}"`,
       wordSettingsKeyboard()
     );
   },
-  [ACTION.REMOVE_WORD]: async ({ id, word }) => {
-    await bot.sendMessage(id, `We are going to remove word ${word}`);
+  [ACTION.REMOVE_WORD]: async ({ id, messageData }) => {
+    await bot.sendMessage(id, `We are going to remove word ${messageData.word}`);
   },
 };
 
 export const onCallbackQuery: CallBackHandler = async (query) => {
   const entity = query.message?.entities?.length ? query.message?.entities[0] : null;
   const text = query.message?.text;
-  console.log(text);
   const messageId = query.message?.message_id;
+  const chatId = query.message?.chat.id;
+
   const {
     data,
     from: { id, first_name, username },
@@ -170,9 +165,20 @@ export const onCallbackQuery: CallBackHandler = async (query) => {
 
   const word = getValueFromMessageBody(entity);
 
+  // console.log('---------------------');
+  // console.clear();
+  // console.log('messageId: ', messageId);
   const { action, value } = unpackData(data);
+  // console.log('action: ', action);
+  // console.log(text);
+  console.log(query.message);
+  // console.log('entity: ', entity);
 
-  await actionsMapping[action as ACTION]({ id, value, word });
+  // if (chatId) bot.deleteMessage(chatId, messageId.toString());
+
+  const messageData = { text: query.message?.text ?? '', url: entity?.url ?? '', word };
+
+  await actionsMapping[action as ACTION]({ id, value, messageData });
 };
 
 export const onStart: CommandHandler = async (msg) => {
@@ -180,11 +186,7 @@ export const onStart: CommandHandler = async (msg) => {
 
   await services.addUser(id, first_name, username);
 
-  await bot.sendMessage(
-    id,
-    `Hello, ${msg.chat.username}. Choose your language please`,
-    startKeyboard()
-  );
+  await bot.sendMessage(id, `Hello, ${msg.chat.username}`, simpleKeyboard());
 };
 
 export const onMessage: MessageHandler = async (msg) => {

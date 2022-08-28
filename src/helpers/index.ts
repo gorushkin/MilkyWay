@@ -103,3 +103,8 @@ export const getData = ({ ex, mean, pos, syn, text }: ITranslation) => {
     text,
   };
 };
+
+
+export const getMessage = () => {
+
+}

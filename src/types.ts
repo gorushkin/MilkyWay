@@ -110,7 +110,15 @@ export type YandexRequest = (word: string) => Promise<IEntry[]>;
 export type WordResponse = { def: IEntry[] };
 
 interface ActionMapFunction {
-  ({ id, value }: { id: number; value: string; word: string }): Promise<void>;
+  ({
+    id,
+    value,
+  }: {
+    id: number;
+    value: string;
+
+    messageData: { text: string; url: string; word: string };
+  }): Promise<void>;
 }
 
 export type ActionMap = Record<ACTION, ActionMapFunction>;
