@@ -11,7 +11,9 @@ const getTextButton = (text: string, callback_data: string): InlineKeyboardButto
   callback_data,
 });
 
-const getUrlButton = (text: string, url: string): InlineKeyboardButton => ({ text, url });
+// const getUrlButton = (text: string, url: string): InlineKeyboardButton => ({ text, url });
+// const cancelButton = getTextButton('Cancel', packData(ACTION.CANCEL, ''));
+// const getCambridgeUrlButton = (url: string) => getUrlButton('Cambridge dictionary', url);
 
 const settingsButton = getTextButton('Settings', packData(ACTION.SETTINGS_OPEN, ''));
 const languageButtonEN = getTextButton(LANGUAGE.EN, packData(ACTION.LANGUAGE_SET, LANGUAGE.EN));
@@ -24,12 +26,9 @@ const wordRemoveButton = getTextButton(
   packData(ACTION.REMOVE_WORD, '')
 );
 
-const cancelButton = getTextButton('Cancel', packData(ACTION.CANCEL, ''));
-
 const settingsBackButton = getTextButton('Back', packData(ACTION.SETTINGS_OPEN, ''));
 
-const getNextWordButton = (telegramId: number) =>
-  getTextButton('Next Word', packData(ACTION.NEXT_WORD, telegramId.toString()));
+const nextWordButton = getTextButton('Next Word', packData(ACTION.NEXT_WORD, ''));
 
 const getModeButton = (mode: string) => {
   const modeMap = {
@@ -51,17 +50,15 @@ const getModeButton = (mode: string) => {
 
 export const wordSettingsKeyboard = () => getInlineKeyboard([[wordRemoveButton]]);
 
-const getCambridgeUrlButton = (url: string) => getUrlButton('Cambridge dictionary', url);
+const getFrequencyButton = (index: string) =>
+  getTextButton(index, packData(ACTION.SET_WORD_FREQ, index));
 
-export const sendWordKeyBoard = (url: string, telegramId: number, mode: string) => {
-  return getInlineKeyboard([
-    [
-      getCambridgeUrlButton(url),
-      getNextWordButton(telegramId),
-      getModeButton(mode),
-      wordActionButton,
-    ],
-  ]);
+const frequencyButtons = new Array(5)
+  .fill(0)
+  .map((_, index) => getFrequencyButton((index + 1).toString()));
+
+export const sendWordKeyBoard = (telegramId: number, mode: string) => {
+  return getInlineKeyboard([[wordActionButton, nextWordButton, getModeButton(mode)]]);
 };
 
 export const settingsKeyboard = () => {

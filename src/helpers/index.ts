@@ -1,5 +1,6 @@
+import { WordsOnUsers } from '@prisma/client';
 import TelegramBot from 'node-telegram-bot-api';
-import { EntryWithTr, EntireWord } from '../types';
+import { WholeWord, ITranslation, IExample, IMeaning, ISynonym } from '../types';
 
 export const packData = (a: string, v: string, i = 'false') => {
   return JSON.stringify({ a, ...(v && { v }), i });
@@ -26,47 +27,23 @@ export const getFlatArray = <T>(target: Array<T>): Array<T> => {
   return res;
 };
 
-type Meaning = { text: string };
-type Example = { text: string; translation: string };
-
-const getParsedEntries = (entries: EntryWithTr[]) => {
-  return entries.map((entry) => {
-    const translations = entry.translation.map((translation) => {
-      const text = translation.text;
-      const meaning = translation.meaning
-        ? (JSON.parse(translation.meaning) as Meaning[]).map((item) => item.text).join(', ')
-        : null;
-      const example = translation.example
-        ? (JSON.parse(translation.example) as Example[])
-            .map((item) => `${item.text}: ${item.translation}`)
-            .join(', ')
-        : null;
-      return {
-        ...(meaning && { meaning }),
-        ...(example && { example }),
-        text,
-      };
-    });
-
-    return { part_of_speech: entry.part_of_speech, translations };
-  });
-};
-
-export const getFormattedMessageBody = (word: EntireWord) => {
-  const entries = getParsedEntries(word.entries);
-
-  return entries
+export const getFormattedMessageBody = (word: WholeWord) =>
+  word.entry
     .map(
       (entry) =>
-        `<b>${entry.part_of_speech}:</b> ${entry.translations.map((item) => item.text).join(', ')}`
+        `<b>${entry.part_of_speech}:</b> ${entry.translation.map((item) => item.text).join(', ')}`
     )
     .join('\n');
-};
 
-export const getFormattedMessage = (word: EntireWord, url: string) => {
-  const messageTitle = `<a href="${url}"><b><u>${word.text.toUpperCase()}</u></b></a>`;
+export const getFormattedMessage = (
+  word: WordsOnUsers & {
+    word: WholeWord;
+  },
+  url: string
+) => {
+  const messageTitle = `<a href="${url}"><b><u>${word.word.text.toUpperCase()}</u></b></a>`;
 
-  const messageBody = getFormattedMessageBody(word);
+  const messageBody = getFormattedMessageBody(word.word);
 
   return `${messageTitle}\n${messageBody}`;
 };
@@ -88,7 +65,41 @@ export const getFormattedSettingsMessage = (props: Record<string, string | numbe
   return `${formattedSettingsTitle}\n${formattedSettingsBody}`;
 };
 
-export const getValueFromMessageBody = (entity: TelegramBot.MessageEntity | null) => {
+export const getValueFromMessageBody = (entity: TelegramBot.MessageEntity | null): string => {
   if (!entity || entity.type !== 'text_link' || !entity.url) return '';
-  return entity.url.slice(9);
+  const string = entity.url.slice(9);
+  return Buffer.from(string, 'base64').toString();
+};
+
+export const getHiddenMessage = (word: string) => {
+  const encodeMessage = Buffer.from(word).toString('base64');
+  return `<a href="tg://btn/${encodeMessage}">\u200b</a>`;
+};
+
+export const getData = ({ ex, mean, pos, syn, text }: ITranslation) => {
+  const getExamples = (examples: IExample[]) => {
+    return examples
+      ? examples.map((item) => ({ text: item.text, translation: item.tr[0].text }))
+      : null;
+  };
+
+  const getSynonyms = (synonyms: ISynonym[]) => {
+    return synonyms ? synonyms.map(({ pos, text }) => ({ text, partOfSpeech: pos })) : null;
+  };
+
+  const getMeanings = (meanings: IMeaning[]) => {
+    return meanings ? meanings.map(({ text }) => ({ text })) : null;
+  };
+
+  const examples = getExamples(ex);
+  const synonyms = getSynonyms(syn);
+  const meanings = getMeanings(mean);
+
+  return {
+    ...(examples && { example: JSON.stringify(examples) }),
+    ...(meanings && { meaning: JSON.stringify(meanings) }),
+    ...(synonyms && { synonym: JSON.stringify(synonyms) }),
+    part_of_speech: pos,
+    text,
+  };
 };

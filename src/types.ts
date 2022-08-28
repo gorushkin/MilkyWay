@@ -1,5 +1,5 @@
 import TelegramBot, { CallbackQuery, Message } from 'node-telegram-bot-api';
-import { Entry, Translation } from '@prisma/client';
+import { Entry, Translation, User, Word, WordsOnUsers } from '@prisma/client';
 import { ACTION } from './constants';
 
 export interface IPhonetic {
@@ -68,13 +68,17 @@ export interface IYandexWord {
   mean?: IYandexWord[];
 }
 
-export type EntryWithTr = Entry & {
-  translation: Translation[];
+export type WholeWord = Word & {
+  entry: (Entry & {
+    translation: Translation[];
+  })[];
 };
-export interface EntireWord {
-  text: string;
-  entries: EntryWithTr[];
-}
+
+export type UserWithWholeWord = User & {
+  wordsOnUsers: (WordsOnUsers & {
+    word: WholeWord;
+  })[];
+};
 
 export interface ParsedEntries {
   part_of_speech: string;

@@ -5,6 +5,7 @@ import {
   getFormattedMessageBody,
   getFormattedSettingsMessage,
   getValueFromMessageBody,
+  getHiddenMessage,
 } from './helpers';
 import * as services from './services';
 import { ACTION, commandsList, MODE } from './constants';
@@ -38,26 +39,21 @@ import {
 // };
 
 export const sendEntireWord = async (telegramId: number) => {
-  const word = await services.getUserWords(telegramId);
-  const user = await services.getUser(telegramId);
+  const { word, mode } = await services.getUserWords(telegramId);
 
-  if (!user) return;
+  if (!word || !mode) throw new Error('Sorry, you have no words at all');
 
-  const { mode } = user;
-
-  if (!word) return;
-
-  const url = getLinks(word.text).CAMBRIDGE.RU;
+  const url = getLinks(word.word.text).CAMBRIDGE.RU;
   const formattedMessage = getFormattedMessage(word, url);
 
-  const hiddenMessage = `<a href="tg://btn/${word.text}">\u200b</a>`;
+  const hiddenMessage = getHiddenMessage(word.word.text);
 
   const message = hiddenMessage + formattedMessage;
 
   await bot.sendMessage(telegramId, message, {
     parse_mode: 'HTML',
     disable_web_page_preview: true,
-    ...sendWordKeyBoard(url, telegramId, mode),
+    ...sendWordKeyBoard(telegramId, mode),
   });
 };
 
@@ -96,8 +92,15 @@ const actionsMapping: ActionMap = {
   [ACTION.SETTING_LANGUAGE]: async ({ id }) => {
     await bot.sendMessage(id, 'Select your language', languageSettingsKeyboard());
   },
-  [ACTION.NEXT_WORD]: async ({ value }) => {
-    await sendEntireWord(Number(value));
+  [ACTION.NEXT_WORD]: async ({ value, id, word }) => {
+    console.log('word: ', word);
+    console.log('id: ', id);
+    // const hiddenMessage = getHiddenMessage(word.word.text);
+
+    // const message = hiddenMessage + formattedMessage;
+
+    // const hiddenMessage = getHiddenMessage(word.word.text);
+    // await sendEntireWord(Number(value));
   },
   [ACTION.SETTINGS_OPEN]: async ({ id }) => {
     await showSettings(id);
@@ -127,6 +130,10 @@ const actionsMapping: ActionMap = {
   },
   [ACTION.CLOSE]: async () => {},
   [ACTION.CANCEL]: async () => {},
+  [ACTION.SET_WORD_FREQ]: async ({ id, value, word }) => {
+    await services.updateWordFrequency(id, word, value);
+    await bot.sendMessage(id, 'We are going to change word frequency');
+  },
   [ACTION.READ_CONFIRM]: async ({ id }) => {
     await services.updateUser({ telegramId: id, mode: MODE.START, lastSendTime: true });
   },
@@ -134,10 +141,10 @@ const actionsMapping: ActionMap = {
     await services.updateUser({ telegramId: id, language: value });
     await bot.sendMessage(id, `I changed your language to ${value}`);
   },
-  [ACTION.WORD_ACTIONS]: async ({ id, value }) => {
+  [ACTION.WORD_ACTIONS]: async ({ id, word }) => {
     await bot.sendMessage(
       id,
-      `You can do something with this word "${value}"`,
+      `You can do something with this word "${word}"`,
       wordSettingsKeyboard()
     );
   },
@@ -148,6 +155,8 @@ const actionsMapping: ActionMap = {
 
 export const onCallbackQuery: CallBackHandler = async (query) => {
   const entity = query.message?.entities?.length ? query.message?.entities[0] : null;
+  const text = query.message?.text;
+  console.log(text);
   const messageId = query.message?.message_id;
   const {
     data,
@@ -180,13 +189,6 @@ export const onStart: CommandHandler = async (msg) => {
 
 export const onMessage: MessageHandler = async (msg) => {
   const text = msg.text;
-
-  // const {
-  //   chat: { id },
-  //   message_id,
-  // } = msg;
-
-  // await removePreviousMessages(id, message_id);
 
   if (!text) throw new Error("I'm a little confused");
 
