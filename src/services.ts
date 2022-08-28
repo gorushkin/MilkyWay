@@ -17,7 +17,7 @@ export const addWord = async (value: string, telegramId: number): Promise<WholeW
 
   if (!user?.language) throw new Error('You should set language!!!!');
 
-  return repository.Word.addWord(value, user.language, telegramId);
+  return repository.Word.addWord(value.trim().toLowerCase(), user.language, telegramId);
 };
 
 export const getUserWords = async (
