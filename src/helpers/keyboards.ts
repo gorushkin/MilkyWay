@@ -28,8 +28,7 @@ const wordRemoveButton = getTextButton(
 
 const settingsBackButton = getTextButton('Back', packData(ACTION.SETTINGS_OPEN, ''));
 
-const getNextWordButton = (telegramId: number) =>
-  getTextButton('Next Word', packData(ACTION.NEXT_WORD, telegramId.toString()));
+const nextWordButton = getTextButton('Next Word', packData(ACTION.NEXT_WORD, ''));
 
 const getModeButton = (mode: string) => {
   const modeMap = {
@@ -59,10 +58,7 @@ const frequencyButtons = new Array(5)
   .map((_, index) => getFrequencyButton((index + 1).toString()));
 
 export const sendWordKeyBoard = (telegramId: number, mode: string) => {
-  return getInlineKeyboard([
-    frequencyButtons,
-    [wordActionButton, getNextWordButton(telegramId), getModeButton(mode)],
-  ]);
+  return getInlineKeyboard([[wordActionButton, nextWordButton, getModeButton(mode)]]);
 };
 
 export const settingsKeyboard = () => {

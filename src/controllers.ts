@@ -92,8 +92,15 @@ const actionsMapping: ActionMap = {
   [ACTION.SETTING_LANGUAGE]: async ({ id }) => {
     await bot.sendMessage(id, 'Select your language', languageSettingsKeyboard());
   },
-  [ACTION.NEXT_WORD]: async ({ value }) => {
-    await sendEntireWord(Number(value));
+  [ACTION.NEXT_WORD]: async ({ value, id, word }) => {
+    console.log('word: ', word);
+    console.log('id: ', id);
+    // const hiddenMessage = getHiddenMessage(word.word.text);
+
+    // const message = hiddenMessage + formattedMessage;
+
+    // const hiddenMessage = getHiddenMessage(word.word.text);
+    // await sendEntireWord(Number(value));
   },
   [ACTION.SETTINGS_OPEN]: async ({ id }) => {
     await showSettings(id);
@@ -148,6 +155,8 @@ const actionsMapping: ActionMap = {
 
 export const onCallbackQuery: CallBackHandler = async (query) => {
   const entity = query.message?.entities?.length ? query.message?.entities[0] : null;
+  const text = query.message?.text;
+  console.log(text);
   const messageId = query.message?.message_id;
   const {
     data,
