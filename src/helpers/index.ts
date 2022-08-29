@@ -1,16 +1,14 @@
-import { WordsOnUsers } from '@prisma/client';
+import { User, WordsOnUsers } from '@prisma/client';
 import TelegramBot from 'node-telegram-bot-api';
-import { WholeWord, ITranslation, IExample, IMeaning, ISynonym } from '../types';
-
-export const packData = (a: string, v: string, i = 'false') => {
-  return JSON.stringify({ a, ...(v && { v }), i });
-};
+import { BUTTON, SCREEN } from '../constants';
+import { WholeWord, ITranslation, IExample, IMeaning, ISynonym, ScreenMap } from '../types';
+import { actionKeyboardMapping } from './keyboards';
 
 export const unpackData = (
   queryData: string
-): { action: string; value: string; isRemovable: boolean } => {
-  const { a: action, v: value, i: isRemovable } = JSON.parse(queryData);
-  return { action, value, isRemovable };
+): { button: string; value: string; keyboard: string; screen: string } => {
+  const { b: button, v: value, s: screen, k: keyboard } = JSON.parse(queryData);
+  return { button, value, keyboard, screen };
 };
 
 export const getFlatArray = <T>(target: Array<T>): Array<T> => {
@@ -48,7 +46,10 @@ export const getFormattedMessage = (
   return `${messageTitle}\n${messageBody}`;
 };
 
-export const getFormattedSettingsMessage = (props: Record<string, string | number | null>) => {
+export const getFormattedSettingsMessage = (
+  title: string,
+  props: Record<string, string | number | null>
+) => {
   const filteredUserProperties = Object.entries(props).reduce(
     (acc: { key: string | number | null; value: string | number }[], [key, value]) =>
       value ? [...acc, { key, value }] : acc,
@@ -60,7 +61,7 @@ export const getFormattedSettingsMessage = (props: Record<string, string | numbe
     .map(({ key, value }) => `<b>${key}:</b> ${value}`)
     .join('\n');
 
-  const formattedSettingsTitle = `<b>Current Settings</b>`;
+  const formattedSettingsTitle = `<b>${title}</b>`;
 
   return `${formattedSettingsTitle}\n${formattedSettingsBody}`;
 };
@@ -104,7 +105,54 @@ export const getData = ({ ex, mean, pos, syn, text }: ITranslation) => {
   };
 };
 
+const screenMessageMapping: ScreenMap = {
+  START: ({ user, keyboard }) => {
+    const message = `Hello, ${user.username}`;
 
-export const getMessage = () => {
+    return {
+      message,
+      options: {
+        parse_mode: 'HTML',
+        reply_markup: keyboard,
+      },
+    };
+  },
+  SETTINGS: ({ user, keyboard }) => {
+    const { mode, period, language } = user;
+    const message = getFormattedSettingsMessage('Current Settings', { mode, period, language });
 
-}
+    return {
+      message,
+      options: {
+        parse_mode: 'HTML',
+        reply_markup: keyboard,
+      },
+    };
+  },
+  APPLY_SETTINGS: ({ user, keyboard }) => {
+    const { mode, period, language } = user;
+    const message = getFormattedSettingsMessage('I changed something in your settings', {
+      mode,
+      period,
+      language,
+    });
+
+    return {
+      message,
+      options: {
+        parse_mode: 'HTML',
+        reply_markup: keyboard,
+      },
+    };
+  },
+};
+
+export const getMessageData = (button: string, value: string, screen: string, user: User) => {
+  console.log('----------------');
+  console.log('value: ', value);
+  console.log('button: ', button);
+  console.log('screen: ', screen);
+  const keyboard = actionKeyboardMapping[button as BUTTON]();
+
+  return screenMessageMapping[screen as SCREEN]({ keyboard, user, value });
+};

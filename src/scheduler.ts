@@ -7,15 +7,15 @@ const TIME_OUT = 5000;
 const sender = async () => {
   const users = await services.getJobs();
 
-  await Promise.all(
-    users.map(async (user) => {
-      errorHandler(sendEntireWord(user.telegramId), user.telegramId.toString());
-      await services.updateUser({
-        telegramId: user.telegramId,
-        lastSendTime: true,
-      });
-    })
-  );
+  // await Promise.all(
+  //   users.map(async (user) => {
+  //     errorHandler(sendEntireWord(user.telegramId), user.telegramId.toString());
+  //     await services.updateUser({
+  //       telegramId: user.telegramId,
+  //       lastSendTime: true,
+  //     });
+  //   })
+  // );
 };
 
 const scheduler = async () => {

@@ -1,109 +1,104 @@
-import { InlineKeyboardButton, SendBasicOptions } from 'node-telegram-bot-api';
-import { ACTION, LANGUAGE, MODE, PERIOD } from '../constants';
-import { packData } from '.';
+import { InlineKeyboardButton, InlineKeyboardMarkup } from 'node-telegram-bot-api';
+import { BUTTON, LANGUAGE, PERIOD, SCREEN } from '../constants';
 
-export const getInlineKeyboard = (buttons: InlineKeyboardButton[][]): SendBasicOptions => {
-  return { reply_markup: { inline_keyboard: buttons } };
+export const packData = ({
+  b,
+  v = '',
+  k = '',
+  s = '',
+}: {
+  b: string;
+  v?: string;
+  k?: string;
+  s?: string;
+}) => JSON.stringify({ b, v, k, s });
+
+const getInlineKeyboard = (buttons: InlineKeyboardButton[][]): InlineKeyboardMarkup => {
+  return { inline_keyboard: buttons };
 };
 
-const getTextButton = (text: string, callback_data: string): InlineKeyboardButton => ({
-  text,
-  callback_data,
-});
-
-// const getUrlButton = (text: string, url: string): InlineKeyboardButton => ({ text, url });
-// const cancelButton = getTextButton('Cancel', packData(ACTION.CANCEL, ''));
-// const getCambridgeUrlButton = (url: string) => getUrlButton('Cambridge dictionary', url);
-
-const settingsButton = getTextButton('Settings', packData(ACTION.SETTINGS_OPEN, ''));
-const languageButtonEN = getTextButton(LANGUAGE.EN, packData(ACTION.LANGUAGE_SET, LANGUAGE.EN));
-const languageButtonDE = getTextButton(LANGUAGE.DE, packData(ACTION.LANGUAGE_SET, LANGUAGE.DE));
-
-const wordActionButton = getTextButton('Actions', packData(ACTION.WORD_ACTIONS, ''));
-
-const wordRemoveButton = getTextButton(
-  'Remove word from your list',
-  packData(ACTION.REMOVE_WORD, '')
-);
-
-const settingsBackButton = getTextButton('Back', packData(ACTION.SETTINGS_OPEN, ''));
-
-const nextWordButton = getTextButton('Next Word', packData(ACTION.NEXT_WORD, ''));
-
-const getModeButton = (mode: string) => {
-  const modeMap = {
-    [MODE.START as string]: {
-      value: MODE.STOP,
-      text: 'Pause',
-    },
-    [MODE.STOP as string]: {
-      value: MODE.START,
-      text: 'Continue',
-    },
-  };
-
+const getTextButton = (text: string, callback_data: string): InlineKeyboardButton => {
   return {
-    text: modeMap[mode].text,
-    callback_data: packData(ACTION.SET_MODE, modeMap[mode].value),
+    text,
+    callback_data,
   };
 };
 
-export const wordSettingsKeyboard = () => getInlineKeyboard([[wordRemoveButton]]);
-
-const getFrequencyButton = (index: string) =>
-  getTextButton(index, packData(ACTION.SET_WORD_FREQ, index));
-
-const frequencyButtons = new Array(5)
-  .fill(0)
-  .map((_, index) => getFrequencyButton((index + 1).toString()));
-
-export const sendWordKeyBoard = (telegramId: number, mode: string) => {
-  return getInlineKeyboard([[wordActionButton, nextWordButton, getModeButton(mode)]]);
+const buttons = {
+  openSettings: (screen: string) =>
+    getTextButton('Settings', packData({ b: BUTTON.SETTINGS, k: '', s: screen })),
+  backToSettings: () => getTextButton('Back', packData({ b: BUTTON.SETTINGS, s: SCREEN.SETTINGS })),
+  modeSettings: (screen: string) =>
+    getTextButton('Mode', packData({ b: BUTTON.SETTINGS_MODE, s: screen })),
+  periodSettings: (screen: string) =>
+    getTextButton('Period', packData({ b: BUTTON.SETTING_PERIOD, s: screen })),
+  languageSettings: (screen: string) =>
+    getTextButton('Language', packData({ b: BUTTON.SETTING_LANGUAGE, s: screen })),
+  modeStartSettings: (screen: string) =>
+    getTextButton('Start', packData({ b: BUTTON.SET_MODE, s: screen })),
+  modeStopSettings: (screen: string) =>
+    getTextButton('Stop', packData({ b: BUTTON.SET_MODE, s: screen })),
+  periodSetSettings1: (screen: string) =>
+    getTextButton('1 min', packData({ b: BUTTON.SET_PERIOD, v: PERIOD['1_MIN'], s: screen })),
+  periodSetSettings5: (screen: string) =>
+    getTextButton('5 min', packData({ b: BUTTON.SET_PERIOD, v: PERIOD['5_MIN'], s: screen })),
+  periodSetSettings15: (screen: string) =>
+    getTextButton('15 min', packData({ b: BUTTON.SET_PERIOD, v: PERIOD['15_MIN'], s: screen })),
+  periodSetSettings30: (screen: string) =>
+    getTextButton('30 min', packData({ b: BUTTON.SET_PERIOD, v: PERIOD['30_MIN'], s: screen })),
+  setEnLanguage: (screen: string) =>
+    getTextButton('En', packData({ b: BUTTON.SET_LANGUAGE, v: LANGUAGE.EN, s: screen })),
+  setDeLanguage: (screen: string) =>
+    getTextButton('De', packData({ b: BUTTON.SET_LANGUAGE, v: LANGUAGE.DE, s: screen })),
 };
 
-export const settingsKeyboard = () => {
-  return getInlineKeyboard([
+export const startKeyboard = (screen: string) =>
+  getInlineKeyboard([[buttons.openSettings(screen)]]);
+
+export const settingsKeyboard = () =>
+  getInlineKeyboard([
     [
-      { text: 'Mode', callback_data: packData(ACTION.SETTINGS_MODE, '') },
-      { text: 'Period', callback_data: packData(ACTION.SETTING_PERIOD, '') },
-      { text: 'Language', callback_data: packData(ACTION.SETTING_LANGUAGE, '') },
+      buttons.modeSettings(SCREEN.SETTINGS),
+      buttons.periodSettings(SCREEN.SETTINGS),
+      buttons.languageSettings(SCREEN.SETTINGS),
     ],
   ]);
-};
 
 export const modeSettingsKeyboard = () =>
   getInlineKeyboard([
     [
-      { text: 'Start', callback_data: packData(ACTION.SET_MODE, MODE.START) },
-      { text: 'Stop', callback_data: packData(ACTION.SET_MODE, MODE.STOP) },
+      buttons.modeStartSettings(SCREEN.APPLY_SETTINGS),
+      buttons.modeStopSettings(SCREEN.APPLY_SETTINGS),
+      buttons.backToSettings(),
     ],
-    [settingsBackButton],
   ]);
 
 export const periodSettingsKeyboard = () =>
   getInlineKeyboard([
     [
-      { text: '1 min', callback_data: packData(ACTION.PERIOD_SET, PERIOD['1_MIN']) },
-      { text: '5 min', callback_data: packData(ACTION.PERIOD_SET, PERIOD['5_MIN']) },
-      { text: '15 min', callback_data: packData(ACTION.PERIOD_SET, PERIOD['15_MIN']) },
-      { text: '30 min', callback_data: packData(ACTION.PERIOD_SET, PERIOD['30_MIN']) },
+      buttons.periodSetSettings1(SCREEN.APPLY_SETTINGS),
+      buttons.periodSetSettings5(SCREEN.APPLY_SETTINGS),
+      buttons.periodSetSettings15(SCREEN.APPLY_SETTINGS),
+      buttons.periodSetSettings30(SCREEN.APPLY_SETTINGS),
     ],
-    [settingsBackButton],
+    [buttons.backToSettings()],
   ]);
 
 export const languageSettingsKeyboard = () =>
-  getInlineKeyboard([[languageButtonEN, languageButtonDE], [settingsBackButton]]);
-
-export const changeModeKeyboard = (mode: string) => getInlineKeyboard([[getModeButton(mode)]]);
-
-export const simpleKeyboard = () => getInlineKeyboard([[settingsButton]]);
-
-export const startKeyboard = () => getInlineKeyboard([[languageButtonEN, languageButtonDE]]);
-
-export const addWordDialogKeyboard = (text: string) =>
   getInlineKeyboard([
     [
-      { text: 'Add', callback_data: packData(ACTION.ADD_WORD_CONFIRM, text) },
-      { text: 'Cancel', callback_data: packData(ACTION.ADD_WORD_REFUSE, text) },
+      buttons.setEnLanguage(SCREEN.APPLY_SETTINGS),
+      buttons.setDeLanguage(SCREEN.APPLY_SETTINGS),
+      buttons.backToSettings(),
     ],
   ]);
+
+export const actionKeyboardMapping = {
+  [BUTTON.SETTINGS]: settingsKeyboard,
+  [BUTTON.SETTINGS_MODE]: modeSettingsKeyboard,
+  [BUTTON.SETTING_PERIOD]: periodSettingsKeyboard,
+  [BUTTON.SETTING_LANGUAGE]: languageSettingsKeyboard,
+  [BUTTON.SET_MODE]: settingsKeyboard,
+  [BUTTON.SET_PERIOD]: settingsKeyboard,
+  [BUTTON.SET_LANGUAGE]: settingsKeyboard,
+};

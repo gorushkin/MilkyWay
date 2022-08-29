@@ -1,23 +1,11 @@
 import TelegramBot, { CallbackQuery, Message } from 'node-telegram-bot-api';
 import { Entry, Translation, User, Word, WordsOnUsers } from '@prisma/client';
-import { ACTION } from './constants';
+import { BUTTON, SCREEN } from './constants';
 
 export interface IPhonetic {
   text: string;
   audio?: string;
   sourceUrl?: string;
-}
-
-export interface IDefenition {
-  definition: string;
-  example: string;
-  synonyms: string[];
-  antonyms: string[];
-}
-
-export interface IMeaning {
-  partOfSpeech: string;
-  definitions: IDefenition[];
 }
 
 export interface IDictionaryData {
@@ -121,7 +109,29 @@ interface ActionMapFunction {
   }): Promise<void>;
 }
 
-export type ActionMap = Record<ACTION, ActionMapFunction>;
+interface ScreenMapFunction {
+  ({
+    id,
+    value,
+    user,
+    keyboard,
+  }: {
+    id?: number;
+    value: string;
+    keyboard: TelegramBot.InlineKeyboardMarkup;
+    user: User;
+  }): {
+    message: string;
+    options: {
+      parse_mode: TelegramBot.ParseMode;
+      reply_markup: TelegramBot.InlineKeyboardMarkup;
+    };
+  };
+}
+
+export type ActionMap = Record<BUTTON, ActionMapFunction>;
+
+export type ScreenMap = Record<SCREEN, ScreenMapFunction>;
 
 export class BotError extends Error {
   skippable: boolean;
