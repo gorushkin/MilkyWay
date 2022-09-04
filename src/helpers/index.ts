@@ -145,6 +145,17 @@ const screenMessageMapping: ScreenMap = {
       },
     };
   },
+  ADD_WORD: ({ user, keyboard }) => {
+    const message = 'Add word to your list?';
+
+    return {
+      message,
+      options: {
+        parse_mode: 'HTML',
+        reply_markup: keyboard,
+      },
+    };
+  },
 };
 
 export const getMessageData = (button: string, value: string, screen: string, user: User) => {
@@ -152,7 +163,7 @@ export const getMessageData = (button: string, value: string, screen: string, us
   console.log('value: ', value);
   console.log('button: ', button);
   console.log('screen: ', screen);
-  const keyboard = actionKeyboardMapping[button as BUTTON]();
+  const keyboard = actionKeyboardMapping[button as BUTTON];
 
   return screenMessageMapping[screen as SCREEN]({ keyboard, user, value });
 };

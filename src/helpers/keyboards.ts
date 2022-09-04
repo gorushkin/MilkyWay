@@ -50,48 +50,51 @@ const buttons = {
     getTextButton('En', packData({ b: BUTTON.SET_LANGUAGE, v: LANGUAGE.EN, s: screen })),
   setDeLanguage: (screen: string) =>
     getTextButton('De', packData({ b: BUTTON.SET_LANGUAGE, v: LANGUAGE.DE, s: screen })),
+  addWordConfirm: (screen: string) =>
+    getTextButton('Add', packData({ b: BUTTON.ADD_WORD, v: 'confirm', s: screen })),
+  addWordRefuse: (screen: string) =>
+    getTextButton('Cancel', packData({ b: BUTTON.ADD_WORD, v: 'refuse', s: screen })),
 };
 
-export const startKeyboard = (screen: string) =>
-  getInlineKeyboard([[buttons.openSettings(screen)]]);
+export const startKeyboard = getInlineKeyboard([[buttons.openSettings(SCREEN.START)]]);
 
-export const settingsKeyboard = () =>
-  getInlineKeyboard([
-    [
-      buttons.modeSettings(SCREEN.SETTINGS),
-      buttons.periodSettings(SCREEN.SETTINGS),
-      buttons.languageSettings(SCREEN.SETTINGS),
-    ],
-  ]);
+export const settingsKeyboard = getInlineKeyboard([
+  [
+    buttons.modeSettings(SCREEN.SETTINGS),
+    buttons.periodSettings(SCREEN.SETTINGS),
+    buttons.languageSettings(SCREEN.SETTINGS),
+  ],
+]);
 
-export const modeSettingsKeyboard = () =>
-  getInlineKeyboard([
-    [
-      buttons.modeStartSettings(SCREEN.APPLY_SETTINGS),
-      buttons.modeStopSettings(SCREEN.APPLY_SETTINGS),
-      buttons.backToSettings(),
-    ],
-  ]);
+export const modeSettingsKeyboard = getInlineKeyboard([
+  [
+    buttons.modeStartSettings(SCREEN.APPLY_SETTINGS),
+    buttons.modeStopSettings(SCREEN.APPLY_SETTINGS),
+    buttons.backToSettings(),
+  ],
+]);
 
-export const periodSettingsKeyboard = () =>
-  getInlineKeyboard([
-    [
-      buttons.periodSetSettings1(SCREEN.APPLY_SETTINGS),
-      buttons.periodSetSettings5(SCREEN.APPLY_SETTINGS),
-      buttons.periodSetSettings15(SCREEN.APPLY_SETTINGS),
-      buttons.periodSetSettings30(SCREEN.APPLY_SETTINGS),
-    ],
-    [buttons.backToSettings()],
-  ]);
+export const periodSettingsKeyboard = getInlineKeyboard([
+  [
+    buttons.periodSetSettings1(SCREEN.APPLY_SETTINGS),
+    buttons.periodSetSettings5(SCREEN.APPLY_SETTINGS),
+    buttons.periodSetSettings15(SCREEN.APPLY_SETTINGS),
+    buttons.periodSetSettings30(SCREEN.APPLY_SETTINGS),
+  ],
+  [buttons.backToSettings()],
+]);
 
-export const languageSettingsKeyboard = () =>
-  getInlineKeyboard([
-    [
-      buttons.setEnLanguage(SCREEN.APPLY_SETTINGS),
-      buttons.setDeLanguage(SCREEN.APPLY_SETTINGS),
-      buttons.backToSettings(),
-    ],
-  ]);
+export const languageSettingsKeyboard = getInlineKeyboard([
+  [
+    buttons.setEnLanguage(SCREEN.APPLY_SETTINGS),
+    buttons.setDeLanguage(SCREEN.APPLY_SETTINGS),
+    buttons.backToSettings(),
+  ],
+]);
+
+export const addWordDialogKeyboard = getInlineKeyboard([
+  [buttons.addWordConfirm(SCREEN.ADD_WORD), buttons.addWordRefuse(SCREEN.ADD_WORD)],
+]);
 
 export const actionKeyboardMapping = {
   [BUTTON.SETTINGS]: settingsKeyboard,
@@ -101,4 +104,5 @@ export const actionKeyboardMapping = {
   [BUTTON.SET_MODE]: settingsKeyboard,
   [BUTTON.SET_PERIOD]: settingsKeyboard,
   [BUTTON.SET_LANGUAGE]: settingsKeyboard,
+  [BUTTON.ADD_WORD]: addWordDialogKeyboard,
 };

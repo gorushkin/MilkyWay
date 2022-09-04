@@ -19,12 +19,14 @@ export enum BUTTON {
   SET_MODE = 'SET_MODE',
   SET_PERIOD = 'PERIOD_SET',
   SET_LANGUAGE = 'SET_LANGUAGE',
+  ADD_WORD = "ADD_WORD"
 }
 
 export enum SCREEN {
   START = 'START',
   SETTINGS = 'SETTINGS',
   APPLY_SETTINGS = 'APPLY_SETTINGS',
+  ADD_WORD = "ADD_WORD"
 }
 
 export enum MODE {

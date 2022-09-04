@@ -1,9 +1,4 @@
-import {
-  BotError,
-  CallBackHandler,
-  CommandHandler,
-  MessageHandler,
-} from './types';
+import { BotError, CallBackHandler, CommandHandler, MessageHandler } from './types';
 import {
   unpackData,
   getFormattedMessage,
@@ -15,9 +10,7 @@ import * as services from './services';
 import { commandsList, SCREEN } from './constants';
 import bot from './index';
 import { getLinks } from './api';
-import { startKeyboard, settingsKeyboard } from './helpers/keyboards';
-
-
+import { startKeyboard, settingsKeyboard, addWordDialogKeyboard } from './helpers/keyboards';
 
 export const sendEntireWord = async (telegramId: number, screen: string) => {
   const { word, mode } = await services.getUserWords(telegramId);
@@ -52,7 +45,7 @@ export const showSettings = async (telegramId: number) => {
 
   await bot.sendMessage(telegramId, formattedSettings, {
     parse_mode: 'HTML',
-    reply_markup: settingsKeyboard(),
+    reply_markup: settingsKeyboard,
   });
 };
 
@@ -68,21 +61,6 @@ export const showSettings = async (telegramId: number) => {
 //   [ACTION.ADD_WORD_REFUSE]: async ({ id }) => {
 //     // await bot.sendMessage(id, `Ok!`);
 //   },
-//   [ACTION.SETTINGS_MODE]: async ({ id }) => {
-//     // await bot.sendMessage(id, 'You can Start or Stop word sending', modeSettingsKeyboard());
-//   },
-//   [ACTION.SETTING_PERIOD]: async ({ id }) => {
-//     // await bot.sendMessage(id, 'Select sending period', periodSettingsKeyboard());
-//   },
-//   [ACTION.SETTING_LANGUAGE]: async ({ id }) => {
-//     // await bot.sendMessage(id, 'Select your language', languageSettingsKeyboard());
-//   },
-//   [ACTION.NEXT_WORD]: async ({ id }) => {
-//     // await sendEntireWord(Number(id));
-//   },
-//   [ACTION.SETTINGS_OPEN]: async ({ id }) => {
-//     // await showSettings(id);
-//   },
 //   [ACTION.SET_MODE]: async ({ id, value, messageData }) => {
 //     // const updatedUser = await services.updateUser({
 //     //   telegramId: id,
@@ -95,28 +73,12 @@ export const showSettings = async (telegramId: number) => {
 //     //   changeModeKeyboard(updatedUser.mode)
 //     // );
 //   },
-//   [ACTION.PERIOD_SET]: async ({ id, value }) => {
-//     // await services.updateUser({ telegramId: id, period: Number(value) });
-//     // await bot.sendMessage(id, `I changed your period to ${value} min`);
-//   },
-//   [ACTION.SETTINGS_CLOSE]: async ({ id, value }) => {
-//     // await services.updateUser({ telegramId: id, period: Number(value) });
-//     // const user = await services.getUser(id);
-//     // if (!user) throw new Error('ALARM!!! There is no user with this id!!!');
-//     // await bot.sendMessage(id, `Mode = ${user.mode}, period = ${user.period}`, simpleKeyboard());
-//   },
-//   [ACTION.CLOSE]: async () => {},
-//   [ACTION.CANCEL]: async () => {},
 //   [ACTION.SET_WORD_FREQ]: async ({ id, value, messageData }) => {
 //     // await services.updateWordFrequency(id, messageData.word, value);
 //     // await bot.sendMessage(id, 'We are going to change word frequency');
 //   },
 //   [ACTION.READ_CONFIRM]: async ({ id }) => {
 //     // await services.updateUser({ telegramId: id, mode: MODE.START, lastSendTime: true });
-//   },
-//   [ACTION.LANGUAGE_SET]: async ({ id, value }) => {
-//     // await services.updateUser({ telegramId: id, language: value });
-//     // await bot.sendMessage(id, `I changed your language to ${value}`);
 //   },
 //   [ACTION.WORD_ACTIONS]: async ({ id, messageData }) => {
 //     // await bot.sendMessage(
@@ -125,12 +87,11 @@ export const showSettings = async (telegramId: number) => {
 //     //   wordSettingsKeyboard()
 //     // );
 //   },
-//   [ACTION.REMOVE_WORD]: async ({ id, messageData }) => {
-//     // await bot.sendMessage(id, `We are going to remove word ${messageData.word}`);
-//   },
+
 // };
 
 export const onCallbackQuery: CallBackHandler = async (query) => {
+  console.log('query: ', query);
   const messageId = query.message?.message_id;
   const chatId = query.message?.chat.id;
 
@@ -165,7 +126,7 @@ export const onStart: CommandHandler = async (msg) => {
   await services.addUser(id, first_name, username);
 
   await bot.sendMessage(id, `Hello, ${msg.chat.username}`, {
-    reply_markup: startKeyboard(SCREEN.SETTINGS),
+    reply_markup: startKeyboard,
   });
 };
 
@@ -178,14 +139,9 @@ export const onMessage: MessageHandler = async (msg) => {
 
   if (isWordSkippable) return;
 
-  const user = await services.getUser(msg.chat.id);
-  if (!user?.language) throw new BotError('Choose language at first, please');
-
-  // await bot.sendMessage(
-  //   msg.chat.id,
-  //   `Add word "${text}" to your list`,
-  //   addWordDialogKeyboard(text)
-  // );
+  await bot.sendMessage(msg.chat.id, `Add word "${text}" to your list`, {
+    reply_markup: addWordDialogKeyboard,
+  });
 };
 
 export const onTest: CommandHandler = (msg) => sendEntireWord(msg.chat.id, 'WORD:COMMON');
