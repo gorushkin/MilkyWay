@@ -7,7 +7,7 @@ import {
   getMessageData,
 } from './helpers';
 import * as services from './services';
-import { commandsList, SCREEN } from './constants';
+import { ACTION, commandsList } from './constants';
 import bot from './index';
 import { getLinks } from './api';
 import { startKeyboard, settingsKeyboard, addWordDialogKeyboard } from './helpers/keyboards';
@@ -90,8 +90,25 @@ export const showSettings = async (telegramId: number) => {
 
 // };
 
+const mapping = {
+  [ACTION.DEFAULT]: async (_value: string) => {
+    console.log('DEFAULT');
+  },
+  [ACTION.ADD_WORD]: async (_value: string) => {
+    console.log('ADD_WORD');
+  },
+  [ACTION.SET_LANGUAGE]: async (_value: string) => {
+    console.log('SET_LANGUAGE');
+  },
+  [ACTION.SET_MODE]: async (_value: string) => {
+    console.log('SET_MODE');
+  },
+  [ACTION.SET_PERIOD]: async (_value: string) => {
+    console.log('SET_PERIOD');
+  },
+};
+
 export const onCallbackQuery: CallBackHandler = async (query) => {
-  console.log('query: ', query);
   const messageId = query.message?.message_id;
   const chatId = query.message?.chat.id;
 
@@ -108,9 +125,11 @@ export const onCallbackQuery: CallBackHandler = async (query) => {
   if (!data) throw new Error('There is no data!!!');
   if (!user) throw new Error('There is no user!!!');
 
-  const { button, value, screen } = unpackData(data);
+  const { button, value, screen, action } = unpackData(data);
 
   const messageData = getMessageData(button, value, screen, user);
+
+  const res = await mapping[action as ACTION](value);
 
   try {
     await bot.editMessageText(messageData.message, {
@@ -118,7 +137,9 @@ export const onCallbackQuery: CallBackHandler = async (query) => {
       message_id: messageId,
       chat_id: chatId,
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log('error: ', error);
+  }
 };
 
 export const onStart: CommandHandler = async (msg) => {

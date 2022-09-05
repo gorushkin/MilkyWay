@@ -1,17 +1,19 @@
 import { InlineKeyboardButton, InlineKeyboardMarkup } from 'node-telegram-bot-api';
-import { BUTTON, LANGUAGE, PERIOD, SCREEN } from '../constants';
+import { ACTION, BUTTON, LANGUAGE, PERIOD, SCREEN } from '../constants';
 
 export const packData = ({
   b,
+  a = ACTION.DEFAULT,
   v = '',
   k = '',
   s = '',
 }: {
   b: string;
+  a?: ACTION;
   v?: string;
   k?: string;
   s?: string;
-}) => JSON.stringify({ b, v, k, s });
+}) => JSON.stringify({ a, b, v, k, s });
 
 const getInlineKeyboard = (buttons: InlineKeyboardButton[][]): InlineKeyboardMarkup => {
   return { inline_keyboard: buttons };
@@ -35,21 +37,39 @@ const buttons = {
   languageSettings: (screen: string) =>
     getTextButton('Language', packData({ b: BUTTON.SETTING_LANGUAGE, s: screen })),
   modeStartSettings: (screen: string) =>
-    getTextButton('Start', packData({ b: BUTTON.SET_MODE, s: screen })),
+    getTextButton('Start', packData({ b: BUTTON.SET_MODE, s: screen, a: ACTION.SET_MODE })),
   modeStopSettings: (screen: string) =>
-    getTextButton('Stop', packData({ b: BUTTON.SET_MODE, s: screen })),
+    getTextButton('Stop', packData({ b: BUTTON.SET_MODE, s: screen, a: ACTION.SET_MODE })),
   periodSetSettings1: (screen: string) =>
-    getTextButton('1 min', packData({ b: BUTTON.SET_PERIOD, v: PERIOD['1_MIN'], s: screen })),
+    getTextButton(
+      '1 min',
+      packData({ b: BUTTON.SET_PERIOD, v: PERIOD['1_MIN'], s: screen, a: ACTION.SET_PERIOD })
+    ),
   periodSetSettings5: (screen: string) =>
-    getTextButton('5 min', packData({ b: BUTTON.SET_PERIOD, v: PERIOD['5_MIN'], s: screen })),
+    getTextButton(
+      '5 min',
+      packData({ b: BUTTON.SET_PERIOD, v: PERIOD['5_MIN'], s: screen, a: ACTION.SET_PERIOD })
+    ),
   periodSetSettings15: (screen: string) =>
-    getTextButton('15 min', packData({ b: BUTTON.SET_PERIOD, v: PERIOD['15_MIN'], s: screen })),
+    getTextButton(
+      '15 min',
+      packData({ b: BUTTON.SET_PERIOD, v: PERIOD['15_MIN'], s: screen, a: ACTION.SET_PERIOD })
+    ),
   periodSetSettings30: (screen: string) =>
-    getTextButton('30 min', packData({ b: BUTTON.SET_PERIOD, v: PERIOD['30_MIN'], s: screen })),
+    getTextButton(
+      '30 min',
+      packData({ b: BUTTON.SET_PERIOD, v: PERIOD['30_MIN'], s: screen, a: ACTION.SET_PERIOD })
+    ),
   setEnLanguage: (screen: string) =>
-    getTextButton('En', packData({ b: BUTTON.SET_LANGUAGE, v: LANGUAGE.EN, s: screen })),
+    getTextButton(
+      'En',
+      packData({ b: BUTTON.SET_LANGUAGE, v: LANGUAGE.EN, s: screen, a: ACTION.SET_LANGUAGE })
+    ),
   setDeLanguage: (screen: string) =>
-    getTextButton('De', packData({ b: BUTTON.SET_LANGUAGE, v: LANGUAGE.DE, s: screen })),
+    getTextButton(
+      'De',
+      packData({ b: BUTTON.SET_LANGUAGE, v: LANGUAGE.DE, s: screen, a: ACTION.SET_LANGUAGE })
+    ),
   addWordConfirm: (screen: string) =>
     getTextButton('Add', packData({ b: BUTTON.ADD_WORD, v: 'confirm', s: screen })),
   addWordRefuse: (screen: string) =>

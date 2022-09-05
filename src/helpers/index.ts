@@ -1,14 +1,14 @@
 import { User, WordsOnUsers } from '@prisma/client';
 import TelegramBot from 'node-telegram-bot-api';
-import { BUTTON, SCREEN } from '../constants';
+import { ACTION, BUTTON, SCREEN } from '../constants';
 import { WholeWord, ITranslation, IExample, IMeaning, ISynonym, ScreenMap } from '../types';
 import { actionKeyboardMapping } from './keyboards';
 
 export const unpackData = (
   queryData: string
-): { button: string; value: string; keyboard: string; screen: string } => {
-  const { b: button, v: value, s: screen, k: keyboard } = JSON.parse(queryData);
-  return { button, value, keyboard, screen };
+): { button: string; value: string; keyboard: string; screen: string; action: ACTION } => {
+  const { b: button, v: value, s: screen, k: keyboard, a: action } = JSON.parse(queryData);
+  return { button, value, keyboard, screen, action };
 };
 
 export const getFlatArray = <T>(target: Array<T>): Array<T> => {
@@ -106,7 +106,7 @@ export const getData = ({ ex, mean, pos, syn, text }: ITranslation) => {
 };
 
 const screenMessageMapping: ScreenMap = {
-  START: ({ user, keyboard }) => {
+  [SCREEN.START]: ({ user, keyboard }) => {
     const message = `Hello, ${user.username}`;
 
     return {
@@ -117,7 +117,7 @@ const screenMessageMapping: ScreenMap = {
       },
     };
   },
-  SETTINGS: ({ user, keyboard }) => {
+  [SCREEN.SETTINGS]: ({ user, keyboard }) => {
     const { mode, period, language } = user;
     const message = getFormattedSettingsMessage('Current Settings', { mode, period, language });
 
@@ -129,7 +129,7 @@ const screenMessageMapping: ScreenMap = {
       },
     };
   },
-  APPLY_SETTINGS: ({ user, keyboard }) => {
+  [SCREEN.APPLY_SETTINGS]: ({ user, keyboard }) => {
     const { mode, period, language } = user;
     const message = getFormattedSettingsMessage('I changed something in your settings', {
       mode,
@@ -145,7 +145,7 @@ const screenMessageMapping: ScreenMap = {
       },
     };
   },
-  ADD_WORD: ({ user, keyboard }) => {
+  [SCREEN.ADD_WORD]: ({ user, keyboard }) => {
     const message = 'Add word to your list?';
 
     return {
@@ -159,10 +159,6 @@ const screenMessageMapping: ScreenMap = {
 };
 
 export const getMessageData = (button: string, value: string, screen: string, user: User) => {
-  console.log('----------------');
-  console.log('value: ', value);
-  console.log('button: ', button);
-  console.log('screen: ', screen);
   const keyboard = actionKeyboardMapping[button as BUTTON];
 
   return screenMessageMapping[screen as SCREEN]({ keyboard, user, value });
