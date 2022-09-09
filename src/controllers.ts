@@ -91,20 +91,20 @@ export const showSettings = async (telegramId: number) => {
 // };
 
 const mapping = {
-  [ACTION.DEFAULT]: async (_value: string) => {
+  [ACTION.DEFAULT]: async (_value: string, _id: number) => {
     console.log('DEFAULT');
   },
-  [ACTION.ADD_WORD]: async (_value: string) => {
+  [ACTION.ADD_WORD]: async (_value: string, _id: number) => {
     console.log('ADD_WORD');
   },
-  [ACTION.SET_LANGUAGE]: async (_value: string) => {
-    console.log('SET_LANGUAGE');
+  [ACTION.SET_LANGUAGE]: async (value: string, telegramId: number) => {
+    return services.updateUser({ telegramId, language: value });
   },
-  [ACTION.SET_MODE]: async (_value: string) => {
-    console.log('SET_MODE');
+  [ACTION.SET_MODE]: async (value: string, telegramId: number) => {
+    return services.updateUser({ telegramId, mode: value });
   },
-  [ACTION.SET_PERIOD]: async (_value: string) => {
-    console.log('SET_PERIOD');
+  [ACTION.SET_PERIOD]: async (value: string, telegramId: number) => {
+    return services.updateUser({ telegramId, period: Number(value) });
   },
 };
 
@@ -119,7 +119,10 @@ export const onCallbackQuery: CallBackHandler = async (query) => {
 
   const user = await services.getUser(id);
 
+  // TODO: remove user creation from this place
   await services.addUser(id, first_name, username);
+
+  const settingsActions = [ACTION.SET_LANGUAGE, ACTION.SET_MODE, ACTION.SET_PERIOD];
 
   if (!messageId) throw new Error('There is no messageId!!!');
   if (!data) throw new Error('There is no data!!!');
@@ -127,9 +130,11 @@ export const onCallbackQuery: CallBackHandler = async (query) => {
 
   const { button, value, screen, action } = unpackData(data);
 
-  const messageData = getMessageData(button, value, screen, user);
+  const result = await mapping[action as ACTION](value, id);
 
-  const res = await mapping[action as ACTION](value);
+  const updatedUser = settingsActions.includes(action) ? result ?? user : user;
+
+  const messageData = getMessageData(button, value, screen, updatedUser);
 
   try {
     await bot.editMessageText(messageData.message, {

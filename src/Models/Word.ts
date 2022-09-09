@@ -4,7 +4,7 @@ import { getData } from '../helpers';
 import { WholeWord } from '../types';
 const prisma = new PrismaClient();
 
-class Word {
+class PrismaWord {
   private word: Prisma.WordDelegate<
     Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined
   >;
@@ -74,4 +74,4 @@ class Word {
   }
 }
 
-export default new Word(prisma);
+export default new PrismaWord(prisma);

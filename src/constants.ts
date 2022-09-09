@@ -17,13 +17,14 @@ export enum ACTION {
   SET_PERIOD = 'S_P',
   ADD_WORD = 'A_WD',
   DEFAULT = 'D',
+  // SETTINGS = 'S',
 }
 
 export enum BUTTON {
   SETTINGS = 'SET',
-  SETTINGS_MODE = 'MODE',
-  SETTING_PERIOD = 'PERIOD',
-  SETTING_LANGUAGE = 'LANG',
+  SETTINGS_MODE = 'M',
+  SETTING_PERIOD = 'P',
+  SETTING_LANGUAGE = 'L',
   SET_MODE = 'S_M',
   SET_PERIOD = 'S_P',
   SET_LANGUAGE = 'S_L',

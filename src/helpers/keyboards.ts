@@ -1,5 +1,5 @@
 import { InlineKeyboardButton, InlineKeyboardMarkup } from 'node-telegram-bot-api';
-import { ACTION, BUTTON, LANGUAGE, PERIOD, SCREEN } from '../constants';
+import { ACTION, BUTTON, LANGUAGE, MODE, PERIOD, SCREEN } from '../constants';
 
 export const packData = ({
   b,
@@ -37,9 +37,15 @@ const buttons = {
   languageSettings: (screen: string) =>
     getTextButton('Language', packData({ b: BUTTON.SETTING_LANGUAGE, s: screen })),
   modeStartSettings: (screen: string) =>
-    getTextButton('Start', packData({ b: BUTTON.SET_MODE, s: screen, a: ACTION.SET_MODE })),
+    getTextButton(
+      'Start',
+      packData({ b: BUTTON.SET_MODE, s: screen, a: ACTION.SET_MODE, v: MODE.START })
+    ),
   modeStopSettings: (screen: string) =>
-    getTextButton('Stop', packData({ b: BUTTON.SET_MODE, s: screen, a: ACTION.SET_MODE })),
+    getTextButton(
+      'Stop',
+      packData({ b: BUTTON.SET_MODE, s: screen, a: ACTION.SET_MODE, v: MODE.STOP })
+    ),
   periodSetSettings1: (screen: string) =>
     getTextButton(
       '1 min',

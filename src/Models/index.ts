@@ -1,4 +1,4 @@
-import User from './User';
-import Word from './Word';
+import PrismaUser from './User';
+import PrismaWord from './Word';
 
-export const repository = { User, Word };
+export const repository = { PrismaUser, PrismaWord };
