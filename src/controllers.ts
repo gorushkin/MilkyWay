@@ -5,6 +5,7 @@ import {
   getFormattedSettingsMessage,
   getHiddenMessage,
   getMessageData,
+  getValueFromMessageBody,
 } from './helpers';
 import * as services from './services';
 import { ACTION, commandsList } from './constants';
@@ -106,6 +107,16 @@ const mapping = {
   [ACTION.SET_PERIOD]: async (value: string, telegramId: number) => {
     return services.updateUser({ telegramId, period: Number(value) });
   },
+  [ACTION.ADD_WORD_CONFIRM]: async (value: string, telegramId: number) => {
+    console.log('ADD_WORD_CONFIRM');
+    console.log('value: ', value);
+    // return services.updateUser({ telegramId, period: Number(value) });
+  },
+  [ACTION.ADD_WORD_REFUSE]: async (value: string, telegramId: number) => {
+    console.log('ADD_WORD_REFUSE');
+    console.log('value: ', value);
+    // return services.updateUser({ telegramId, period: Number(value) });
+  },
 };
 
 export const onCallbackQuery: CallBackHandler = async (query) => {
@@ -134,7 +145,11 @@ export const onCallbackQuery: CallBackHandler = async (query) => {
 
   const updatedUser = settingsActions.includes(action) ? result ?? user : user;
 
-  const messageData = getMessageData(button, value, screen, updatedUser);
+  const hiddenValue = query.message?.entities
+    ? getValueFromMessageBody(query?.message?.entities[0])
+    : '';
+
+  const messageData = getMessageData(button, value ? value : hiddenValue, screen, updatedUser);
 
   try {
     await bot.editMessageText(messageData.message, {
@@ -165,8 +180,13 @@ export const onMessage: MessageHandler = async (msg) => {
 
   if (isWordSkippable) return;
 
-  await bot.sendMessage(msg.chat.id, `Add word "${text}" to your list`, {
+  const hiddenMessage = getHiddenMessage(text);
+  const message = `${hiddenMessage}Add word "${text}" to your list`;
+
+  await bot.sendMessage(msg.chat.id, message, {
     reply_markup: addWordDialogKeyboard,
+    parse_mode: 'HTML',
+    disable_web_page_preview: true,
   });
 };
 

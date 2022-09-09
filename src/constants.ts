@@ -16,8 +16,9 @@ export enum ACTION {
   SET_LANGUAGE = 'S_L',
   SET_PERIOD = 'S_P',
   ADD_WORD = 'A_WD',
+  ADD_WORD_CONFIRM = 'A_W_C',
+  ADD_WORD_REFUSE = 'A_W_R',
   DEFAULT = 'D',
-  // SETTINGS = 'S',
 }
 
 export enum BUTTON {
@@ -28,7 +29,8 @@ export enum BUTTON {
   SET_MODE = 'S_M',
   SET_PERIOD = 'S_P',
   SET_LANGUAGE = 'S_L',
-  ADD_WORD = 'A_W',
+  ADD_WORD_CONFIRM = 'A_W_C',
+  ADD_WORD_REFUSE = 'A_W_R',
 }
 
 export enum SCREEN {
@@ -36,6 +38,8 @@ export enum SCREEN {
   SETTINGS = 'SET',
   APPLY_SETTINGS = 'A_S',
   ADD_WORD = 'A_W',
+  ADD_WORD_CONFIRM = 'A_W_C',
+  ADD_WORD_REFUSE = 'A_W_R',
 }
 
 export enum MODE {

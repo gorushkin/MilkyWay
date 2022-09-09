@@ -66,7 +66,7 @@ export const getFormattedSettingsMessage = (
   return `${formattedSettingsTitle}\n${formattedSettingsBody}`;
 };
 
-export const getValueFromMessageBody = (entity: TelegramBot.MessageEntity | null): string => {
+export const getValueFromMessageBody = (entity: TelegramBot.MessageEntity | undefined): string => {
   if (!entity || entity.type !== 'text_link' || !entity.url) return '';
   const string = entity.url.slice(9);
   return Buffer.from(string, 'base64').toString();
@@ -145,7 +145,7 @@ const screenMessageMapping: ScreenMap = {
       },
     };
   },
-  [SCREEN.ADD_WORD]: ({ user, keyboard }) => {
+  [SCREEN.ADD_WORD]: ({ keyboard }) => {
     const message = 'Add word to your list?';
 
     return {
@@ -153,6 +153,26 @@ const screenMessageMapping: ScreenMap = {
       options: {
         parse_mode: 'HTML',
         reply_markup: keyboard,
+      },
+    };
+  },
+  [SCREEN.ADD_WORD_CONFIRM]: ({ value }) => {
+    const message = `I added word "${value}" to your list`;
+
+    return {
+      message,
+      options: {
+        parse_mode: 'HTML',
+      },
+    };
+  },
+  [SCREEN.ADD_WORD_REFUSE]: ({ user, keyboard }) => {
+    const message = 'Ok';
+
+    return {
+      message,
+      options: {
+        parse_mode: 'HTML',
       },
     };
   },

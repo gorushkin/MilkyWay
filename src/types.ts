@@ -118,15 +118,22 @@ interface ScreenMapFunction {
   }: {
     id?: number;
     value: string;
-    keyboard: TelegramBot.InlineKeyboardMarkup;
+    keyboard: TelegramBot.InlineKeyboardMarkup | null;
     user: User;
-  }): {
-    message: string;
-    options: {
-      parse_mode: TelegramBot.ParseMode;
-      reply_markup: TelegramBot.InlineKeyboardMarkup;
-    };
-  };
+  }):
+    | {
+        message: string;
+        options: {
+          parse_mode: TelegramBot.ParseMode;
+          reply_markup: TelegramBot.InlineKeyboardMarkup;
+        };
+      }
+    | {
+        message: string;
+        options: {
+          parse_mode: TelegramBot.ParseMode;
+        };
+      };
 }
 
 export type ActionMap = Record<BUTTON, ActionMapFunction>;
