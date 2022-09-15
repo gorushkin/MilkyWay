@@ -77,9 +77,25 @@ const buttons = {
       packData({ b: BUTTON.SET_LANGUAGE, v: LANGUAGE.DE, s: screen, a: ACTION.SET_LANGUAGE })
     ),
   addWordConfirm: (screen: string) =>
-    getTextButton('Add', packData({ b: BUTTON.ADD_WORD_CONFIRM, a: ACTION.ADD_WORD_CONFIRM, s: screen })),
+    getTextButton(
+      'Add',
+      packData({ b: BUTTON.ADD_WORD_CONFIRM, a: ACTION.ADD_WORD_CONFIRM, s: screen })
+    ),
   addWordRefuse: (screen: string) =>
-    getTextButton('Cancel', packData({ b: BUTTON.ADD_WORD_REFUSE, a: ACTION.ADD_WORD_REFUSE, s: screen })),
+    getTextButton(
+      'Cancel',
+      packData({ b: BUTTON.ADD_WORD_REFUSE, a: ACTION.ADD_WORD_REFUSE, s: screen })
+    ),
+  wordNext: (screen: string) =>
+    getTextButton(
+      'Next word',
+      packData({ b: BUTTON.WORD_NEXT, a: ACTION.WORD_SHOW, s: screen })
+    ),
+  wordContinue: (screen: string) =>
+    getTextButton(
+      'Continue',
+      packData({ b: BUTTON.WORD_CONTINUE, a: ACTION.SET_MODE, v: MODE.START, s: screen })
+    ),
 };
 
 export const startKeyboard = getInlineKeyboard([[buttons.openSettings(SCREEN.START)]]);
@@ -122,6 +138,10 @@ export const addWordDialogKeyboard = getInlineKeyboard([
   [buttons.addWordConfirm(SCREEN.ADD_WORD_CONFIRM), buttons.addWordRefuse(SCREEN.ADD_WORD_REFUSE)],
 ]);
 
+export const sendWordKeyBoard = getInlineKeyboard([
+  [buttons.wordContinue(SCREEN.WORD_CONTINUE), buttons.wordNext(SCREEN.WORD_SHOW)],
+]);
+
 export const actionKeyboardMapping = {
   [BUTTON.SETTINGS]: settingsKeyboard,
   [BUTTON.SETTINGS_MODE]: modeSettingsKeyboard,
@@ -130,7 +150,8 @@ export const actionKeyboardMapping = {
   [BUTTON.SET_MODE]: settingsKeyboard,
   [BUTTON.SET_PERIOD]: settingsKeyboard,
   [BUTTON.SET_LANGUAGE]: settingsKeyboard,
-  // [BUTTON.ADD_WORD]: addWordDialogKeyboard,
   [BUTTON.ADD_WORD_CONFIRM]: null,
   [BUTTON.ADD_WORD_REFUSE]: null,
+  [BUTTON.WORD_CONTINUE]: null,
+  [BUTTON.WORD_NEXT]: sendWordKeyBoard,
 };

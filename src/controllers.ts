@@ -1,34 +1,32 @@
 import { ActionMap, BotError, CallBackHandler, CommandHandler, MessageHandler } from './types';
 import {
   unpackData,
-  getFormattedMessage,
   getFormattedSettingsMessage,
   getHiddenMessage,
   getMessageData,
   getValueFromMessageBody,
+  getMessage,
 } from './helpers';
 import * as services from './services';
 import { ACTION, commandsList } from './constants';
 import bot from './index';
-import { getLinks } from './api';
-import { startKeyboard, settingsKeyboard, addWordDialogKeyboard } from './helpers/keyboards';
+import {
+  startKeyboard,
+  settingsKeyboard,
+  addWordDialogKeyboard,
+  sendWordKeyBoard,
+} from './helpers/keyboards';
 
-export const sendEntireWord = async (telegramId: number, screen: string) => {
+export const sendEntireWord = async (telegramId: number) => {
   const { word, mode } = await services.getUserWords(telegramId);
 
   if (!word || !mode) throw new BotError('Sorry, you have no words at all');
 
-  const url = getLinks(word.word.text).CAMBRIDGE.RU;
-  const formattedMessage = getFormattedMessage(word.word, url);
-
-  const hiddenMessage = getHiddenMessage(word.word.text);
-
-  const message = hiddenMessage + formattedMessage;
+  const message = getMessage(word.word);
 
   await bot.sendMessage(telegramId, message, {
     parse_mode: 'HTML',
-    disable_web_page_preview: true,
-    // ...sendWordKeyBoard(telegramId, mode),
+    reply_markup: sendWordKeyBoard,
   });
 };
 
@@ -71,15 +69,21 @@ const mapping: ActionMap = {
   },
   [ACTION.ADD_WORD_CONFIRM]: async ({ telegramId, button, hiddenValue, screen, user }) => {
     const word = await services.addWord(hiddenValue, telegramId);
-    const url = getLinks(word.text).CAMBRIDGE.RU;
-    const formattedMessage = getFormattedMessage(word, url);
-    const hiddenMessage = getHiddenMessage(word.text);
-    const message = hiddenMessage + `I added word "${word.text}" to your list\n` + formattedMessage;
+
+    const message = getMessage(word, `I added word "${word.text}" to your list\n`);
 
     return getMessageData(button, message, screen, user);
   },
   [ACTION.ADD_WORD_REFUSE]: async ({ value, button, hiddenValue, screen, user }) => {
     return getMessageData(button, value ? value : hiddenValue, screen, user);
+  },
+  [ACTION.WORD_SHOW]: async ({ telegramId, button, screen, user }) => {
+    const { word, mode } = await services.getUserWords(telegramId);
+    if (!word || !mode) throw new BotError('Sorry, you have no words at all');
+
+    const message = getMessage(word.word);
+
+    return getMessageData(button, message, screen, user);
   },
 };
 
@@ -123,7 +127,8 @@ export const onCallbackQuery: CallBackHandler = async (query) => {
       chat_id: chatId,
     });
   } catch (error) {
-    console.log('error: ', error);
+    // TODO: do resend only if error appears because of the same word
+    onCallbackQuery(query);
   }
 };
 
@@ -155,6 +160,6 @@ export const onMessage: MessageHandler = async (msg) => {
   });
 };
 
-export const onTest: CommandHandler = (msg) => sendEntireWord(msg.chat.id, 'WORD:COMMON');
+export const onTest: CommandHandler = (msg) => sendEntireWord(msg.chat.id);
 
 export const onSettings: CommandHandler = (msg) => showSettings(msg.chat.id);

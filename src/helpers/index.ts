@@ -1,5 +1,6 @@
-import { User, WordsOnUsers } from '@prisma/client';
+import { User } from '@prisma/client';
 import TelegramBot from 'node-telegram-bot-api';
+import { getLinks } from '../api';
 import { ACTION, BUTTON, SCREEN } from '../constants';
 import { WholeWord, ITranslation, IExample, IMeaning, ISynonym, ScreenMap } from '../types';
 import { actionKeyboardMapping } from './keyboards';
@@ -70,6 +71,13 @@ export const getValueFromMessageBody = (entity: TelegramBot.MessageEntity | unde
 export const getHiddenMessage = (word: string) => {
   const encodeMessage = Buffer.from(word).toString('base64');
   return `<a href="tg://btn/${encodeMessage}">\u200b</a>`;
+};
+
+export const getMessage = (word: WholeWord, extra?: string) => {
+  const url = getLinks(word.text).CAMBRIDGE.RU;
+  const formattedMessage = getFormattedMessage(word, url);
+  const hiddenMessage = getHiddenMessage(word.text);
+  return extra ? hiddenMessage + extra + formattedMessage : hiddenMessage + formattedMessage;
 };
 
 export const getData = ({ ex, mean, pos, syn, text }: ITranslation) => {
@@ -166,6 +174,25 @@ const screenMessageMapping: ScreenMap = {
       message,
       options: {
         parse_mode: 'HTML',
+      },
+    };
+  },
+  [SCREEN.WORD_CONTINUE]: () => {
+    const message = 'i will return soon';
+
+    return {
+      message,
+      options: {
+        parse_mode: 'HTML',
+      },
+    };
+  },
+  [SCREEN.WORD_SHOW]: ({ keyboard, value }) => {
+    return {
+      message: value,
+      options: {
+        parse_mode: 'HTML',
+        reply_markup: keyboard,
       },
     };
   },

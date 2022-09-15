@@ -19,6 +19,7 @@ export enum ACTION {
   ADD_WORD_CONFIRM = 'A_W_C',
   ADD_WORD_REFUSE = 'A_W_R',
   DEFAULT = 'D',
+  WORD_SHOW = 'W_S',
 }
 
 export enum BUTTON {
@@ -31,6 +32,8 @@ export enum BUTTON {
   SET_LANGUAGE = 'S_L',
   ADD_WORD_CONFIRM = 'A_W_C',
   ADD_WORD_REFUSE = 'A_W_R',
+  WORD_NEXT = 'W_N',
+  WORD_CONTINUE = 'W_C',
 }
 
 export enum SCREEN {
@@ -40,6 +43,8 @@ export enum SCREEN {
   ADD_WORD = 'A_W',
   ADD_WORD_CONFIRM = 'A_W_C',
   ADD_WORD_REFUSE = 'A_W_R',
+  WORD_CONTINUE = 'W_C',
+  WORD_SHOW = 'W_S',
 }
 
 export enum MODE {

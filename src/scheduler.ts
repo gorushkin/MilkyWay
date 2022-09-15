@@ -1,21 +1,23 @@
 import * as services from './services';
 import { sendEntireWord } from './controllers';
 import { errorHandler } from './errorHanlder';
+import { MODE } from './constants';
 
 const TIME_OUT = 5000;
 
 const sender = async () => {
   const users = await services.getJobs();
 
-  // await Promise.all(
-  //   users.map(async (user) => {
-  //     errorHandler(sendEntireWord(user.telegramId), user.telegramId.toString());
-  //     await services.updateUser({
-  //       telegramId: user.telegramId,
-  //       lastSendTime: true,
-  //     });
-  //   })
-  // );
+  await Promise.all(
+    users.map(async (user) => {
+      errorHandler(sendEntireWord(user.telegramId), user.telegramId.toString());
+      await services.updateUser({
+        telegramId: user.telegramId,
+        lastSendTime: true,
+        mode: MODE.STOP,
+      });
+    })
+  );
 };
 
 const scheduler = async () => {
