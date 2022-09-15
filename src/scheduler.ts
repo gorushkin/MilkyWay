@@ -1,6 +1,7 @@
 import * as services from './services';
 import { sendEntireWord } from './controllers';
 import { errorHandler } from './errorHanlder';
+import { MODE } from './constants';
 
 const TIME_OUT = 5000;
 

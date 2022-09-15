@@ -1,9 +1,9 @@
 import { PrismaClient, Prisma, User as UserType } from '@prisma/client';
 import { MODE } from '../constants';
-import { UserWithWholeWord } from '../types';
+import { BotError, UserWithWholeWord } from '../types';
 const prisma = new PrismaClient();
 
-class User {
+class PrismaUser {
   private user: Prisma.UserDelegate<
     Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined
   >;
@@ -27,7 +27,7 @@ class User {
       select: { language: true },
     });
 
-    if (!user) throw new Error('There is no user at all!!!');
+    if (!user) throw new BotError('You have to register!!! Choose /start, please');
 
     return this.user.findUnique({
       where: { telegramId },
@@ -141,4 +141,4 @@ class User {
   }
 }
 
-export default new User(prisma);
+export default new PrismaUser(prisma);

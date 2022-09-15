@@ -8,16 +8,16 @@ import { User, WordsOnUsers } from '@prisma/client';
 dayjs.extend(utc);
 
 export const addUser = (id: number, first_name: string | undefined, username: string | undefined) =>
-  repository.User.addUser(id, first_name, username);
+  repository.PrismaUser.addUser(id, first_name, username);
 
-export const getUser = (telegramId: number) => repository.User.getUser(telegramId);
+export const getUser = (telegramId: number) => repository.PrismaUser.getUser(telegramId);
 
 export const addWord = async (value: string, telegramId: number): Promise<WholeWord> => {
-  const user = await repository.User.getUser(telegramId);
+  const user = await repository.PrismaUser.getUser(telegramId);
 
   if (!user?.language) throw new Error('You should set language!!!!');
 
-  return repository.Word.addWord(value.trim().toLowerCase(), user.language, telegramId);
+  return repository.PrismaWord.addWord(value.trim().toLowerCase(), user.language, telegramId);
 };
 
 export const getUserWords = async (
@@ -30,13 +30,17 @@ export const getUserWords = async (
     | undefined;
   mode: string | undefined;
 }> => {
-  const userWithWords = await repository.User.getUserWords(telegramId);
+  const userWithWords = await repository.PrismaUser.getUserWords(telegramId);
   const word = _.sample(userWithWords?.wordsOnUsers);
   return { word, mode: userWithWords?.mode };
 };
 
+export const getWord = async (word: string) => {
+  return repository.PrismaWord.getWord(word);
+};
+
 export const getJobs = async (): Promise<User[]> => {
-  const users = await repository.User.getUsersForScheduler();
+  const users = await repository.PrismaUser.getUsersForScheduler();
 
   return users.filter(
     (user) => dayjs(user.lastSendTime).add(Number(user.period), 'minute') <= dayjs()
@@ -56,7 +60,7 @@ export const updateUser = ({
   lastSendTime?: boolean;
   language?: string;
 }): Promise<User> => {
-  return repository.User.updateUser({ telegramId, mode, period, lastSendTime, language });
+  return repository.PrismaUser.updateUser({ telegramId, mode, period, lastSendTime, language });
 };
 
 export const updateWordFrequency = async (
@@ -64,5 +68,5 @@ export const updateWordFrequency = async (
   word: string,
   value: string
 ): Promise<User & { wordsOnUsers: WordsOnUsers[] }> => {
-  return repository.User.updateFrequency(userId, word, Number(value));
+  return repository.PrismaUser.updateFrequency(userId, word, Number(value));
 };

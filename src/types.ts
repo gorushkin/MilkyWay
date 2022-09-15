@@ -1,23 +1,11 @@
 import TelegramBot, { CallbackQuery, Message } from 'node-telegram-bot-api';
 import { Entry, Translation, User, Word, WordsOnUsers } from '@prisma/client';
-import { ACTION } from './constants';
+import { ACTION, SCREEN } from './constants';
 
 export interface IPhonetic {
   text: string;
   audio?: string;
   sourceUrl?: string;
-}
-
-export interface IDefenition {
-  definition: string;
-  example: string;
-  synonyms: string[];
-  antonyms: string[];
-}
-
-export interface IMeaning {
-  partOfSpeech: string;
-  definitions: IDefenition[];
 }
 
 export interface IDictionaryData {
@@ -110,10 +98,62 @@ export type YandexRequest = (word: string) => Promise<IEntry[]>;
 export type WordResponse = { def: IEntry[] };
 
 interface ActionMapFunction {
-  ({ id, value }: { id: number; value: string; word: string }): Promise<void>;
+  ({
+    value,
+    telegramId,
+    hiddenValue,
+    button,
+    screen,
+    user,
+  }: {
+    telegramId: number;
+    value: string;
+    hiddenValue: string;
+    button: string;
+    screen: string;
+    user: User;
+  }): Promise<ScreenMapFunctionResult>;
 }
 
 export type ActionMap = Record<ACTION, ActionMapFunction>;
+
+interface ScreenMapFunctionResultWithKeyboard {
+  message: string;
+  options: {
+    parse_mode: TelegramBot.ParseMode;
+    reply_markup: TelegramBot.InlineKeyboardMarkup;
+  };
+}
+
+interface ScreenMapFunctionResultWithoutKeyboard {
+  message: string;
+  options: {
+    parse_mode: TelegramBot.ParseMode;
+  };
+}
+
+type ScreenMapFunctionResult =
+  | ScreenMapFunctionResultWithKeyboard
+  | ScreenMapFunctionResultWithoutKeyboard;
+
+interface ScreenMapFunction {
+  ({
+    id,
+    value,
+    user,
+    keyboard,
+  }: {
+    id?: number;
+    value: string;
+    keyboard:
+      | TelegramBot.InlineKeyboardMarkup
+      | null
+      | ((mode: string) => TelegramBot.InlineKeyboardMarkup);
+    user: User;
+  }): ScreenMapFunctionResult;
+}
+
+export type ScreenMap = Record<SCREEN, ScreenMapFunction>;
 
 export class BotError extends Error {
   skippable: boolean;

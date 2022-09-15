@@ -11,6 +11,7 @@ import bot from './index';
 import {} from 'node-telegram-bot-api';
 
 export const getErrorMessage = (error: unknown): string => {
+  console.log('error: ', error);
   let message = ERRORS.ERROR;
   if (error instanceof BotError) {
     message = error.message;

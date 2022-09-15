@@ -4,7 +4,7 @@ import { getData } from '../helpers';
 import { WholeWord } from '../types';
 const prisma = new PrismaClient();
 
-class Word {
+class PrismaWord {
   private word: Prisma.WordDelegate<
     Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined
   >;
@@ -15,6 +15,17 @@ class Word {
 
   private getWordFromDictionary(word: string) {
     return getWordRequest(word);
+  }
+
+  async getWord(text: string) {
+    return this.word.findUnique({
+      where: { text },
+      include: {
+        entry: {
+          include: { translation: true },
+        },
+      },
+    });
   }
 
   async addWord(text: string, language: string, userId: number): Promise<WholeWord> {
@@ -74,4 +85,4 @@ class Word {
   }
 }
 
-export default new Word(prisma);
+export default new PrismaWord(prisma);

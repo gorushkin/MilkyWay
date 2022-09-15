@@ -1,16 +1,22 @@
-import { WordsOnUsers } from '@prisma/client';
+import { User } from '@prisma/client';
 import TelegramBot from 'node-telegram-bot-api';
-import { WholeWord, ITranslation, IExample, IMeaning, ISynonym } from '../types';
-
-export const packData = (a: string, v: string, i = 'false') => {
-  return JSON.stringify({ a, ...(v && { v }), i });
-};
+import { getLinks } from '../api';
+import { ACTION, BUTTON, SCREEN } from '../constants';
+import {
+  WholeWord,
+  ITranslation,
+  IExample,
+  IMeaning,
+  ISynonym,
+  ScreenMap,
+} from '../types';
+import { actionKeyboardMapping } from './keyboards';
 
 export const unpackData = (
   queryData: string
-): { action: string; value: string; isRemovable: boolean } => {
-  const { a: action, v: value, i: isRemovable } = JSON.parse(queryData);
-  return { action, value, isRemovable };
+): { button: string; value: string; keyboard: string; screen: string; action: ACTION } => {
+  const { b: button, v: value, s: screen, k: keyboard, a: action } = JSON.parse(queryData);
+  return { button, value, keyboard, screen, action };
 };
 
 export const getFlatArray = <T>(target: Array<T>): Array<T> => {
@@ -35,20 +41,18 @@ export const getFormattedMessageBody = (word: WholeWord) =>
     )
     .join('\n');
 
-export const getFormattedMessage = (
-  word: WordsOnUsers & {
-    word: WholeWord;
-  },
-  url: string
-) => {
-  const messageTitle = `<a href="${url}"><b><u>${word.word.text.toUpperCase()}</u></b></a>`;
+export const getFormattedMessage = (word: WholeWord, url: string) => {
+  const messageTitle = `<a href="${url}"><b><u>${word.text.toUpperCase()}</u></b></a>`;
 
-  const messageBody = getFormattedMessageBody(word.word);
+  const messageBody = getFormattedMessageBody(word);
 
   return `${messageTitle}\n${messageBody}`;
 };
 
-export const getFormattedSettingsMessage = (props: Record<string, string | number | null>) => {
+export const getFormattedSettingsMessage = (
+  title: string,
+  props: Record<string, string | number | null>
+) => {
   const filteredUserProperties = Object.entries(props).reduce(
     (acc: { key: string | number | null; value: string | number }[], [key, value]) =>
       value ? [...acc, { key, value }] : acc,
@@ -60,12 +64,12 @@ export const getFormattedSettingsMessage = (props: Record<string, string | numbe
     .map(({ key, value }) => `<b>${key}:</b> ${value}`)
     .join('\n');
 
-  const formattedSettingsTitle = `<b>Current Settings</b>`;
+  const formattedSettingsTitle = `<b>${title}</b>`;
 
   return `${formattedSettingsTitle}\n${formattedSettingsBody}`;
 };
 
-export const getValueFromMessageBody = (entity: TelegramBot.MessageEntity | null): string => {
+export const getValueFromMessageBody = (entity: TelegramBot.MessageEntity | undefined): string => {
   if (!entity || entity.type !== 'text_link' || !entity.url) return '';
   const string = entity.url.slice(9);
   return Buffer.from(string, 'base64').toString();
@@ -74,6 +78,13 @@ export const getValueFromMessageBody = (entity: TelegramBot.MessageEntity | null
 export const getHiddenMessage = (word: string) => {
   const encodeMessage = Buffer.from(word).toString('base64');
   return `<a href="tg://btn/${encodeMessage}">\u200b</a>`;
+};
+
+export const getMessage = (word: WholeWord, extra?: string) => {
+  const url = getLinks(word.text).CAMBRIDGE.RU;
+  const formattedMessage = getFormattedMessage(word, url);
+  const hiddenMessage = getHiddenMessage(word.text);
+  return extra ? hiddenMessage + extra + formattedMessage : hiddenMessage + formattedMessage;
 };
 
 export const getData = ({ ex, mean, pos, syn, text }: ITranslation) => {
@@ -102,4 +113,100 @@ export const getData = ({ ex, mean, pos, syn, text }: ITranslation) => {
     part_of_speech: pos,
     text,
   };
+};
+
+const screenMessageMapping: ScreenMap = {
+  [SCREEN.START]: ({ user, keyboard }) => {
+    const message = `Hello, ${user.username}`;
+
+    return {
+      message,
+      options: {
+        parse_mode: 'HTML',
+        reply_markup: keyboard,
+      },
+    };
+  },
+  [SCREEN.SETTINGS]: ({ user, keyboard }) => {
+    const { mode, period, language } = user;
+    const message = getFormattedSettingsMessage('Current Settings', { mode, period, language });
+
+    return {
+      message,
+      options: {
+        parse_mode: 'HTML',
+        reply_markup: keyboard,
+      },
+    };
+  },
+  [SCREEN.APPLY_SETTINGS]: ({ user, keyboard }) => {
+    const { mode, period, language } = user;
+    const message = getFormattedSettingsMessage('I changed something in your settings', {
+      mode,
+      period,
+      language,
+    });
+
+    return {
+      message,
+      options: {
+        parse_mode: 'HTML',
+        reply_markup: keyboard,
+      },
+    };
+  },
+  [SCREEN.ADD_WORD]: ({ keyboard }) => {
+    const message = 'Add word to your list?';
+
+    return {
+      message,
+      options: {
+        parse_mode: 'HTML',
+        reply_markup: keyboard,
+      },
+    };
+  },
+  [SCREEN.ADD_WORD_CONFIRM]: ({ value }) => {
+    return {
+      message: value,
+      options: {
+        parse_mode: 'HTML',
+      },
+    };
+  },
+  [SCREEN.ADD_WORD_REFUSE]: () => {
+    const message = 'Ok';
+
+    return {
+      message,
+      options: {
+        parse_mode: 'HTML',
+      },
+    };
+  },
+  [SCREEN.WORD_SHOW]: ({ keyboard, value, user }) => {
+    if (typeof keyboard !== 'function') {
+      return {
+        message: value,
+        options: {
+          parse_mode: 'HTML',
+          reply_markup: keyboard,
+        },
+      };
+    }
+
+    return {
+      message: value,
+      options: {
+        parse_mode: 'HTML',
+        reply_markup: keyboard(user.mode),
+      },
+    };
+  },
+};
+
+export const getMessageData = (button: string, value: string, screen: string, user: User) => {
+  const keyboard = actionKeyboardMapping[button as BUTTON];
+
+  return screenMessageMapping[screen as SCREEN]({ keyboard, user, value });
 };
