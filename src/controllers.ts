@@ -8,7 +8,7 @@ import {
   getMessage,
 } from './helpers';
 import * as services from './services';
-import { ACTION, commandsList } from './constants';
+import { ACTION, commandsList, MODE } from './constants';
 import bot from './index';
 import {
   startKeyboard,
@@ -26,7 +26,7 @@ export const sendEntireWord = async (telegramId: number) => {
 
   await bot.sendMessage(telegramId, message, {
     parse_mode: 'HTML',
-    reply_markup: sendWordKeyBoard,
+    reply_markup: sendWordKeyBoard(mode),
   });
 };
 
@@ -85,6 +85,17 @@ const mapping: ActionMap = {
 
     return getMessageData(button, message, screen, user);
   },
+  [ACTION.CHANGE_MODE]: async ({ telegramId, button, screen, user, value, hiddenValue }) => {
+    const mode = user.mode === MODE.START ? MODE.STOP : MODE.START;
+    const updatedUser = await services.updateUser({ telegramId, mode });
+    const word = await services.getWord(hiddenValue);
+
+    if (!word) throw new BotError('There is no word!!!');
+
+    const message = getMessage(word);
+
+    return getMessageData(button, message, screen, updatedUser);
+  },
 };
 
 export const onCallbackQuery: CallBackHandler = async (query) => {
@@ -127,6 +138,7 @@ export const onCallbackQuery: CallBackHandler = async (query) => {
       chat_id: chatId,
     });
   } catch (error) {
+    console.log('error in onCallbackQuery');
     // TODO: do resend only if error appears because of the same word
     onCallbackQuery(query);
   }

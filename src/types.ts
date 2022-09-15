@@ -145,7 +145,10 @@ interface ScreenMapFunction {
   }: {
     id?: number;
     value: string;
-    keyboard: TelegramBot.InlineKeyboardMarkup | null;
+    keyboard:
+      | TelegramBot.InlineKeyboardMarkup
+      | null
+      | ((mode: string) => TelegramBot.InlineKeyboardMarkup);
     user: User;
   }): ScreenMapFunctionResult;
 }

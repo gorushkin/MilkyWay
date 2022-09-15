@@ -2,7 +2,14 @@ import { User } from '@prisma/client';
 import TelegramBot from 'node-telegram-bot-api';
 import { getLinks } from '../api';
 import { ACTION, BUTTON, SCREEN } from '../constants';
-import { WholeWord, ITranslation, IExample, IMeaning, ISynonym, ScreenMap } from '../types';
+import {
+  WholeWord,
+  ITranslation,
+  IExample,
+  IMeaning,
+  ISynonym,
+  ScreenMap,
+} from '../types';
 import { actionKeyboardMapping } from './keyboards';
 
 export const unpackData = (
@@ -177,22 +184,22 @@ const screenMessageMapping: ScreenMap = {
       },
     };
   },
-  [SCREEN.WORD_CONTINUE]: () => {
-    const message = 'i will return soon';
+  [SCREEN.WORD_SHOW]: ({ keyboard, value, user }) => {
+    if (typeof keyboard !== 'function') {
+      return {
+        message: value,
+        options: {
+          parse_mode: 'HTML',
+          reply_markup: keyboard,
+        },
+      };
+    }
 
-    return {
-      message,
-      options: {
-        parse_mode: 'HTML',
-      },
-    };
-  },
-  [SCREEN.WORD_SHOW]: ({ keyboard, value }) => {
     return {
       message: value,
       options: {
         parse_mode: 'HTML',
-        reply_markup: keyboard,
+        reply_markup: keyboard(user.mode),
       },
     };
   },

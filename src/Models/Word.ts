@@ -17,6 +17,17 @@ class PrismaWord {
     return getWordRequest(word);
   }
 
+  async getWord(text: string) {
+    return this.word.findUnique({
+      where: { text },
+      include: {
+        entry: {
+          include: { translation: true },
+        },
+      },
+    });
+  }
+
   async addWord(text: string, language: string, userId: number): Promise<WholeWord> {
     const word = await this.word.findUnique({
       where: { text },

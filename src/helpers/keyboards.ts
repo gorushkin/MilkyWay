@@ -87,15 +87,16 @@ const buttons = {
       packData({ b: BUTTON.ADD_WORD_REFUSE, a: ACTION.ADD_WORD_REFUSE, s: screen })
     ),
   wordNext: (screen: string) =>
-    getTextButton(
-      'Next word',
-      packData({ b: BUTTON.WORD_NEXT, a: ACTION.WORD_SHOW, s: screen })
-    ),
-  wordContinue: (screen: string) =>
-    getTextButton(
-      'Continue',
-      packData({ b: BUTTON.WORD_CONTINUE, a: ACTION.SET_MODE, v: MODE.START, s: screen })
-    ),
+    getTextButton('Next word', packData({ b: BUTTON.WORD_NEXT, a: ACTION.WORD_SHOW, s: screen })),
+  changeMode: (screen: string, mode: string) => {
+
+    const text = mode === MODE.START ? 'Pause' : "Continue"
+
+    return getTextButton(
+      text,
+      packData({ b: BUTTON.CHANGE_MODE, a: ACTION.CHANGE_MODE, v: MODE.START, s: screen })
+    );
+  },
 };
 
 export const startKeyboard = getInlineKeyboard([[buttons.openSettings(SCREEN.START)]]);
@@ -138,9 +139,8 @@ export const addWordDialogKeyboard = getInlineKeyboard([
   [buttons.addWordConfirm(SCREEN.ADD_WORD_CONFIRM), buttons.addWordRefuse(SCREEN.ADD_WORD_REFUSE)],
 ]);
 
-export const sendWordKeyBoard = getInlineKeyboard([
-  [buttons.wordContinue(SCREEN.WORD_CONTINUE), buttons.wordNext(SCREEN.WORD_SHOW)],
-]);
+export const sendWordKeyBoard = (mode: string) =>
+  getInlineKeyboard([[buttons.changeMode(SCREEN.WORD_SHOW, mode), buttons.wordNext(SCREEN.WORD_SHOW)]]);
 
 export const actionKeyboardMapping = {
   [BUTTON.SETTINGS]: settingsKeyboard,
@@ -154,4 +154,5 @@ export const actionKeyboardMapping = {
   [BUTTON.ADD_WORD_REFUSE]: null,
   [BUTTON.WORD_CONTINUE]: null,
   [BUTTON.WORD_NEXT]: sendWordKeyBoard,
+  [BUTTON.CHANGE_MODE]: sendWordKeyBoard,
 };

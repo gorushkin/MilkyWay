@@ -14,7 +14,6 @@ const sender = async () => {
       await services.updateUser({
         telegramId: user.telegramId,
         lastSendTime: true,
-        mode: MODE.STOP,
       });
     })
   );

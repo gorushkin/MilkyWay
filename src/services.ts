@@ -35,6 +35,10 @@ export const getUserWords = async (
   return { word, mode: userWithWords?.mode };
 };
 
+export const getWord = async (word: string) => {
+  return repository.PrismaWord.getWord(word);
+};
+
 export const getJobs = async (): Promise<User[]> => {
   const users = await repository.PrismaUser.getUsersForScheduler();
 

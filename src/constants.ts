@@ -11,6 +11,7 @@ export enum COMMAND {
   test = '/test',
 }
 
+
 export enum ACTION {
   SET_MODE = 'S_M',
   SET_LANGUAGE = 'S_L',
@@ -20,7 +21,9 @@ export enum ACTION {
   ADD_WORD_REFUSE = 'A_W_R',
   DEFAULT = 'D',
   WORD_SHOW = 'W_S',
+  CHANGE_MODE = "C_M"
 }
+
 
 export enum BUTTON {
   SETTINGS = 'SET',
@@ -34,6 +37,7 @@ export enum BUTTON {
   ADD_WORD_REFUSE = 'A_W_R',
   WORD_NEXT = 'W_N',
   WORD_CONTINUE = 'W_C',
+  CHANGE_MODE = "C_M"
 }
 
 export enum SCREEN {
@@ -43,7 +47,6 @@ export enum SCREEN {
   ADD_WORD = 'A_W',
   ADD_WORD_CONFIRM = 'A_W_C',
   ADD_WORD_REFUSE = 'A_W_R',
-  WORD_CONTINUE = 'W_C',
   WORD_SHOW = 'W_S',
 }
 
