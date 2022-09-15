@@ -1,4 +1,4 @@
-import { BotError, CallBackHandler, CommandHandler, MessageHandler } from './types';
+import { ActionMap, BotError, CallBackHandler, CommandHandler, MessageHandler } from './types';
 import {
   unpackData,
   getFormattedMessage,
@@ -19,7 +19,7 @@ export const sendEntireWord = async (telegramId: number, screen: string) => {
   if (!word || !mode) throw new BotError('Sorry, you have no words at all');
 
   const url = getLinks(word.word.text).CAMBRIDGE.RU;
-  const formattedMessage = getFormattedMessage(word, url);
+  const formattedMessage = getFormattedMessage(word.word, url);
 
   const hiddenMessage = getHiddenMessage(word.word.text);
 
@@ -50,72 +50,36 @@ export const showSettings = async (telegramId: number) => {
   });
 };
 
-// const actionsMapping: ActionMap = {
-//   [ACTION.ADD_WORD_CONFIRM]: async ({ id, value }) => {
-//     // TODO: validating - only letters
-//     // const word = await services.addWord(value, id);
-//     // const formattedMessageBody = getFormattedMessageBody(word);
-//     // await bot.sendMessage(id, `I added word "${value}" to your list\n${formattedMessageBody}`, {
-//     //   parse_mode: 'HTML',
-//     // });
-//   },
-//   [ACTION.ADD_WORD_REFUSE]: async ({ id }) => {
-//     // await bot.sendMessage(id, `Ok!`);
-//   },
-//   [ACTION.SET_MODE]: async ({ id, value, messageData }) => {
-//     // const updatedUser = await services.updateUser({
-//     //   telegramId: id,
-//     //   mode: value,
-//     //   lastSendTime: true,
-//     // });
-//     // await bot.sendMessage(
-//     //   id,
-//     //   `I changed your mode to ${value}`,
-//     //   changeModeKeyboard(updatedUser.mode)
-//     // );
-//   },
-//   [ACTION.SET_WORD_FREQ]: async ({ id, value, messageData }) => {
-//     // await services.updateWordFrequency(id, messageData.word, value);
-//     // await bot.sendMessage(id, 'We are going to change word frequency');
-//   },
-//   [ACTION.READ_CONFIRM]: async ({ id }) => {
-//     // await services.updateUser({ telegramId: id, mode: MODE.START, lastSendTime: true });
-//   },
-//   [ACTION.WORD_ACTIONS]: async ({ id, messageData }) => {
-//     // await bot.sendMessage(
-//     //   id,
-//     //   `You can do something with this word "${messageData.word}"`,
-//     //   wordSettingsKeyboard()
-//     // );
-//   },
+const mapping: ActionMap = {
+  [ACTION.DEFAULT]: async ({ button, value, hiddenValue, screen, user }) => {
+    return getMessageData(button, value ? value : hiddenValue, screen, user);
+  },
+  [ACTION.ADD_WORD]: async ({ button, value, hiddenValue, screen, user }) => {
+    return getMessageData(button, value ? value : hiddenValue, screen, user);
+  },
+  [ACTION.SET_LANGUAGE]: async ({ telegramId, value, button, hiddenValue, screen }) => {
+    const updatedUser = await services.updateUser({ telegramId, language: value });
+    return getMessageData(button, value ? value : hiddenValue, screen, updatedUser);
+  },
+  [ACTION.SET_MODE]: async ({ telegramId, value, button, hiddenValue, screen }) => {
+    const updatedUser = await services.updateUser({ telegramId, mode: value });
+    return getMessageData(button, value ? value : hiddenValue, screen, updatedUser);
+  },
+  [ACTION.SET_PERIOD]: async ({ telegramId, value, button, hiddenValue, screen }) => {
+    const updatedUser = await services.updateUser({ telegramId, period: Number(value) });
+    return getMessageData(button, value ? value : hiddenValue, screen, updatedUser);
+  },
+  [ACTION.ADD_WORD_CONFIRM]: async ({ telegramId, button, hiddenValue, screen, user }) => {
+    const word = await services.addWord(hiddenValue, telegramId);
+    const url = getLinks(word.text).CAMBRIDGE.RU;
+    const formattedMessage = getFormattedMessage(word, url);
+    const hiddenMessage = getHiddenMessage(word.text);
+    const message = hiddenMessage + `I added word "${word.text}" to your list\n` + formattedMessage;
 
-// };
-
-const mapping = {
-  [ACTION.DEFAULT]: async (_value: string, _id: number) => {
-    console.log('DEFAULT');
+    return getMessageData(button, message, screen, user);
   },
-  [ACTION.ADD_WORD]: async (_value: string, _id: number) => {
-    console.log('ADD_WORD');
-  },
-  [ACTION.SET_LANGUAGE]: async (value: string, telegramId: number) => {
-    return services.updateUser({ telegramId, language: value });
-  },
-  [ACTION.SET_MODE]: async (value: string, telegramId: number) => {
-    return services.updateUser({ telegramId, mode: value });
-  },
-  [ACTION.SET_PERIOD]: async (value: string, telegramId: number) => {
-    return services.updateUser({ telegramId, period: Number(value) });
-  },
-  [ACTION.ADD_WORD_CONFIRM]: async (value: string, telegramId: number) => {
-    console.log('ADD_WORD_CONFIRM');
-    console.log('value: ', value);
-    // return services.updateUser({ telegramId, period: Number(value) });
-  },
-  [ACTION.ADD_WORD_REFUSE]: async (value: string, telegramId: number) => {
-    console.log('ADD_WORD_REFUSE');
-    console.log('value: ', value);
-    // return services.updateUser({ telegramId, period: Number(value) });
+  [ACTION.ADD_WORD_REFUSE]: async ({ value, button, hiddenValue, screen, user }) => {
+    return getMessageData(button, value ? value : hiddenValue, screen, user);
   },
 };
 
@@ -133,23 +97,24 @@ export const onCallbackQuery: CallBackHandler = async (query) => {
   // TODO: remove user creation from this place
   await services.addUser(id, first_name, username);
 
-  const settingsActions = [ACTION.SET_LANGUAGE, ACTION.SET_MODE, ACTION.SET_PERIOD];
-
   if (!messageId) throw new Error('There is no messageId!!!');
   if (!data) throw new Error('There is no data!!!');
   if (!user) throw new Error('There is no user!!!');
 
   const { button, value, screen, action } = unpackData(data);
 
-  const result = await mapping[action as ACTION](value, id);
-
-  const updatedUser = settingsActions.includes(action) ? result ?? user : user;
-
   const hiddenValue = query.message?.entities
     ? getValueFromMessageBody(query?.message?.entities[0])
     : '';
 
-  const messageData = getMessageData(button, value ? value : hiddenValue, screen, updatedUser);
+  const messageData = await mapping[action as ACTION]({
+    value,
+    telegramId: id,
+    hiddenValue,
+    button,
+    screen,
+    user,
+  });
 
   try {
     await bot.editMessageText(messageData.message, {

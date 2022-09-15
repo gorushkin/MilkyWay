@@ -33,15 +33,10 @@ export const getFormattedMessageBody = (word: WholeWord) =>
     )
     .join('\n');
 
-export const getFormattedMessage = (
-  word: WordsOnUsers & {
-    word: WholeWord;
-  },
-  url: string
-) => {
-  const messageTitle = `<a href="${url}"><b><u>${word.word.text.toUpperCase()}</u></b></a>`;
+export const getFormattedMessage = (word: WholeWord, url: string) => {
+  const messageTitle = `<a href="${url}"><b><u>${word.text.toUpperCase()}</u></b></a>`;
 
-  const messageBody = getFormattedMessageBody(word.word);
+  const messageBody = getFormattedMessageBody(word);
 
   return `${messageTitle}\n${messageBody}`;
 };
@@ -157,16 +152,14 @@ const screenMessageMapping: ScreenMap = {
     };
   },
   [SCREEN.ADD_WORD_CONFIRM]: ({ value }) => {
-    const message = `I added word "${value}" to your list`;
-
     return {
-      message,
+      message: value,
       options: {
         parse_mode: 'HTML',
       },
     };
   },
-  [SCREEN.ADD_WORD_REFUSE]: ({ user, keyboard }) => {
+  [SCREEN.ADD_WORD_REFUSE]: () => {
     const message = 'Ok';
 
     return {

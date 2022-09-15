@@ -3,21 +3,6 @@ import { MODE } from '../constants';
 import { BotError, UserWithWholeWord } from '../types';
 const prisma = new PrismaClient();
 
-// class QUser implements UserType {
-//   id: string;
-//   telegramId: number;
-//   username: string | null;
-//   first_name: string | null;
-//   lastSendTime: Date | null;
-//   createdAt: Date;
-//   updatedAt: Date;
-//   mode: string;
-//   period: number;
-//   language: string;
-
-//   constructor()
-// }
-
 class PrismaUser {
   private user: Prisma.UserDelegate<
     Prisma.RejectOnNotFound | Prisma.RejectPerOperation | undefined
@@ -41,8 +26,6 @@ class PrismaUser {
       where: { telegramId },
       select: { language: true },
     });
-
-    console.log('user: ', user);
 
     if (!user) throw new BotError('You have to register!!! Choose /start, please');
 

@@ -1,6 +1,6 @@
 import TelegramBot, { CallbackQuery, Message } from 'node-telegram-bot-api';
 import { Entry, Translation, User, Word, WordsOnUsers } from '@prisma/client';
-import { BUTTON, SCREEN } from './constants';
+import { ACTION, SCREEN } from './constants';
 
 export interface IPhonetic {
   text: string;
@@ -99,15 +99,42 @@ export type WordResponse = { def: IEntry[] };
 
 interface ActionMapFunction {
   ({
-    id,
     value,
+    telegramId,
+    hiddenValue,
+    button,
+    screen,
+    user,
   }: {
-    id: number;
+    telegramId: number;
     value: string;
-
-    messageData: { text: string; url: string; word: string };
-  }): Promise<void>;
+    hiddenValue: string;
+    button: string;
+    screen: string;
+    user: User;
+  }): Promise<ScreenMapFunctionResult>;
 }
+
+export type ActionMap = Record<ACTION, ActionMapFunction>;
+
+interface ScreenMapFunctionResultWithKeyboard {
+  message: string;
+  options: {
+    parse_mode: TelegramBot.ParseMode;
+    reply_markup: TelegramBot.InlineKeyboardMarkup;
+  };
+}
+
+interface ScreenMapFunctionResultWithoutKeyboard {
+  message: string;
+  options: {
+    parse_mode: TelegramBot.ParseMode;
+  };
+}
+
+type ScreenMapFunctionResult =
+  | ScreenMapFunctionResultWithKeyboard
+  | ScreenMapFunctionResultWithoutKeyboard;
 
 interface ScreenMapFunction {
   ({
@@ -120,23 +147,8 @@ interface ScreenMapFunction {
     value: string;
     keyboard: TelegramBot.InlineKeyboardMarkup | null;
     user: User;
-  }):
-    | {
-        message: string;
-        options: {
-          parse_mode: TelegramBot.ParseMode;
-          reply_markup: TelegramBot.InlineKeyboardMarkup;
-        };
-      }
-    | {
-        message: string;
-        options: {
-          parse_mode: TelegramBot.ParseMode;
-        };
-      };
+  }): ScreenMapFunctionResult;
 }
-
-export type ActionMap = Record<BUTTON, ActionMapFunction>;
 
 export type ScreenMap = Record<SCREEN, ScreenMapFunction>;
 
