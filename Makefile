@@ -14,7 +14,11 @@ docker-build:
 	docker build -t milkyway .
 
 docker-create:
-	docker create --name milkyway_app --env-file ./.env -p 5000:5000 -v "$$(pwd)"/src/:/app/src/ milkyway
+	docker create --name milkyway_app \
+	--env-file ./.env \
+	 -p 5555:5555 \
+	 -v "$$(pwd)"/src/:/app/src/ \
+	 milkyway
 
 docker-start:
 	docker container start milkyway_app -a
@@ -22,7 +26,7 @@ docker-start:
 docker-run:
 	docker run --rm --name milkyway_app \
 	 --env-file ./.env \
-	 -p 5000:5000 \
+	 -p 5555:5555 \
 	 -v "$$(pwd)"/src/:/app/src/ \
 	 milkyway
 

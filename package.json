@@ -11,7 +11,8 @@
     "migrate:dev:add": "prisma migrate dev --name",
     "migrate:dev:run": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
-    "prisma": "prisma studio"
+    "prisma": "prisma studio",
+    "start:migrate:dev": "prisma migrate deploy && npm run dev"
   },
   "keywords": [],
   "author": "",
