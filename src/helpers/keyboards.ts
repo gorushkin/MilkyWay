@@ -81,6 +81,11 @@ const buttons = {
       'Add',
       packData({ b: BUTTON.ADD_WORD_CONFIRM, a: ACTION.ADD_WORD_CONFIRM, s: screen })
     ),
+  addWordTranslate: (screen: string) =>
+    getTextButton(
+      'Find translate',
+      packData({ b: BUTTON.ADD_WORD_TRANSLATE, a: ACTION.ADD_WORD_TRANSLATE, s: screen })
+    ),
   addWordRefuse: (screen: string) =>
     getTextButton(
       'Cancel',
@@ -89,14 +94,23 @@ const buttons = {
   wordNext: (screen: string) =>
     getTextButton('Next word', packData({ b: BUTTON.WORD_NEXT, a: ACTION.WORD_SHOW, s: screen })),
   changeMode: (screen: string, mode: string) => {
-
-    const text = mode === MODE.START ? 'Pause' : "Continue"
+    const text = mode === MODE.START ? 'Pause' : 'Continue';
 
     return getTextButton(
       text,
       packData({ b: BUTTON.CHANGE_MODE, a: ACTION.CHANGE_MODE, v: MODE.START, s: screen })
     );
   },
+  translationButton: (text: string, screen: string) =>
+    getTextButton(
+      text,
+      packData({
+        b: BUTTON.ADD_WORD_CONFIRM,
+        a: ACTION.ADD_TRANSLATION_CONFIRM,
+        s: screen,
+        v: text,
+      })
+    ),
 };
 
 export const startKeyboard = getInlineKeyboard([[buttons.openSettings(SCREEN.START)]]);
@@ -136,13 +150,34 @@ export const languageSettingsKeyboard = getInlineKeyboard([
 ]);
 
 export const addWordDialogKeyboard = getInlineKeyboard([
-  [buttons.addWordConfirm(SCREEN.ADD_WORD_CONFIRM), buttons.addWordRefuse(SCREEN.ADD_WORD_REFUSE)],
+  [
+    buttons.addWordConfirm(SCREEN.ADD_WORD_CONFIRM),
+    buttons.addWordTranslate(SCREEN.ADD_WORD_TRANSLATE),
+    buttons.addWordRefuse(SCREEN.ADD_WORD_REFUSE),
+  ],
 ]);
 
 export const sendWordKeyBoard = (mode: string) =>
-  getInlineKeyboard([[buttons.changeMode(SCREEN.WORD_SHOW, mode), buttons.wordNext(SCREEN.WORD_SHOW)]]);
+  getInlineKeyboard([
+    [buttons.changeMode(SCREEN.WORD_SHOW, mode), buttons.wordNext(SCREEN.WORD_SHOW)],
+  ]);
 
-export const actionKeyboardMapping = {
+export const showTranslationsKeyboard = (data: string | undefined) => {
+  if (!data) return null;
+
+  const list = data.split(',');
+
+  const translationButtons = list.map((item) => [
+    buttons.translationButton(item, SCREEN.ADD_WORD_CONFIRM),
+  ]);
+
+  return getInlineKeyboard([
+    ...translationButtons,
+    ...[[buttons.addWordRefuse(SCREEN.ADD_WORD_REFUSE)]],
+  ]);
+};
+
+export const actionKeyboardMapping = (data: string | undefined) => ({
   [BUTTON.SETTINGS]: settingsKeyboard,
   [BUTTON.SETTINGS_MODE]: modeSettingsKeyboard,
   [BUTTON.SETTING_PERIOD]: periodSettingsKeyboard,
@@ -151,8 +186,9 @@ export const actionKeyboardMapping = {
   [BUTTON.SET_PERIOD]: settingsKeyboard,
   [BUTTON.SET_LANGUAGE]: settingsKeyboard,
   [BUTTON.ADD_WORD_CONFIRM]: null,
+  [BUTTON.ADD_WORD_TRANSLATE]: showTranslationsKeyboard(data),
   [BUTTON.ADD_WORD_REFUSE]: null,
   [BUTTON.WORD_CONTINUE]: null,
   [BUTTON.WORD_NEXT]: sendWordKeyBoard,
   [BUTTON.CHANGE_MODE]: sendWordKeyBoard,
-};
+});

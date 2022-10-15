@@ -11,21 +11,20 @@ import bot from './index';
 import {} from 'node-telegram-bot-api';
 
 export const getErrorMessage = (error: unknown): string => {
-  console.log('error: ', error);
   let message = ERRORS.ERROR;
   if (error instanceof BotError) {
     message = error.message;
   }
   if (error instanceof PrismaClientKnownRequestError) {
     console.log('PrismaClientKnownRequestError');
-    console.log(error.meta);
-    console.log(error.code);
+    // console.log(error.meta);
+    // console.log(error.code);
   }
   if (error instanceof PrismaClientInitializationError) {
-    console.log('PrismaClientInitializationError');
-    console.log(error.name);
-    console.log(error.message);
-    console.log(error);
+    // console.log('PrismaClientInitializationError');
+    console.log('There is no connection to database');
+    // console.log(error.name);    console.log(error.message);
+    // console.log(error);
     message = error.message;
   }
 

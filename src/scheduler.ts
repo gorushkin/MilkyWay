@@ -1,6 +1,6 @@
 import * as services from './services';
 import { sendEntireWord } from './controllers';
-import { errorHandler } from './errorHanlder';
+import { errorHandler, getErrorMessage } from './errorHanlder';
 import { MODE } from './constants';
 
 const TIME_OUT = 5000;
@@ -14,6 +14,7 @@ const sender = async () => {
       await services.updateUser({
         telegramId: user.telegramId,
         lastSendTime: true,
+        mode: MODE.STOP,
       });
     })
   );
@@ -22,7 +23,13 @@ const sender = async () => {
 const scheduler = async () => {
   const timer = async () => {
     setTimeout(async () => {
-      await sender();
+      try {
+        await sender();
+      } catch (error) {
+        const message = getErrorMessage(error);
+        // TODO: add sentry
+        // throw new DBError(message);
+      }
       await timer();
     }, TIME_OUT);
   };

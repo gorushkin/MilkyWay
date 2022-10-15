@@ -74,6 +74,20 @@ const mapping: ActionMap = {
 
     return getMessageData(button, message, screen, user);
   },
+  [ACTION.ADD_WORD_TRANSLATE]: async ({ telegramId, button, hiddenValue, screen, user }) => {
+    const translations = (await services.findTranslate(hiddenValue, telegramId)).join(',');
+
+    const message = `Translations for word "${hiddenValue}" are here!!!`;
+
+    return getMessageData(button, message, screen, user, translations);
+  },
+  [ACTION.ADD_TRANSLATION_CONFIRM]: async ({ telegramId, button, value, screen, user }) => {
+    const word = await services.addWord(value, telegramId);
+
+    const message = getMessage(word, `I added word "${word.text}" to your list\n`);
+
+    return getMessageData(button, message, screen, user);
+  },
   [ACTION.ADD_WORD_REFUSE]: async ({ value, button, hiddenValue, screen, user }) => {
     return getMessageData(button, value ? value : hiddenValue, screen, user);
   },
@@ -83,6 +97,7 @@ const mapping: ActionMap = {
 
     const message = getMessage(word.word);
 
+    await services.updateUser({ telegramId, lastSendTime: true });
     return getMessageData(button, message, screen, user);
   },
   [ACTION.CHANGE_MODE]: async ({ telegramId, button, screen, user, value, hiddenValue }) => {

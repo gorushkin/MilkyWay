@@ -1,6 +1,6 @@
 import TelegramBot, { CallbackQuery, Message } from 'node-telegram-bot-api';
 import { Entry, Translation, User, Word, WordsOnUsers } from '@prisma/client';
-import { ACTION, SCREEN } from './constants';
+import { ACTION, DICTIONARY, SCREEN } from './constants';
 
 export interface IPhonetic {
   text: string;
@@ -93,7 +93,7 @@ export interface MessageHandler {
   (query: Message): Promise<void | never | undefined>;
 }
 
-export type YandexRequest = (word: string) => Promise<IEntry[]>;
+export type YandexRequest = (word: string, dictionary: DICTIONARY) => Promise<IEntry[]>;
 
 export type WordResponse = { def: IEntry[] };
 
@@ -177,6 +177,14 @@ export class BotDictionaryError extends BotError {
   constructor(message: string) {
     super(message);
     this.name = 'Dictionary error';
+    this.skippable = true;
+  }
+}
+
+export class DBError extends BotError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'Database error';
     this.skippable = true;
   }
 }
