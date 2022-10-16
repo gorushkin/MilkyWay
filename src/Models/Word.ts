@@ -1,5 +1,6 @@
 import { PrismaClient, Prisma } from '@prisma/client';
 import { getWordRequest } from '../api';
+import { DICTIONARY } from '../constants';
 import { getData } from '../helpers';
 import { WholeWord } from '../types';
 const prisma = new PrismaClient();
@@ -14,7 +15,7 @@ class PrismaWord {
   }
 
   private getWordFromDictionary(word: string) {
-    return getWordRequest(word);
+    return getWordRequest(word, DICTIONARY.EN_RU);
   }
 
   async getWord(text: string) {

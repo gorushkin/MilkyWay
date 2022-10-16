@@ -18,12 +18,13 @@ export enum ACTION {
   SET_PERIOD = 'S_P',
   ADD_WORD = 'A_WD',
   ADD_WORD_CONFIRM = 'A_W_C',
+  ADD_WORD_TRANSLATE = 'ADD_W_T',
   ADD_WORD_REFUSE = 'A_W_R',
   DEFAULT = 'D',
   WORD_SHOW = 'W_S',
-  CHANGE_MODE = "C_M"
+  CHANGE_MODE = 'C_M',
+  ADD_TRANSLATION_CONFIRM = "A_T_C"
 }
-
 
 export enum BUTTON {
   SETTINGS = 'SET',
@@ -35,9 +36,10 @@ export enum BUTTON {
   SET_LANGUAGE = 'S_L',
   ADD_WORD_CONFIRM = 'A_W_C',
   ADD_WORD_REFUSE = 'A_W_R',
+  ADD_WORD_TRANSLATE = 'ADD_W_T',
   WORD_NEXT = 'W_N',
   WORD_CONTINUE = 'W_C',
-  CHANGE_MODE = "C_M"
+  CHANGE_MODE = 'C_M',
 }
 
 export enum SCREEN {
@@ -47,6 +49,7 @@ export enum SCREEN {
   ADD_WORD = 'A_W',
   ADD_WORD_CONFIRM = 'A_W_C',
   ADD_WORD_REFUSE = 'A_W_R',
+  ADD_WORD_TRANSLATE = 'ADD_W_T',
   WORD_SHOW = 'W_S',
 }
 
@@ -74,3 +77,9 @@ export const commandsList = [
   { command: COMMAND.settings, description: 'There are some settings' },
   { command: COMMAND.test, description: 'Send test word' },
 ];
+
+export enum DICTIONARY {
+  EN_RU = 'EN_RU',
+  RU_EN = 'RU_EN',
+  // DE_RU = 'DE_RU',
+}

@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { config } from './config';
-import { ERRORS } from './constants';
+import { ERRORS, DICTIONARY } from './constants';
 import { BotDictionaryError, BotRequestError, WordResponse, YandexRequest } from './types';
 
 export const getLinks = (word: string) => ({
@@ -10,14 +10,15 @@ export const getLinks = (word: string) => ({
   },
   DICTIONARY: `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`,
   YANDEX: {
-    EN: `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${config.YANDEX_API_KEY}&lang=en-ru&text=${word}`,
-    DE: `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${config.YANDEX_API_KEY}&lang=en-ru&text=${word}`,
+    [DICTIONARY.EN_RU]: `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${config.YANDEX_API_KEY}&lang=en-ru&text=${word}`,
+    [DICTIONARY.RU_EN]: `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${config.YANDEX_API_KEY}&lang=ru-en&text=${word}`,
+    // DE_RU: `https://dictionary.yandex.net/api/v1/dicservice.json/lookup?key=${config.YANDEX_API_KEY}&lang=en-ru&text=${word}`,
   },
 });
 
-export const getWordRequest: YandexRequest = async (word) => {
+export const getWordRequest: YandexRequest = async (word: string, dictionary: DICTIONARY) => {
   try {
-    const url = encodeURI(getLinks(word).YANDEX.EN);
+    const url = encodeURI(getLinks(word).YANDEX[dictionary]);
 
     const {
       data: { def },

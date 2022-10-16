@@ -4,6 +4,8 @@ import { WholeWord } from './types';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { User, WordsOnUsers } from '@prisma/client';
+import { getWordRequest } from './api';
+import { DICTIONARY } from './constants';
 
 dayjs.extend(utc);
 
@@ -18,6 +20,21 @@ export const addWord = async (value: string, telegramId: number): Promise<WholeW
   if (!user?.language) throw new Error('You should set language!!!!');
 
   return repository.PrismaWord.addWord(value.trim().toLowerCase(), user.language, telegramId);
+};
+
+export const findTranslate = async (value: string, telegramId: number): Promise<Array<string>> => {
+  const user = await repository.PrismaUser.getUser(telegramId);
+
+  if (!user?.language) throw new Error('You should set language!!!!');
+
+  const result = await getWordRequest(value.trim().toLowerCase(), DICTIONARY.RU_EN);
+
+  const translations = result.reduce(
+    (acc: Array<string>, item) => [...acc, ...item.tr.map((tr) => tr.text)],
+    []
+  );
+
+  return translations;
 };
 
 export const getUserWords = async (

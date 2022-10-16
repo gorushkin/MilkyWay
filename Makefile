@@ -10,27 +10,49 @@ init_db:
 db_init:
 	echo is not ready
 
-docker-build:
+back-build:
 	docker build -t milkyway .
 
-docker-create:
+back-create:
 	docker create --name milkyway_app \
 	--env-file ./.env \
 	 -p 5555:5555 \
 	 -v "$$(pwd)"/src/:/app/src/ \
 	 milkyway
 
-docker-start:
+back-start:
 	docker container start milkyway_app -a
 
-docker-run:
+back-run:
 	docker run --rm --name milkyway_app \
 	 --env-file ./.env \
 	 -p 5555:5555 \
 	 -v "$$(pwd)"/src/:/app/src/ \
 	 milkyway
 
-docker_back-sh:
+back-sh:
 	docker exec -it milkyway_app sh
 
-# docker-compose back
+db-run:
+	docker run --name db_app \
+	--env-file ./.env \
+	-p 5432:5432 \
+	-d postgres:13.3
+
+db-start:
+	docker container start db_app -a
+
+start:
+	docker-compose start
+
+stop:
+	docker-compose stop
+
+up:
+	docker-compose up
+
+down:
+	docker-compose down
+
+build:
+	docker-compose up --build
