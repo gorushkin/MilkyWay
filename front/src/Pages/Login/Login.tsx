@@ -1,5 +1,5 @@
 import { Typography, Button } from 'antd';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { actions } from '../../store';
 
 export const Login = () => {
