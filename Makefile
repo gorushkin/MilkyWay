@@ -56,3 +56,6 @@ down:
 
 build:
 	docker-compose up --build
+
+front-dev:
+	cd front; npm start
