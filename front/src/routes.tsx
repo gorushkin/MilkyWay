@@ -36,7 +36,7 @@ export const routes: Record<string, IRoute> = {
     level: Role.Guest,
     name: 'Login',
     header: {
-      [Role.Guest]: true,
+      [Role.Guest]: false,
       [Role.User]: false,
       [Role.Admin]: false,
     },

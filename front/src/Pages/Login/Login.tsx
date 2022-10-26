@@ -6,16 +6,15 @@ import { getRouteInfo } from '../../helpers';
 
 export const Login = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
   const role = useSelector((state: RootState) => state.user.role);
 
   const handleClick = () => {
     dispatch(actions.login());
   };
 
-  const location = useLocation();
   const pageFrom: string = location.state?.location.pathname || '';
   const level: Role = location.state?.level || Role.User;
-
   const shouldReturn = !!pageFrom && getRouteInfo(level, role);
 
   if (shouldReturn) return <Navigate to={pageFrom} />;
