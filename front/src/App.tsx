@@ -1,13 +1,17 @@
-import MainLayout from './Layouts/MainLayout/MainLayout';
-
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { MainLayout } from './Layouts/MainLayout/MainLayout';
+import { Routes, Route, BrowserRouter } from 'react-router-dom';
 import { flatRoutes } from './routes';
 
 const App = () => {
-  return (
+  return <BrowserRouter>
     <MainLayout>
-      <RouterProvider router={createBrowserRouter(flatRoutes)} />
+      <Routes>
+        {flatRoutes.map(({ path, element, name }) => (
+          <Route key={name} path={path} element={element} />
+        ))}
+      </Routes>
     </MainLayout>
-  );
-};
+  </BrowserRouter>
+}
+
 export default App;

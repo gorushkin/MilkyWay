@@ -23,7 +23,7 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     login: (state) => {
-      state.role = Role.User;
+      state.role = Role.Admin;
     },
     logout: (state) => {
       state.role = Role.Guest;
