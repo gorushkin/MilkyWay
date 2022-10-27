@@ -11,7 +11,7 @@ export const User = () => {
   const navigate = useNavigate();
 
   const handleLogoutClick = () => {
-    navigate('/');
+    navigate('/')
     dispatch(actions.logout());
   };
 

@@ -1,10 +1,10 @@
-import { About } from './Pages/About/About';
-import { Login } from './Pages/Login/Login';
-import { NotFound } from './Pages/NotFound/NotFound';
+import { About } from './pages/About/About';
+import { Login } from './pages/Login/Login';
+import { NotFound } from './pages/NotFound/NotFound';
 import { Role } from './store';
-import { PageLayout } from './Layouts/PageLayout/PageLayout';
-import { Home } from './Pages/Home/Home';
-import { Admin } from './Pages/Admin/Admin';
+import { PageLayout } from './layouts/PageLayout/PageLayout';
+import { Home } from './pages/Home/Home';
+import { Admin } from './pages/Admin/Admin';
 
 interface IRoute {
   path: string;
