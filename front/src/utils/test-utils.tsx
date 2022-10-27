@@ -4,7 +4,7 @@ import type { RenderOptions } from '@testing-library/react';
 import { configureStore } from '@reduxjs/toolkit';
 import type { PreloadedState } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 // As a basic setup, import your same slice reducers
 import { userSlice, AppStore, RootState, Role } from '../store/index';
@@ -16,47 +16,49 @@ interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   store?: AppStore;
 }
 
-export function renderWithProviders(
-  ui: React.ReactElement,
-  {
-    preloadedState = {
-      user: {
-        name: 'user',
-        role: Role.Guest,
-        telegramId: null,
-      },
-    },
-    // Automatically create a store instance if no store was passed in
-    store = configureStore({ reducer: { user: userSlice.reducer }, preloadedState }),
-    ...renderOptions
-  }: ExtendedRenderOptions = {},
-  full: boolean = false
-) {
-  function Wrapper({ children }: PropsWithChildren<{}>): JSX.Element {
-    return full ? (
+const providerMapping = (store: AppStore, children: React.ReactNode) => ({
+  store: <Provider store={store}>{children}</Provider>,
+  browserRouter: (
+    <Provider store={store}>
+      <BrowserRouter>{children}</BrowserRouter>
+    </Provider>
+  ),
+  routes: (
+    <Provider store={store}>
       <BrowserRouter>
-        <Provider store={store}>{children}</Provider>
+        <Routes>
+          <Route element={children} />
+        </Routes>
       </BrowserRouter>
-    ) : (
-      <Provider store={store}>{children}</Provider>
-    );
-  }
+    </Provider>
+  ),
+});
 
-  // Return an object with the store and all of RTL's query functions
-  return { store, ...render(ui, { wrapper: Wrapper, ...renderOptions }) };
-}
+type TYPES = 'store' | 'browserRouter' | 'routes';
 
-export const renderWithAllProviders = (
-  ui: React.ReactElement,
-  {
-    preloadedState = {
-      user: {
-        name: 'user',
-        role: Role.Guest,
-        telegramId: null,
+const common =
+  (type: TYPES) =>
+  (
+    ui: React.ReactElement,
+    {
+      preloadedState = {
+        user: {
+          name: 'user',
+          role: Role.Guest,
+          telegramId: null,
+        },
       },
-    },
-    store = configureStore({ reducer: { user: userSlice.reducer }, preloadedState }),
-    ...renderOptions
-  }: ExtendedRenderOptions = {}
-) => renderWithProviders(ui, { preloadedState, store, ...renderOptions }, true);
+      store = configureStore({ reducer: { user: userSlice.reducer }, preloadedState }),
+      ...renderOptions
+    }: ExtendedRenderOptions = {}
+  ) => {
+    const Wrapper = ({ children }: PropsWithChildren<{}>): JSX.Element =>
+      providerMapping(store, children)[type];
+
+    // Return an object with the store and all of RTL's query functions
+    return { store, ...render(ui, { wrapper: Wrapper, ...renderOptions }) };
+  };
+
+export const renderWithRoutes = common('routes');
+export const renderWithBrowserRouter = common('browserRouter');
+export const renderWithStore = common('store');

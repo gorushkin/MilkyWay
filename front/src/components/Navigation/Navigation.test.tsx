@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react';
 import { Navigation } from './Navigation';
-import { renderWithAllProviders } from '../../utils/test-utils';
+import { renderWithBrowserRouter } from '../../utils/test-utils';
 import { Role } from '../../store';
 import { flatRoutes } from '../../routes';
 
@@ -12,7 +12,7 @@ const roles = [
 
 describe('Navigation Component', () => {
   it.each(roles)('Should render navigation for %s', (_, role) => {
-    renderWithAllProviders(<Navigation />, {
+    renderWithBrowserRouter(<Navigation />, {
       preloadedState: {
         user: {
           name: 'user',
