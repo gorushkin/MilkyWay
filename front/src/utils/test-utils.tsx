@@ -5,7 +5,6 @@ import { configureStore } from '@reduxjs/toolkit';
 import type { PreloadedState } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-
 // As a basic setup, import your same slice reducers
 import { userSlice, AppStore, RootState, Role } from '../store/index';
 

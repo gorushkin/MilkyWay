@@ -59,3 +59,6 @@ build:
 
 front-dev:
 	cd front; npm start
+
+front-test:
+	cd front; npm test -- --coverage
