@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import { User } from '../../../db/generated/client';
 import TelegramBot from 'node-telegram-bot-api';
 import { getLinks } from '../api';
 import { ACTION, BUTTON, SCREEN } from '../constants';
@@ -168,6 +168,7 @@ const screenMessageMapping: ScreenMap = {
     };
   },
   [SCREEN.ADD_WORD_TRANSLATE]: ({ value, keyboard }) => {
+    console.log('keyboard: ', keyboard);
     return {
       message: value,
       options: {
@@ -215,6 +216,7 @@ export const getMessageData = (
   data?: string
 ) => {
   const keyboard = actionKeyboardMapping(data)[button as BUTTON];
+  console.log('keyboard: ', keyboard);
 
   return screenMessageMapping[screen as SCREEN]({ keyboard, user, value });
 };

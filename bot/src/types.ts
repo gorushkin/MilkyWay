@@ -1,6 +1,12 @@
 import TelegramBot, { CallbackQuery, Message } from 'node-telegram-bot-api';
-import { Entry, Translation, User, Word, WordsOnUsers } from '@prisma/client';
 import { ACTION, DICTIONARY, SCREEN } from './constants';
+import {
+  Entry,
+  Translation,
+  User,
+  Word,
+  WordsOnUsers,
+} from '../../db/generated/client';
 
 export interface IPhonetic {
   text: string;

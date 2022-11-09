@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma, User as UserType } from '@prisma/client';
+import { PrismaClient, Prisma, User as UserType } from '../../../db/generated/client';
 import { MODE } from '../constants';
 import { BotError, UserWithWholeWord } from '../types';
 const prisma = new PrismaClient();

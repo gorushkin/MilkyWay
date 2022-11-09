@@ -1,4 +1,4 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient, Prisma } from '../../../db/generated/client';
 import { getWordRequest } from '../api';
 import { DICTIONARY } from '../constants';
 import { getData } from '../helpers';

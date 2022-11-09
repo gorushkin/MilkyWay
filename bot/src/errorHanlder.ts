@@ -4,7 +4,7 @@ import {
   PrismaClientValidationError,
   PrismaClientInitializationError,
   PrismaClientRustPanicError,
-} from '@prisma/client/runtime';
+} from '../../db/generated/client/runtime';
 import { ERRORS } from './constants';
 import { BotError } from './types';
 import bot from './index';

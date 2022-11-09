@@ -134,8 +134,8 @@ export const onCallbackQuery: CallBackHandler = async (query) => {
   const { button, value, screen, action } = unpackData(data);
 
   const hiddenValue = query.message?.entities
-    ? getValueFromMessageBody(query?.message?.entities[0])
-    : '';
+  ? getValueFromMessageBody(query?.message?.entities[0])
+  : '';
 
   const messageData = await mapping[action as ACTION]({
     value,
@@ -154,8 +154,9 @@ export const onCallbackQuery: CallBackHandler = async (query) => {
     });
   } catch (error) {
     console.log('error in onCallbackQuery');
+    console.log(error);
     // TODO: do resend only if error appears because of the same word
-    onCallbackQuery(query);
+    // onCallbackQuery(query);
   }
 };
 
