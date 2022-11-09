@@ -38,7 +38,5 @@ describe('User Component', () => {
     userEvent.click(button);
     expect(mockUseNavigate).toBeCalledWith('/');
     expect(mockUseDispatch).toBeCalledWith(actions.logout());
-    // await screen.findByRole('link', { name: /login/i });
-    // screen.debug(undefined, Infinity);
   });
 });

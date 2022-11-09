@@ -20,7 +20,7 @@ export const Login = () => {
   if (shouldReturn) return <Navigate to={pageFrom} />;
 
   const onFinish = () => {
-    console.log('finish');
+    dispatch(actions.login());
   };
 
   const onFinishFailed = () => {

@@ -16,7 +16,7 @@ export interface UserState {
 
 const initialState: UserState = {
   name: 'user',
-  role: Role.Admin,
+  role: Role.Guest,
   telegramId: null,
 };
 
