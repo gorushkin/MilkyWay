@@ -1,4 +1,4 @@
-import { User } from '../../../db/generated/client';
+import { User } from '../../../prisma/client';
 import TelegramBot from 'node-telegram-bot-api';
 import { getLinks } from '../api';
 import { ACTION, BUTTON, SCREEN } from '../constants';

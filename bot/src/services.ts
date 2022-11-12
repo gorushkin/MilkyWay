@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { WholeWord } from './types';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import { User, WordsOnUsers } from '../../db/generated/client';
+import { User, WordsOnUsers } from '../../prisma/client';
 import { getWordRequest } from './api';
 import { DICTIONARY } from './constants';
 

@@ -80,8 +80,8 @@ const regularDirname = hasDirname && fs.existsSync(path.join(__dirname, 'schema.
 
 // if the client has been bundled, we need to look for the folders
 const foundDirname = !regularDirname && findSync(process.cwd(), [
-    "generated/client",
     "client",
+    
 ], ['d'], ['d'], 1)[0]
 
 const dirname = regularDirname || foundDirname || __dirname
@@ -182,7 +182,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/home/gorushkin/webdev/MilkyWay/db/generated/client",
+      "value": "/home/gorushkin/webdev/MilkyWay/prisma/client",
       "fromEnvVar": null
     },
     "config": {
@@ -193,10 +193,10 @@ const config = {
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": "../../.env",
-    "schemaEnvPath": "../../.env"
+    "rootEnvPath": "../.env",
+    "schemaEnvPath": "../.env"
   },
-  "relativePath": "../..",
+  "relativePath": "..",
   "clientVersion": "4.6.0",
   "engineVersion": "2e719efb80b56a3f32d18a62489de95bb9c130e3",
   "datasourceNames": [
@@ -223,6 +223,6 @@ exports.PrismaClient = PrismaClient
 Object.assign(exports, Prisma)
 
 path.join(__dirname, "libquery_engine-debian-openssl-3.0.x.so.node");
-path.join(process.cwd(), "generated/client/libquery_engine-debian-openssl-3.0.x.so.node")
+path.join(process.cwd(), "client/libquery_engine-debian-openssl-3.0.x.so.node")
 path.join(__dirname, "schema.prisma");
-path.join(process.cwd(), "generated/client/schema.prisma")
+path.join(process.cwd(), "client/schema.prisma")

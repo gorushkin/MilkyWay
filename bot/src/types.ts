@@ -6,7 +6,7 @@ import {
   User,
   Word,
   WordsOnUsers,
-} from '../../db/generated/client';
+} from '../../prisma/client';
 
 export interface IPhonetic {
   text: string;

@@ -156,7 +156,7 @@ export const onCallbackQuery: CallBackHandler = async (query) => {
     console.log('error in onCallbackQuery');
     console.log(error);
     // TODO: do resend only if error appears because of the same word
-    // onCallbackQuery(query);
+    onCallbackQuery(query);
   }
 };
 

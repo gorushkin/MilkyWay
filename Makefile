@@ -16,7 +16,6 @@ back-build:
 back-create:
 	cd bot; docker create --name milkyway_app \
 	--env-file ./.env \
-	 -p 5555:5555 \
 	 -v "$$(pwd)"/src/:/app/src/ \
 	 milkyway
 
@@ -54,7 +53,7 @@ up:
 down:
 	docker-compose down
 
-build:
+built:
 	docker-compose up --build
 
 front-dev:

@@ -8,7 +8,8 @@
     "prisma": "prisma studio",
     "migrate:dev:add": "prisma migrate dev --name",
     "migrate:dev:run": "prisma migrate dev",
-    "db:deploy": "prisma migrate deploy",
+    "deploy": "prisma migrate deploy",
+    "generate": "prisma generate",
     "start:migrate:dev": "prisma migrate deploy && npm run dev"
   },
   "keywords": [],
