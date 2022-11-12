@@ -1,7 +1,8 @@
 version: '3'
 services:
-  db:
-    container_name: db
+  postgres:
+    container_name: postgres
+    restart: always
     ports:
        - ${DB_PORT}:${DB_PORT}
     environment:
@@ -9,16 +10,48 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
     image: postgres:14.5-alpine
-  node:
-    container_name: bot
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  prisma:
+    depends_on:
+      - postgres
+    container_name: prisma
     build:
-      context: .
-    restart: on-failure
+      context: ./prisma
+      args:
+        DATABASE_URL: ${DATABASE_URL}
     ports:
-      - ${PORT_BACK}:${PORT_BACK}
+      - ${PORT_PRISMA}:${PORT_PRISMA}
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    volumes:
+      - prisma:/prisma
+  bot:
+    container_name: bot
+    depends_on:
+      - postgres
+      - prisma
+    build:
+      context: ./bot
+    restart: on-failure
     env_file: .env
-    networks:
-      - milkyway
-networks:
-  milkyway:
-    driver: bridge
+    volumes:
+      - ./bot/src/:/bot/src/
+      - prisma:/prisma
+  server:
+    container_name: server
+    depends_on:
+      - postgres
+      - prisma
+    build:
+      context: ./server
+    ports:
+      - 3000:3000
+    restart: on-failure
+    env_file: .env
+    volumes:
+      - ./server/src/:/server/src/
+      - prisma:/prisma
+volumes:
+  pgdata:
+  prisma:

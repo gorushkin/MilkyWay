@@ -11,30 +11,29 @@ db_init:
 	echo is not ready
 
 back-build:
-	docker build -t milkyway .
+	cd bot; docker build -t milkyway .
 
 back-create:
-	docker create --name milkyway_app \
+	cd bot; docker create --name milkyway_app \
 	--env-file ./.env \
-	 -p 5555:5555 \
 	 -v "$$(pwd)"/src/:/app/src/ \
 	 milkyway
 
 back-start:
-	docker container start milkyway_app -a
+	cd bot; docker container start milkyway_app -a
 
 back-run:
-	docker run --rm --name milkyway_app \
+	cd bot; ocker run --rm --name milkyway_app \
 	 --env-file ./.env \
 	 -p 5555:5555 \
 	 -v "$$(pwd)"/src/:/app/src/ \
 	 milkyway
 
 back-sh:
-	docker exec -it milkyway_app sh
+	cd bot; docker exec -it milkyway_app sh
 
 db-run:
-	docker run --name db_app \
+	cd db; docker run --name db_app \
 	--env-file ./.env \
 	-p 5432:5432 \
 	-d postgres:13.3
@@ -54,5 +53,11 @@ up:
 down:
 	docker-compose down
 
-build:
+built:
 	docker-compose up --build
+
+front-dev:
+	cd front; npm start
+
+front-test:
+	cd front; npm test -- --coverage
